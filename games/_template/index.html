@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Game Name — NQ's Arcade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/arcade.css">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+
+  <div id="site-header" data-back-link="true"></div>
+
+  <main class="game-wrapper">
+    <canvas id="c"></canvas>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- Shared arcade shell (provides ARCADE.renderHeader/Footer) -->
+  <script src="../../assets/js/arcade.js"></script>
+
+  <!--
+    Game modules — load in dependency order.
+    Typical order:
+      constants.js  (no deps)
+      audio.js      (no deps)
+      sprites.js    (no deps)
+      state.js      (needs constants)
+      render.js     (needs constants, state, sprites, audio)
+      physics.js    (needs constants, state, audio, render)
+      input.js      (needs state, physics, render; wraps listeners in initInput())
+      main.js       (needs everything; declares C+X, calls initInput(), calls loop())
+  -->
+  <script src="js/constants.js"></script>
+  <script src="js/audio.js"></script>
+  <script src="js/sprites.js"></script>
+  <script src="js/state.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/input.js"></script>
+  <script src="js/main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+/* ═══════════════════════════════════════════════════════
+   WORLDS COLLIDE — Babylon.js Edition
+   ═══════════════════════════════════════════════════════ */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #000;
+  overflow: hidden;
+}
+
+.game-wrapper {
+  width: 100vw;
+  height: 100vh;
+  position: relative;
+}
+
+#renderCanvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+/* ─── HUD ──────────────────────────────────────────── */
+#hud {
+  position: absolute;
+  top: 20px; left: 20px; right: 20px;
+  display: none;
+  justify-content: space-between;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  color: #fff;
+  pointer-events: none;
+  z-index: 10;
+}
+
+#hud .hud-left, #hud .hud-right {
+  background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 14px 20px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+#hud-char { font-size: 18px; color: #FFD740; letter-spacing: 1px; }
+#hud-rings { font-size: 15px; margin-top: 6px; }
+#hud-missions { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+#hud-zone { font-size: 14px; color: #81C784; }
+#hud-mode { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 3px; }
+.hud-right { text-align: right; }
+
+/* ─── MENU ─────────────────────────────────────────── */
+#menu-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: linear-gradient(180deg, rgba(0,0,0,0.92), rgba(5,5,30,0.96));
+  z-index: 20;
+}
+
+.menu-title {
+  font-family: 'Nunito', sans-serif;
+  font-size: 56px; font-weight: 900;
+  color: #FFD740;
+  text-shadow: 3px 3px 0 #E65100, 0 0 40px rgba(255,215,0,0.4);
+  margin-bottom: 8px;
+}
+
+.menu-sub {
+  font-family: 'Nunito', sans-serif;
+  font-size: 15px; font-weight: 700;
+  color: rgba(255,255,255,0.5);
+  letter-spacing: 3px; margin-bottom: 50px;
+}
+
+.character-select { display: flex; gap: 24px; margin-bottom: 50px; }
+
+.char-option {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 28px;
+  border: 3px solid rgba(255,255,255,0.1);
+  border-radius: 16px; cursor: pointer;
+  transition: all 0.3s ease;
+  background: rgba(255,255,255,0.02);
+}
+.char-option:hover { border-color: rgba(255,215,0,0.4); transform: translateY(-4px); }
+.char-option.selected {
+  border-color: #FFD740;
+  background: rgba(255,215,0,0.06);
+  transform: translateY(-6px) scale(1.05);
+  box-shadow: 0 10px 30px rgba(255,215,0,0.2);
+}
+
+.char-preview {
+  width: 90px; height: 90px; margin-bottom: 14px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.05);
+  border: 2px solid rgba(255,255,255,0.08);
+}
+
+.char-name { font-family: 'Nunito',sans-serif; font-size: 18px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+.char-desc { font-family: 'Nunito',sans-serif; font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.4); }
+
+.btn--play {
+  font-family: 'Nunito',sans-serif; font-size: 18px; font-weight: 900;
+  padding: 16px 52px;
+  background: linear-gradient(135deg, #FFD740, #FFC107);
+  color: #1a1a2e; border: none; border-radius: 50px;
+  cursor: pointer; letter-spacing: 1px;
+  box-shadow: 0 4px 20px rgba(255,193,7,0.3);
+  transition: all 0.3s ease;
+}
+.btn--play:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 8px 30px rgba(255,193,7,0.5); }
+
+.menu-hint { font-family: 'Nunito',sans-serif; font-size: 12px; color: rgba(255,255,255,0.3); margin-top: 24px; }
+#controller-status { color: #69F0AE; }
+.controls-hint { font-family: 'Nunito',sans-serif; font-size: 11px; color: rgba(255,255,255,0.25); margin-top: 12px; }
+
+/* ─── IN-GAME UI ───────────────────────────────────── */
+#dialogue-box {
+  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+  width: 85%; max-width: 650px;
+  background: rgba(0,0,0,0.92); border: 3px solid #FFD740; border-radius: 16px;
+  padding: 24px 28px;
+  font-family: 'Nunito',sans-serif; font-size: 15px; font-weight: 700; color: #fff;
+  display: none; z-index: 30;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  line-height: 1.6;
+}
+
+#mission-prompt {
+  position: absolute; bottom: 160px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.75); border: 2px solid #00BFA5; border-radius: 10px;
+  padding: 12px 24px;
+  font-family: 'Nunito',sans-serif; font-size: 13px; font-weight: 700; color: #69F0AE;
+  display: none; z-index: 25;
+}
+
+#mission-obj {
+  position: absolute; top: 80px; left: 50%; transform: translateX(-50%);
+  background: rgba(0,0,0,0.7); border: 2px solid #FF6D00; border-radius: 10px;
+  padding: 10px 20px;
+  font-family: 'Nunito',sans-serif; font-size: 13px; font-weight: 700; color: #FFD740;
+  display: none; z-index: 25; text-align: center;
+}

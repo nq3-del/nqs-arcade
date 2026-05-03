@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>404 — NQ's Arcade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/arcade.css">
+  <style>
+    .not-found {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+      gap: 24px;
+      padding: 24px;
+    }
+    .not-found__code { font-size: clamp(2rem, 10vw, 4rem); color: var(--accent); }
+    .not-found__msg  { font-size: 0.6rem; color: var(--text-dim); line-height: 2.5; }
+  </style>
+</head>
+<body>
+  <div id="site-header"></div>
+
+  <div class="not-found">
+    <p class="not-found__code">404</p>
+    <p class="not-found__msg">GAME NOT FOUND<br>That level doesn't exist!</p>
+    <a href="/" class="btn btn--play" style="display:inline-block;width:auto;padding:14px 28px;font-family:inherit;font-size:0.55rem;">
+      BACK TO ARCADE
+    </a>
+  </div>
+
+  <div id="site-footer"></div>
+  <script src="assets/js/arcade.js"></script>
+</body>
+</html>

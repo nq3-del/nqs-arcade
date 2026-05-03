@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NQ's Arcade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/arcade.css">
+</head>
+<body>
+
+  <div id="site-header"></div>
+
+  <section class="hero">
+    <h1 class="hero__title">
+      <span>NQ's</span> <span>ARCADE</span>
+    </h1>
+    <p class="hero__sub">Pick a game. Score big. Have fun.</p>
+  </section>
+
+  <section class="games-section" id="games">
+    <p class="games-section__title">ALL GAMES</p>
+
+    <div class="games-grid">
+
+      <!-- Sonic Frenzy -->
+      <article class="game-card" data-status="live">
+        <a class="game-card__link" href="games/sonic-frenzy/">
+          <div class="game-card__thumb">
+            <div class="game-card__thumb-placeholder">&#128081;</div>
+            <span class="game-card__badge">NEW</span>
+          </div>
+          <div class="game-card__info">
+            <h2 class="game-card__title">Sonic Frenzy</h2>
+            <p class="game-card__desc">Flap through 7 levels, collect all Chaos Emeralds and unlock Super Sonic!</p>
+            <div class="game-card__tags">
+              <span class="game-card__tag">Action</span>
+              <span class="game-card__tag">Arcade</span>
+            </div>
+          </div>
+          <div class="game-card__cta">
+            <button class="btn btn--play">PLAY NOW</button>
+          </div>
+        </a>
+      </article>
+
+      <!-- Worlds Collide -->
+      <article class="game-card" data-status="live">
+        <a class="game-card__link" href="games/worlds-collide/">
+          <div class="game-card__thumb">
+            <div class="game-card__thumb-placeholder">&#127758;</div>
+            <span class="game-card__badge">NEW</span>
+          </div>
+          <div class="game-card__info">
+            <h2 class="game-card__title">Worlds Collide</h2>
+            <p class="game-card__desc">3D platformer adventure — play as Dash, Turbo, or Murphy across vibrant zones!</p>
+            <div class="game-card__tags">
+              <span class="game-card__tag">3D Platformer</span>
+              <span class="game-card__tag">Adventure</span>
+            </div>
+          </div>
+          <div class="game-card__cta">
+            <button class="btn btn--play">PLAY NOW</button>
+          </div>
+        </a>
+      </article>
+
+      <!-- Coming soon placeholder 2 -->
+      <article class="game-card" data-status="coming-soon">
+        <a class="game-card__link" href="#">
+          <div class="game-card__thumb">
+            <div class="game-card__thumb-placeholder">&#127919;</div>
+          </div>
+          <div class="game-card__info">
+            <h2 class="game-card__title">???</h2>
+            <p class="game-card__desc">More games on the way — stay tuned!</p>
+            <div class="game-card__tags">
+              <span class="game-card__tag">???</span>
+            </div>
+          </div>
+          <div class="game-card__cta">
+            <button class="btn btn--play">COMING SOON</button>
+          </div>
+        </a>
+      </article>
+
+    </div>
+  </section>
+
+  <div id="site-footer"></div>
+
+  <script src="assets/js/arcade.js"></script>
+
+</body>
+</html>

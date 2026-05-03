@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worlds Collide — NQ's Arcade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/arcade.css">
+  <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+
+  <div id="site-header" data-back-link="true"></div>
+
+  <main class="game-wrapper">
+    <canvas id="renderCanvas"></canvas>
+
+    <div id="hud">
+      <div class="hud-left">
+        <div id="hud-char">DASH</div>
+        <div id="hud-rings">&#9670; 0</div>
+        <div id="hud-missions">0/13 MISSIONS</div>
+      </div>
+      <div class="hud-right">
+        <div id="hud-zone">MEADOW VILLAGE</div>
+        <div id="hud-mode">FREE ROAM</div>
+      </div>
+    </div>
+
+    <div id="menu-overlay">
+      <h1 class="menu-title">WORLDS COLLIDE</h1>
+      <p class="menu-sub">OPEN WORLD ADVENTURE</p>
+      <div class="character-select">
+        <div class="char-option selected" data-char="dash">
+          <div class="char-preview"></div>
+          <span class="char-name">DASH</span>
+          <span class="char-desc">Speed Boost &amp; Drift</span>
+        </div>
+        <div class="char-option" data-char="turbo">
+          <div class="char-preview"></div>
+          <span class="char-name">TURBO</span>
+          <span class="char-desc">Rocket Jump &amp; Nitro Kick</span>
+        </div>
+        <div class="char-option" data-char="murphy">
+          <div class="char-preview"></div>
+          <span class="char-name">MURPHY</span>
+          <span class="char-desc">Ground Pound &amp; Roll</span>
+        </div>
+      </div>
+      <button class="btn--play" id="btn-start">START ADVENTURE</button>
+      <p class="menu-hint">Controller: <span id="controller-status">None</span></p>
+      <div class="controls-hint">
+        WASD Move &bull; Space Jump &bull; Shift Sprint &bull; K Ability &bull; J Attack &bull; Q/E Camera
+      </div>
+    </div>
+
+    <div id="dialogue-box"></div>
+    <div id="mission-prompt"></div>
+    <div id="mission-obj"></div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <!-- Babylon.js 6.x (full engine + physics) -->
+  <script src="https://cdn.babylonjs.com/babylon.js"></script>
+  <script src="https://cdn.babylonjs.com/materialsLibrary/babylonjs.materials.min.js"></script>
+  <script src="https://cdn.babylonjs.com/proceduralTexturesLibrary/babylonjs.proceduralTextures.min.js"></script>
+  <script src="https://cdn.babylonjs.com/havok/HavokPhysics_umd.js"></script>
+
+  <script src="../../assets/js/arcade.js"></script>
+  <script src="js/game.js"></script>
+
+</body>
+</html>

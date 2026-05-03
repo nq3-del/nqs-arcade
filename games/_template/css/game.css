@@ -1,0 +1,21 @@
+/* Game-specific styles — customize for your game */
+body {
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.game-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+
+canvas {
+  display: block;
+  cursor: pointer;
+}

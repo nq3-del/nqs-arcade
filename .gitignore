@@ -1,0 +1,14 @@
+# macOS
+.DS_Store
+
+# Editor / Claude
+.claude/
+.vscode/
+.idea/
+
+# Godot editor cache (build artifacts, regenerated on open)
+games/worlds-collide-godot/.godot/
+
+# Logs / temp
+*.log
+*.tmp
