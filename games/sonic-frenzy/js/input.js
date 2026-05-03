@@ -100,6 +100,7 @@ function handlePauseClick(p) {
   if ((allEmeralds || adminChars.codesBtn) && inBtn(PAUSE_CODES, p.x, p.y)) {
     paused = false;
     codesState = 'entering'; codesInput = ''; codesLog = '';
+    if (isTouchDevice) focusTouchInput('numeric', '', 5);
     return true;
   }
 
@@ -107,24 +108,85 @@ function handlePauseClick(p) {
   if (inBtn(PAUSE_ADMIN, p.x, p.y)) {
     paused = false;
     adminState = 'password'; adminInput = '';
+    if (isTouchDevice) focusTouchInput('text', '', 10);
     return true;
   }
 
   return true; // absorb click on overlay
 }
 
+// ─── Touch keyboard support (phones/tablets) ──────────
+// Hidden input pops up the OS on-screen keyboard.
+// Numeric keypad for character codes, full keyboard for admin.
+var touchInput = null;
+var isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
+function focusTouchInput(mode, currentValue, maxLen) {
+  if (!touchInput) return;
+  touchInput.setAttribute('inputmode', mode);
+  if (mode === 'numeric') {
+    touchInput.setAttribute('pattern', '[0-9]*');
+  } else {
+    touchInput.removeAttribute('pattern');
+  }
+  touchInput.maxLength = maxLen;
+  touchInput.value = currentValue || '';
+  // iOS requires the input to be visible at focus time
+  touchInput.style.left = '50%';
+  touchInput.style.top = '50%';
+  touchInput.focus();
+  setTimeout(function() {
+    touchInput.style.left = '-9999px';
+  }, 50);
+}
+
+function blurTouchInput() {
+  if (!touchInput) return;
+  touchInput.value = '';
+  touchInput.blur();
+}
+
 function initInput() {
+  touchInput = document.getElementById('touch-input');
+
+  if (touchInput) {
+    // Sync OS-keyboard input to game state
+    touchInput.addEventListener('input', function() {
+      if (codesState === 'entering') {
+        codesInput = touchInput.value.replace(/[^0-9]/g, '').slice(0, 5);
+        if (touchInput.value !== codesInput) touchInput.value = codesInput;
+      } else if (adminState === 'password') {
+        adminInput = touchInput.value.slice(0, 10);
+      } else if (adminState === 'console') {
+        adminInput = touchInput.value.slice(0, 40);
+      }
+    });
+
+    // Forward Enter/Escape to the document so existing handler runs
+    touchInput.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Enter', key: 'Enter' }));
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        document.dispatchEvent(new KeyboardEvent('keydown', { code: 'Escape', key: 'Escape' }));
+      }
+    });
+  }
+
   document.addEventListener('keydown', function(e) {
     // Admin password screen
     if (adminState === 'password') {
       e.preventDefault();
-      if (e.code === 'Escape') { adminState = 'none'; adminInput = ''; paused = true; return; }
+      if (e.code === 'Escape') { adminState = 'none'; adminInput = ''; paused = true; blurTouchInput(); return; }
       if (e.code === 'Enter') {
         if (adminInput === ADMIN_CODE) {
           adminState = 'console'; adminInput = ''; adminLog = [];
           adminLog.push('Access granted. Type "help" for commands.');
+          if (isTouchDevice) focusTouchInput('text', '', 40);
         } else {
           adminInput = '';
+          if (touchInput) touchInput.value = '';
         }
         return;
       }
@@ -151,7 +213,7 @@ function initInput() {
     // Character codes screen
     if (codesState === 'entering') {
       e.preventDefault();
-      if (e.code === 'Escape') { codesState = 'none'; codesInput = ''; codesLog = ''; paused = true; return; }
+      if (e.code === 'Escape') { codesState = 'none'; codesInput = ''; codesLog = ''; paused = true; blurTouchInput(); return; }
       if (e.code === 'Enter') {
         if (CHAR_CODES[codesInput]) {
           unlockedCodes[codesInput] = true;
@@ -160,6 +222,7 @@ function initInput() {
           codesLog = 'Invalid code.';
         }
         codesInput = '';
+        if (touchInput) touchInput.value = '';
         return;
       }
       if (e.code === 'Backspace') { codesInput = codesInput.slice(0, -1); return; }
@@ -170,10 +233,11 @@ function initInput() {
     // Admin console screen
     if (adminState === 'console') {
       e.preventDefault();
-      if (e.code === 'Escape') { adminState = 'none'; adminInput = ''; paused = true; return; }
+      if (e.code === 'Escape') { adminState = 'none'; adminInput = ''; paused = true; blurTouchInput(); return; }
       if (e.code === 'Enter') {
         processAdminCommand(adminInput);
         adminInput = '';
+        if (touchInput) touchInput.value = '';
         return;
       }
       if (e.code === 'Backspace') { adminInput = adminInput.slice(0, -1); return; }
