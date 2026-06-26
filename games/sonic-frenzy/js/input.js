@@ -99,8 +99,7 @@ function handlePauseClick(p) {
   // Character Codes button (only after Super Sonic unlocked)
   if ((allEmeralds || adminChars.codesBtn) && inBtn(PAUSE_CODES, p.x, p.y)) {
     paused = false;
-    codesState = 'entering'; codesInput = ''; codesLog = '';
-    if (isTouchDevice) focusTouchInput('numeric', '', 5);
+    codesState = 'menu'; codesInput = ''; codesLog = '';
     return true;
   }
 
@@ -146,10 +145,38 @@ function blurTouchInput() {
   touchInput.blur();
 }
 
-// Returns true if the tap exited a code/admin screen via on-screen Back button
+// Returns true if the tap was handled on a code/admin sub-screen
 function handleCodeAdminBackClick(p) {
+  // Codes sub-menu (console / view unlocked)
+  if (codesState === 'menu') {
+    if (inBtn(CODES_MENU_CONSOLE_BTN, p.x, p.y)) {
+      codesState = 'entering'; codesInput = ''; codesLog = '';
+      if (isTouchDevice) focusTouchInput('numeric', '', 5);
+      return true;
+    }
+    if (inBtn(CODES_MENU_VIEW_BTN, p.x, p.y)) {
+      codesState = 'list';
+      return true;
+    }
+    if (inBtn(CODES_MENU_BACK_BTN, p.x, p.y)) {
+      codesState = 'none'; paused = true;
+      return true;
+    }
+    return true; // absorb any other tap on this overlay
+  }
+
+  // Unlocked codes list — back returns to the codes menu
+  if (codesState === 'list') {
+    if (inBtn(CODES_LIST_BACK_BTN, p.x, p.y)) {
+      codesState = 'menu';
+      return true;
+    }
+    return true;
+  }
+
+  // Codes entering screen — back returns to the codes menu
   if (codesState === 'entering' && inBtn(CODES_BACK_BTN, p.x, p.y)) {
-    codesState = 'none'; codesInput = ''; codesLog = ''; paused = true;
+    codesState = 'menu'; codesInput = ''; codesLog = '';
     blurTouchInput();
     return true;
   }
@@ -233,7 +260,7 @@ function initInput() {
     // Character codes screen
     if (codesState === 'entering') {
       e.preventDefault();
-      if (e.code === 'Escape') { codesState = 'none'; codesInput = ''; codesLog = ''; paused = true; blurTouchInput(); return; }
+      if (e.code === 'Escape') { codesState = 'menu'; codesInput = ''; codesLog = ''; blurTouchInput(); return; }
       if (e.code === 'Enter') {
         if (CHAR_CODES[codesInput]) {
           unlockedCodes[codesInput] = true;

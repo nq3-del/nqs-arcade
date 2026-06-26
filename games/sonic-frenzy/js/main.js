@@ -22,6 +22,8 @@ function loop() {
   else if (saveState === 'confirmOverwrite')          drawSaveOverwriteConfirm();
   else if (saveState === 'confirmDelete')             drawSaveDeleteConfirm();
   else if (saveState === 'menu')                      drawSaveScreen();
+  else if (codesState === 'menu')                    drawCodesMenu();
+  else if (codesState === 'list')                    drawCodesList();
   else if (codesState === 'entering')                 drawCodesScreen();
   else if (adminState === 'password')                drawAdminPassword();
   else if (adminState === 'console')                 drawAdminConsole();

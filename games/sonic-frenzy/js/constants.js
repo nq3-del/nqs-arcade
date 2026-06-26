@@ -68,6 +68,14 @@ var CODES_BACK_BTN = { x: W/2 - 70, y: 470, w: 140, h: 44 };
 var ADMIN_PWD_BACK_BTN = { x: W/2 - 70, y: 410, w: 140, h: 44 };
 var ADMIN_CONSOLE_BACK_BTN = { x: W - 90, y: 8, w: 75, h: 34 };
 
+// Character Codes menu (two buttons: console / view unlocked)
+var CODES_MENU_CONSOLE_BTN = { x: W/2 - 170, y: 240, w: 340, h: 70 };
+var CODES_MENU_VIEW_BTN    = { x: W/2 - 170, y: 330, w: 340, h: 70 };
+var CODES_MENU_BACK_BTN    = { x: W/2 - 70,  y: 470, w: 140, h: 44 };
+
+// Unlocked codes list — back button
+var CODES_LIST_BACK_BTN = { x: W/2 - 70, y: 540, w: 140, h: 44 };
+
 // Save/load screen buttons
 var SAVE_BTN   = { x: 90,  y: 250, w: 300, h: 60 };
 var LOAD_BTN   = { x: 90,  y: 325, w: 300, h: 60 };

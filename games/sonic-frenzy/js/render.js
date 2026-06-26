@@ -301,6 +301,71 @@ function drawCodeReveal() {
   }
 }
 
+function drawCodesMenu() {
+  X.fillStyle = 'rgba(0,0,0,0.9)'; X.fillRect(0, 0, W, H);
+  txt('CHARACTER CODES', W/2, 120, 16, '#6666cc');
+  txt('Choose an option:', W/2, 180, 9, '#aaa');
+
+  // Console button
+  rrect(CODES_MENU_CONSOLE_BTN.x, CODES_MENU_CONSOLE_BTN.y, CODES_MENU_CONSOLE_BTN.w, CODES_MENU_CONSOLE_BTN.h, 10);
+  X.fillStyle = '#111'; X.fill();
+  X.strokeStyle = '#6666cc'; X.lineWidth = 2; X.stroke();
+  txt('CHARACTER CODES CONSOLE', W/2, CODES_MENU_CONSOLE_BTN.y + 30, 11, '#6666cc');
+  txt('Enter codes to unlock content', W/2, CODES_MENU_CONSOLE_BTN.y + 52, 6, '#888');
+
+  // View unlocked button
+  rrect(CODES_MENU_VIEW_BTN.x, CODES_MENU_VIEW_BTN.y, CODES_MENU_VIEW_BTN.w, CODES_MENU_VIEW_BTN.h, 10);
+  X.fillStyle = '#111'; X.fill();
+  X.strokeStyle = '#6666cc'; X.lineWidth = 2; X.stroke();
+  txt('VIEW UNLOCKED CODES', W/2, CODES_MENU_VIEW_BTN.y + 30, 11, '#6666cc');
+  txt('See codes you have entered', W/2, CODES_MENU_VIEW_BTN.y + 52, 6, '#888');
+
+  // Back button
+  rrect(CODES_MENU_BACK_BTN.x, CODES_MENU_BACK_BTN.y, CODES_MENU_BACK_BTN.w, CODES_MENU_BACK_BTN.h, 8);
+  X.fillStyle = '#222'; X.fill();
+  X.strokeStyle = '#6666cc'; X.lineWidth = 2; X.stroke();
+  txt('BACK', W/2, CODES_MENU_BACK_BTN.y + 26, 10, '#6666cc');
+}
+
+function drawCodesList() {
+  X.fillStyle = 'rgba(0,0,0,0.9)'; X.fillRect(0, 0, W, H);
+  txt('UNLOCKED CODES', W/2, 100, 16, '#6666cc');
+
+  var keys = Object.keys(unlockedCodes).filter(function(k) { return !!unlockedCodes[k]; });
+
+  if (keys.length === 0) {
+    txt('NO UNLOCKED CODES AVAILABLE', W/2, H/2 - 20, 10, '#ff6666');
+    txt('Enter codes from the console to unlock content', W/2, H/2 + 10, 6, '#888');
+  } else {
+    var listY = 170;
+    for (var i = 0; i < keys.length; i++) {
+      var code = keys[i];
+      var info = CHAR_CODES[code];
+      var label = info ? info.name : 'Unknown';
+      var lineY = listY + i * 36;
+      // Row background
+      rrect(30, lineY - 16, W - 60, 30, 6);
+      X.fillStyle = '#111'; X.fill();
+      X.strokeStyle = '#333'; X.lineWidth = 1; X.stroke();
+      // Code = name
+      X.font = "10px 'Press Start 2P', monospace";
+      X.textAlign = 'left'; X.textBaseline = 'middle';
+      X.fillStyle = '#6666cc';
+      X.fillText(code, 45, lineY);
+      X.fillStyle = '#aaa';
+      X.fillText('=', 130, lineY);
+      X.fillStyle = '#44ff44';
+      X.fillText(label, 155, lineY);
+    }
+  }
+
+  // Back button
+  rrect(CODES_LIST_BACK_BTN.x, CODES_LIST_BACK_BTN.y, CODES_LIST_BACK_BTN.w, CODES_LIST_BACK_BTN.h, 8);
+  X.fillStyle = '#222'; X.fill();
+  X.strokeStyle = '#6666cc'; X.lineWidth = 2; X.stroke();
+  txt('BACK', W/2, CODES_LIST_BACK_BTN.y + 26, 10, '#6666cc');
+}
+
 function drawCodesScreen() {
   X.fillStyle = 'rgba(0,0,0,0.9)'; X.fillRect(0, 0, W, H);
   txt('CHARACTER CODES', W/2, 120, 16, '#6666cc');
