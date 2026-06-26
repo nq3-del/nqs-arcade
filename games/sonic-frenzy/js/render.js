@@ -320,7 +320,12 @@ function drawCodesScreen() {
   }
 
   txt('Type code + ENTER', W/2, 400, 7, '#666');
-  txt('ESC to go back', W/2, 425, 6, '#444');
+
+  // Back button (touch-friendly)
+  rrect(CODES_BACK_BTN.x, CODES_BACK_BTN.y, CODES_BACK_BTN.w, CODES_BACK_BTN.h, 8);
+  X.fillStyle = '#222'; X.fill();
+  X.strokeStyle = '#6666cc'; X.lineWidth = 2; X.stroke();
+  txt('BACK', W/2, CODES_BACK_BTN.y + 26, 10, '#6666cc');
 }
 
 function drawAdminPassword() {
@@ -339,7 +344,12 @@ function drawAdminPassword() {
   txt(dots || '_', W/2, 278, 18, '#ff6600', false);
 
   txt('Type code + ENTER', W/2, 340, 7, '#666');
-  txt('ESC to cancel', W/2, 365, 6, '#444');
+
+  // Back button (touch-friendly)
+  rrect(ADMIN_PWD_BACK_BTN.x, ADMIN_PWD_BACK_BTN.y, ADMIN_PWD_BACK_BTN.w, ADMIN_PWD_BACK_BTN.h, 8);
+  X.fillStyle = '#222'; X.fill();
+  X.strokeStyle = '#ff6600'; X.lineWidth = 2; X.stroke();
+  txt('CANCEL', W/2, ADMIN_PWD_BACK_BTN.y + 26, 10, '#ff6600');
 }
 
 function drawAdminConsole() {
@@ -347,7 +357,13 @@ function drawAdminConsole() {
 
   // Header
   X.fillStyle = '#1a1a1a'; X.fillRect(0, 0, W, 50);
-  txt('ADMIN CONSOLE', W/2, 28, 12, '#ff6600');
+  txt('ADMIN CONSOLE', W/2 - 30, 28, 12, '#ff6600');
+
+  // Exit button (top-right, touch-friendly)
+  rrect(ADMIN_CONSOLE_BACK_BTN.x, ADMIN_CONSOLE_BACK_BTN.y, ADMIN_CONSOLE_BACK_BTN.w, ADMIN_CONSOLE_BACK_BTN.h, 6);
+  X.fillStyle = '#330000'; X.fill();
+  X.strokeStyle = '#ff6600'; X.lineWidth = 2; X.stroke();
+  txt('EXIT', ADMIN_CONSOLE_BACK_BTN.x + ADMIN_CONSOLE_BACK_BTN.w / 2, ADMIN_CONSOLE_BACK_BTN.y + 21, 9, '#ff6600');
 
   // Log area
   var logY = 70;

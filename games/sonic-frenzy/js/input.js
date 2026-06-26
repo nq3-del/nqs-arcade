@@ -146,6 +146,26 @@ function blurTouchInput() {
   touchInput.blur();
 }
 
+// Returns true if the tap exited a code/admin screen via on-screen Back button
+function handleCodeAdminBackClick(p) {
+  if (codesState === 'entering' && inBtn(CODES_BACK_BTN, p.x, p.y)) {
+    codesState = 'none'; codesInput = ''; codesLog = ''; paused = true;
+    blurTouchInput();
+    return true;
+  }
+  if (adminState === 'password' && inBtn(ADMIN_PWD_BACK_BTN, p.x, p.y)) {
+    adminState = 'none'; adminInput = ''; paused = true;
+    blurTouchInput();
+    return true;
+  }
+  if (adminState === 'console' && inBtn(ADMIN_CONSOLE_BACK_BTN, p.x, p.y)) {
+    adminState = 'none'; adminInput = ''; paused = true;
+    blurTouchInput();
+    return true;
+  }
+  return false;
+}
+
 function initInput() {
   touchInput = document.getElementById('touch-input');
 
@@ -300,6 +320,8 @@ function initInput() {
 
     if (codeRevealState === 'showing') { codeRevealState = 'none'; return; }
 
+    if (handleCodeAdminBackClick(p)) return;
+
     if (saveState === 'confirmOverwrite') {
       if (inBtn(SAVE_YES, p.x, p.y)) { saveProgress(); saveState = 'menu'; return; }
       if (inBtn(SAVE_NO, p.x, p.y)) { saveState = 'menu'; saveMessage = 'Save cancelled.'; return; }
@@ -387,6 +409,7 @@ function initInput() {
     e.preventDefault(); resumeAC();
     var p = canvasPos(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
     if (codeRevealState === 'showing') { codeRevealState = 'none'; return; }
+    if (handleCodeAdminBackClick(p)) return;
     if (saveState === 'confirmOverwrite') {
       if (inBtn(SAVE_YES, p.x, p.y)) { saveProgress(); saveState = 'menu'; return; }
       if (inBtn(SAVE_NO, p.x, p.y)) { saveState = 'menu'; saveMessage = 'Save cancelled.'; return; }

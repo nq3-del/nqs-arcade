@@ -63,6 +63,11 @@ var PAUSE_ADMIN = { x: 15, y: 378, w: 450, h: 44 };
 var PAUSE_CODES = { x: 15, y: 432, w: 450, h: 44 };
 var PAUSE_SAVE  = { x: 15, y: 486, w: 450, h: 44 };
 
+// Back buttons for codes / admin screens (touch-friendly)
+var CODES_BACK_BTN = { x: W/2 - 70, y: 470, w: 140, h: 44 };
+var ADMIN_PWD_BACK_BTN = { x: W/2 - 70, y: 410, w: 140, h: 44 };
+var ADMIN_CONSOLE_BACK_BTN = { x: W - 90, y: 8, w: 75, h: 34 };
+
 // Save/load screen buttons
 var SAVE_BTN   = { x: 90,  y: 250, w: 300, h: 60 };
 var LOAD_BTN   = { x: 90,  y: 325, w: 300, h: 60 };
