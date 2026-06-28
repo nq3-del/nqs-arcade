@@ -2537,7 +2537,7 @@ window.addEventListener('blur', () => {
 
 // ─── Touch controls (mobile / iPad) ───────────────────
 const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-const touchInput = { x: 0, y: 0, jump: false };
+const touchInput = { x: 0, y: 0, jump: false, sprint: false };
 
 if (isTouch) {
   const touchEl = document.getElementById('touch-controls');
@@ -2615,6 +2615,27 @@ if (isTouch) {
   if (danceBtn) {
     danceBtn.addEventListener('touchstart', e => { e.preventDefault(); toggleDance(); }, { passive: false });
   }
+  // SPRINT — toggle on/off (tap to lock so the user doesn't have to hold)
+  const sprintBtn = document.getElementById('touch-sprint');
+  if (sprintBtn) {
+    sprintBtn.addEventListener('touchstart', e => {
+      e.preventDefault();
+      touchInput.sprint = !touchInput.sprint;
+      sprintBtn.classList.toggle('active', touchInput.sprint);
+    }, { passive: false });
+  }
+  // PAUSE button in the top-right corner
+  const pauseBtn = document.getElementById('touch-pause');
+  if (pauseBtn) {
+    pauseBtn.addEventListener('touchstart', e => {
+      e.preventDefault();
+      if (!controlsLocked) setPaused(!paused);
+    }, { passive: false });
+    // Also support click for non-touch testing
+    pauseBtn.addEventListener('click', () => {
+      if (!controlsLocked) setPaused(!paused);
+    });
+  }
 }
 
 const gamepadPrev = { dance: false, start: false };
@@ -2637,6 +2658,7 @@ function readInput() {
     mz = touchInput.y;
   }
   if (touchInput.jump) jump = true;
+  if (touchInput.sprint) sprint = true;
 
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
   const pad = pads && pads[0];
