@@ -3749,8 +3749,12 @@ async function beginQuickStart() {
 // Helper: show a speech bubble tagged with an NPC name
 function showSpeechFromNPC(who, text, duration = 2000) {
   const labels = {
-    granny: { name: 'MUM', color: '#D16A6A' },
-    grampa: { name: 'DAD', color: '#5A3A20' }
+    granny:    { name: 'MUM',          color: '#D16A6A' },
+    grampa:    { name: 'DAD',          color: '#5A3A20' },
+    hazel:     { name: 'HAZEL',        color: '#5BAAEF' },
+    brunk:     { name: 'BRUNK',        color: '#7C5B2E' },
+    pemberton: { name: 'MR. PEMBERTON', color: '#2C5C3E' },
+    butcher:   { name: 'BUTCHER',      color: '#8B3A2A' }
   };
   const label = labels[who] || { name: who.toUpperCase(), color: '#555' };
   return showSpeechBubble({ text, duration, npcName: label.name, npcColor: label.color });
@@ -4285,6 +4289,12 @@ async function beginChapter3() {
   controlsLocked = true;
   setCheckpoint('school');
   setStillMode(true);
+  // Reset NPC state so a fresh Ch.3 start (or load) is clean
+  brunk.visible = false;
+  hazel.visible = false;
+  pemberton.visible = false;
+  hazel.userData.following = false;
+  ch3Phase = 'idle';
   showFade(true);
   await sleep(1100);
 
@@ -4474,6 +4484,13 @@ async function beginChapter4() {
   controlsLocked = true;
   setCheckpoint('newhouse');
   setStillMode(true);
+  // Reset Ch.3 NPC state in case the player came in from a save mid-school
+  hazel.userData.following = false;
+  hazel.visible = false;
+  brunk.visible = false;
+  pemberton.visible = false;
+  ch4Phase = 'idle';
+  restoreHouseLights();   // morning again
   showFade(true);
   await sleep(1100);
 
@@ -4570,6 +4587,9 @@ async function beginChapter5() {
   setStillMode(true);
   houseMum.visible = false;
   newBedroomGroup.visible = false;
+  // Detach Hazel — she follows in Ch.3 but shouldn't tag along inside the shop
+  hazel.userData.following = false;
+  hazel.visible = false;
   showFade(true);
   await sleep(1100);
 
@@ -4984,10 +5004,30 @@ async function endChapter3() {
   }
 }
 
+// Restore the new-house lights to daytime values (in case a save was made
+// during the bedtime cutscene, which dims them to a cool blue).
+function restoreHouseLights() {
+  newBedroomGroup.traverse(o => {
+    if (o.isPointLight && o.userData.originalIntensity !== undefined) {
+      o.intensity = o.userData.originalIntensity;
+      o.color.setHex(o.userData.originalColor);
+    }
+  });
+}
+
 async function enterNewBedroom() {
   controlsLocked = true;
   setCheckpoint('newhouse');
   setStillMode(true);   // freeze Pico for the cutscene
+  // Reset Ch.2 box mini-objective so a fresh run / save-load works
+  allBoxesTouched = false;
+  if (newBedroomGroup.userData.boxes) {
+    for (const box of newBedroomGroup.userData.boxes) {
+      box.userData.touched = false;
+      box.material.emissiveIntensity = 0;
+    }
+  }
+  restoreHouseLights();
   showFade(true);
   await sleep(900);
   // Hide outdoor stuff (we leave it visible since fog will hide it from indoors,
