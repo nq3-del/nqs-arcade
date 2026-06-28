@@ -1015,6 +1015,161 @@ scene.add(newBedroomGroup);
 newBedroomGroup.visible = false;
 
 // ═══════════════════════════════════════════════════════
+// CONKER HEIGHTS HIGH (Ch.3 — school hallway)
+// ═══════════════════════════════════════════════════════
+const SCHOOL_ORIGIN = new THREE.Vector3(0, 0, -800);
+const schoolGroup = new THREE.Group();
+schoolGroup.position.copy(SCHOOL_ORIGIN);
+scene.add(schoolGroup);
+
+// Reusable label texture helper (used by school + later market posters)
+function makeLabelTextureSchool(text, color) {
+  const c = document.createElement('canvas');
+  c.width = 256; c.height = 64;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(0, 0, 256, 64);
+  ctx.fillStyle = color || '#1a1a2e';
+  ctx.font = 'bold 36px Nunito, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, 128, 32);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+(function buildSchool() {
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0xBBA88E, roughness: 0.6 });
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0xD9DFCB, roughness: 0.9 });
+  const trimMat = new THREE.MeshStandardMaterial({ color: 0x586066, roughness: 0.7 });
+  const lockerMat = new THREE.MeshStandardMaterial({ color: 0x4A6B85, roughness: 0.5, metalness: 0.2 });
+  const lockerLineMat = new THREE.MeshStandardMaterial({ color: 0x35536B, roughness: 0.5, metalness: 0.2 });
+  const lockerHandleMat = new THREE.MeshStandardMaterial({ color: 0xE8DA9B, roughness: 0.4, metalness: 0.7 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x5A3A1E, roughness: 0.55 });
+  const doorGlassMat = new THREE.MeshStandardMaterial({ color: 0xB3E0F2, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.7 });
+  const corkMat = new THREE.MeshStandardMaterial({ color: 0xC4956C, roughness: 0.95 });
+
+  const HALL_W = 6, HALL_LEN = 24, HALL_H = 4.5;
+
+  // Floor + centre stripe
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(HALL_W, HALL_LEN), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  schoolGroup.add(floor);
+  const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.2, HALL_LEN), trimMat);
+  stripe.rotation.x = -Math.PI / 2;
+  stripe.position.y = 0.005;
+  schoolGroup.add(stripe);
+
+  // Walls
+  const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(HALL_LEN, HALL_H), wallMat);
+  wallLeft.position.set(-HALL_W / 2, HALL_H / 2, 0);
+  wallLeft.rotation.y = Math.PI / 2;
+  wallLeft.receiveShadow = true;
+  schoolGroup.add(wallLeft);
+  const wallRight = wallLeft.clone();
+  wallRight.position.x = HALL_W / 2;
+  wallRight.rotation.y = -Math.PI / 2;
+  schoolGroup.add(wallRight);
+  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(HALL_W, HALL_H), wallMat);
+  wallBack.position.set(0, HALL_H / 2, -HALL_LEN / 2);
+  wallBack.receiveShadow = true;
+  schoolGroup.add(wallBack);
+
+  // Ceiling + lights
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(HALL_W, HALL_LEN), new THREE.MeshStandardMaterial({ color: 0xE5E7DA, roughness: 0.9 }));
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.y = HALL_H;
+  schoolGroup.add(ceiling);
+  for (let lz = -10; lz <= 10; lz += 4) {
+    const ceilLight = new THREE.Mesh(new THREE.BoxGeometry(2, 0.08, 0.6), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, emissive: 0xFFE7B0, emissiveIntensity: 0.6 }));
+    ceilLight.position.set(0, HALL_H - 0.05, lz);
+    schoolGroup.add(ceilLight);
+  }
+  const hallLight = new THREE.PointLight(0xFFE5B8, 1.4, 30);
+  hallLight.position.set(0, HALL_H - 0.4, 0);
+  schoolGroup.add(hallLight);
+
+  // Skirting
+  for (const side of [-1, 1]) {
+    const skirt = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.18, HALL_LEN), trimMat);
+    skirt.position.set(side * HALL_W / 2 + side * -0.02, 0.09, 0);
+    schoolGroup.add(skirt);
+  }
+
+  // Locker builder
+  function makeLocker(x, z, faceY) {
+    const grp = new THREE.Group();
+    grp.position.set(x, 0, z);
+    grp.rotation.y = faceY;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.5, 1.7, 0.4), lockerMat);
+    body.position.y = 1.05;
+    body.castShadow = true;
+    body.receiveShadow = true;
+    grp.add(body);
+    for (const sy of [0.5, 1.7]) {
+      const seam = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.03, 0.42), lockerLineMat);
+      seam.position.y = sy;
+      grp.add(seam);
+    }
+    const handle = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.06), lockerHandleMat);
+    handle.position.set(0.15, 1.1, 0.22);
+    grp.add(handle);
+    return grp;
+  }
+  // Lockers along both walls (with a gap for door + corkboard on the right)
+  for (let lz = -10; lz <= 10; lz += 0.55) {
+    schoolGroup.add(makeLocker(-HALL_W / 2 + 0.22, lz, Math.PI / 2));
+  }
+  for (let lz = -10; lz <= 10; lz += 0.55) {
+    if (lz > -1.5 && lz < 3.5) continue;
+    schoolGroup.add(makeLocker(HALL_W / 2 - 0.22, lz, -Math.PI / 2));
+  }
+
+  // Classroom door (right wall, near centre)
+  const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.4, 1.4), trimMat);
+  doorFrame.position.set(HALL_W / 2 - 0.05, 1.2, 1);
+  schoolGroup.add(doorFrame);
+  const door = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.2, 1.2), doorMat);
+  door.position.set(HALL_W / 2 - 0.03, 1.1, 1);
+  door.castShadow = true;
+  schoolGroup.add(door);
+  const doorWin = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.5), doorGlassMat);
+  doorWin.position.set(HALL_W / 2 - 0.02, 1.7, 1);
+  doorWin.rotation.y = -Math.PI / 2;
+  schoolGroup.add(doorWin);
+
+  // CORKBOARD — "MISSING — HAVE YOU SEEN THESE ACORNS?"
+  const corkBg = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 1.0), corkMat);
+  corkBg.position.set(HALL_W / 2 - 0.02, 1.6, -0.5);
+  corkBg.rotation.y = -Math.PI / 2;
+  schoolGroup.add(corkBg);
+  const corkFrame = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.05, 1.45), trimMat);
+  corkFrame.position.set(HALL_W / 2 - 0.04, 1.6, -0.5);
+  schoolGroup.add(corkFrame);
+  const corkTitleTex = makeLabelTextureSchool('MISSING', '#E53935');
+  const corkTitleEl = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.18), new THREE.MeshStandardMaterial({ map: corkTitleTex, roughness: 0.7 }));
+  corkTitleEl.position.set(HALL_W / 2 - 0.03, 1.95, -0.5);
+  corkTitleEl.rotation.y = -Math.PI / 2;
+  schoolGroup.add(corkTitleEl);
+  for (let i = 0; i < 3; i++) {
+    const post = new THREE.Mesh(new THREE.PlaneGeometry(0.32, 0.4), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.6 }));
+    post.position.set(HALL_W / 2 - 0.02, 1.7, -0.85 + i * 0.35);
+    post.rotation.y = -Math.PI / 2;
+    schoolGroup.add(post);
+    const silhouette = new THREE.Mesh(new THREE.CircleGeometry(0.08, 16), new THREE.MeshBasicMaterial({ color: 0x444 }));
+    silhouette.position.set(HALL_W / 2 - 0.012, 1.75, -0.85 + i * 0.35);
+    silhouette.rotation.y = -Math.PI / 2;
+    schoolGroup.add(silhouette);
+  }
+
+  schoolGroup.userData.corkboardPos = new THREE.Vector3(HALL_W / 2 - 0.5, 1.6, -0.5);
+})();
+
+schoolGroup.visible = false;
+
+// ═══════════════════════════════════════════════════════
 // NEW HOUSE in the meadow — Pico's new home
 // ═══════════════════════════════════════════════════════
 (function buildNewHouse() {
@@ -1690,6 +1845,21 @@ function tick() {
         else if (minOverlap === overlapF)  { player.position.z = house.minZ - r; if (playerVel.z > 0) playerVel.z = 0; }
         else                               { player.position.z = house.maxZ + r; if (playerVel.z < 0) playerVel.z = 0; }
       }
+    }
+
+    // School hallway wall collision (only when inside the school)
+    if (schoolGroup.visible) {
+      const PR = 0.4;
+      const HW = 6 / 2 - 0.5;     // hallway half-width minus locker depth
+      const HL = 24 / 2 - 0.5;    // hallway half-length minus end wall
+      const localX = player.position.x - SCHOOL_ORIGIN.x;
+      const localZ = player.position.z - SCHOOL_ORIGIN.z;
+      // Push back from side walls
+      if (localX < -HW + PR) { player.position.x = SCHOOL_ORIGIN.x + (-HW + PR); if (playerVel.x < 0) playerVel.x = 0; }
+      if (localX >  HW - PR) { player.position.x = SCHOOL_ORIGIN.x + ( HW - PR); if (playerVel.x > 0) playerVel.x = 0; }
+      // Push back from end walls
+      if (localZ < -HL + PR) { player.position.z = SCHOOL_ORIGIN.z + (-HL + PR); if (playerVel.z < 0) playerVel.z = 0; }
+      if (localZ >  HL - PR) { player.position.z = SCHOOL_ORIGIN.z + ( HL - PR); if (playerVel.z > 0) playerVel.z = 0; }
     }
 
     // New-bedroom box collision (only when player is inside that room)
@@ -2504,8 +2674,12 @@ function updateZoneLabel() {
   const px = player.position.x;
   const pz = player.position.z;
   let zone;
-  // Are we inside the new bedroom interior?
-  if (newBedroomGroup.visible &&
+  // School hallway?
+  if (schoolGroup.visible &&
+      Math.abs(pz - SCHOOL_ORIGIN.z) < 15 &&
+      Math.abs(px - SCHOOL_ORIGIN.x) < 6) {
+    zone = 'CONKER HEIGHTS HIGH';
+  } else if (newBedroomGroup.visible &&
       Math.abs(pz - NEW_BEDROOM_ORIGIN.z) < 8 &&
       Math.abs(px - NEW_BEDROOM_ORIGIN.x) < 8) {
     zone = 'PICO\'S NEW ROOM';
@@ -2674,7 +2848,7 @@ async function onAllBoxesTouched() {
   // The brave whisper in the dark
   await showSpeech('...High school tomorrow.', 2400);
 
-  // End-of-demo card (acknowledges that Ch.3 is next)
+  // End-of-Ch.2 card with Continue → Ch.3 button (per SCRIPT.md)
   await sleep(800);
   const endHTML = `
     <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
@@ -2685,8 +2859,11 @@ async function onAllBoxesTouched() {
         He'll meet a fast-talking acorn called Hazel,<br>
         a bully called Brunk… and a corkboard of missing kids.
       </p>
-      <button id="end-restart" type="button" style="margin-top:14px;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
-        Play again
+      <button id="continue-ch3" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
+        Continue → Chapter 3
+      </button>
+      <button id="end-restart" type="button" style="margin:14px 8px 0;padding:14px 28px;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;background:transparent;color:rgba(255,255,255,0.7);border:1.5px solid rgba(255,255,255,0.3);border-radius:999px;cursor:pointer">
+        Restart
       </button>
     </div>
   `;
@@ -2696,9 +2873,59 @@ async function onAllBoxesTouched() {
     card.classList.remove('fade-out');
     card.style.display = 'flex';
     card.classList.add('show');
-    const btn = document.getElementById('end-restart');
-    if (btn) btn.addEventListener('click', () => location.reload());
+    const continueBtn = document.getElementById('continue-ch3');
+    if (continueBtn) continueBtn.addEventListener('click', () => {
+      card.classList.add('fade-out');
+      setTimeout(() => { card.style.display = 'none'; }, 1000);
+      beginChapter3();
+    });
+    const restartBtn = document.getElementById('end-restart');
+    if (restartBtn) restartBtn.addEventListener('click', () => location.reload());
   }
+}
+
+// ═══════════════════════════════════════════════════════
+// CHAPTER 3 — FIRST DAY AT CONKER HEIGHTS HIGH
+// ═══════════════════════════════════════════════════════
+async function beginChapter3() {
+  controlsLocked = true;
+  showFade(true);
+  await sleep(1100);
+
+  // Hide previous rooms, show school
+  newBedroomGroup.visible = false;
+  schoolGroup.visible = true;
+  manualDance = null;
+
+  // Place Pico just inside the hallway, facing down it
+  player.position.copy(SCHOOL_ORIGIN);
+  player.position.z += 9;            // near one end of the long hallway
+  facingY = Math.PI;                 // facing toward -Z (down the hallway)
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  camState.target.copy(player.position);
+  camState.target.y = 1.4;
+  camState.distance = 6.5;
+  camState.yaw = 0;                  // camera behind player
+  camState.pitch = 0.28;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  await sleep(700);
+
+  // Zone + objective
+  lastZoneLabel = '';
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.classList.remove('hide');
+    objEl.querySelector('.objective-text').textContent = 'Walk down the hallway';
+  }
+
+  // Opening line — overwhelmed, lost
+  await showSpeech('Conker Heights High. Just stay invisible.', 2600);
+
+  controlsLocked = false;
 }
 
 async function enterNewBedroom() {
