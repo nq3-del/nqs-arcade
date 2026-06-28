@@ -915,7 +915,8 @@ function getHouseFloorY(localX, localZ, currentY) {
   // Upstairs bedroom area: only when player is ALREADY upstairs
   // (otherwise the kitchen — which sits BELOW the upstairs floor in the same XZ
   // region — would lift the player onto the upstairs floor).
-  if (currentY > 1.5 && localZ <= STAIR_TOP_LZ && localZ >= -8 && Math.abs(localX) <= 3.6) {
+  // X range matches the full upstairs floor (±5, the house half-width).
+  if (currentY > 1.5 && localZ <= STAIR_TOP_LZ && localZ >= -8 && Math.abs(localX) <= 5) {
     return UPSTAIRS_Y;
   }
   // Staircase: 6 steps descending from y=UPSTAIRS_Y at lz=STAIR_TOP_LZ to y=0 at lz=STAIR_BOT_LZ
