@@ -2365,6 +2365,352 @@ butcher.visible = false;
 scene.add(butcher);
 
 // ═══════════════════════════════════════════════════════
+// THE JAIL (free-play unlock — Butcher is locked up after Ch.6 ending)
+// ═══════════════════════════════════════════════════════
+const JAIL_POS = new THREE.Vector3(20, 0, 14);
+const jailGroup = new THREE.Group();
+jailGroup.position.copy(JAIL_POS);
+scene.add(jailGroup);
+(function buildJail() {
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0x7C7872, roughness: 0.95 });
+  const stoneDark = new THREE.MeshStandardMaterial({ color: 0x5F5C58, roughness: 0.9 });
+  const stoneMossy = new THREE.MeshStandardMaterial({ color: 0x6E7B5C, roughness: 0.95 });
+  const barMat = new THREE.MeshStandardMaterial({ color: 0x2A2A28, roughness: 0.4, metalness: 0.85 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0x3A3A38, roughness: 0.85 });
+  const floorMat = new THREE.MeshStandardMaterial({ color: 0x9C9893, roughness: 0.95 });
+  const signMat = new THREE.MeshStandardMaterial({ color: 0xE8DDC8, roughness: 0.85 });
+  const strawMat = new THREE.MeshStandardMaterial({ color: 0xD4B570, roughness: 0.95 });
+  const W = 7, D = 6, H = 4.5;
+
+  // Stone floor
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W, D), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.position.y = 0.01;
+  floor.receiveShadow = true;
+  jailGroup.add(floor);
+
+  // Back, east, west walls (stone, full)
+  const wallBack = new THREE.Mesh(new THREE.BoxGeometry(W, H, 0.4), stoneMat);
+  wallBack.position.set(0, H / 2, -D / 2);
+  wallBack.castShadow = true;
+  wallBack.receiveShadow = true;
+  jailGroup.add(wallBack);
+  const wallW = new THREE.Mesh(new THREE.BoxGeometry(0.4, H, D), stoneMat);
+  wallW.position.set(-W / 2, H / 2, 0);
+  wallW.castShadow = true;
+  jailGroup.add(wallW);
+  const wallE = wallW.clone();
+  wallE.position.x = W / 2;
+  jailGroup.add(wallE);
+
+  // Individual stones for texture variation on the front edges
+  for (let i = 0; i < 10; i++) {
+    const stone = new THREE.Mesh(
+      new THREE.BoxGeometry(0.5 + Math.random() * 0.3, 0.45, 0.1),
+      i % 3 === 0 ? stoneMossy : (i % 2 === 0 ? stoneMat : stoneDark)
+    );
+    const onWest = i < 5;
+    stone.position.set(onWest ? -W / 2 - 0.15 : W / 2 + 0.15, 0.4 + i % 5 * 0.85, -D / 2 + 0.4 + (i % 3) * 0.5);
+    jailGroup.add(stone);
+  }
+
+  // Sloped tile roof (two pitches)
+  const roof1 = new THREE.Mesh(new THREE.BoxGeometry(W + 0.6, 0.18, D / 2 + 0.4), roofMat);
+  roof1.position.set(0, H + 0.4, -D / 4);
+  roof1.rotation.x = -0.25;
+  roof1.castShadow = true;
+  jailGroup.add(roof1);
+  const roof2 = new THREE.Mesh(new THREE.BoxGeometry(W + 0.6, 0.18, D / 2 + 0.4), roofMat);
+  roof2.position.set(0, H + 0.4, D / 4);
+  roof2.rotation.x = 0.25;
+  roof2.castShadow = true;
+  jailGroup.add(roof2);
+  // Roof ridge
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(W + 0.7, 0.15, 0.25), stoneDark);
+  ridge.position.set(0, H + 0.7, 0);
+  jailGroup.add(ridge);
+  // Top trim
+  const topTrim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, 0.25, D + 0.2), stoneDark);
+  topTrim.position.y = H - 0.15;
+  jailGroup.add(topTrim);
+
+  // Stone CHIMNEY on the back
+  const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.7, 1.2, 0.7), stoneMat);
+  chimney.position.set(W / 3, H + 1.0, -D / 2 - 0.1);
+  jailGroup.add(chimney);
+  const chimneyTop = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.18, 0.85), stoneDark);
+  chimneyTop.position.set(W / 3, H + 1.7, -D / 2 - 0.1);
+  jailGroup.add(chimneyTop);
+  // Small puff of grey "smoke" (purely decorative — a cloud-style sphere stack)
+  for (let i = 0; i < 3; i++) {
+    const puff = new THREE.Mesh(new THREE.SphereGeometry(0.18 + i * 0.04, 10, 8), new THREE.MeshStandardMaterial({ color: 0xC8CCD0, roughness: 1 }));
+    puff.position.set(W / 3 + i * 0.1, H + 2 + i * 0.18, -D / 2 - 0.1);
+    jailGroup.add(puff);
+  }
+
+  // BARS — thicker + decorative spikes on top
+  for (let i = 0; i <= 10; i++) {
+    const x = -W / 2 + i * (W / 10);
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, H, 10), barMat);
+    bar.position.set(x, H / 2, D / 2);
+    bar.castShadow = true;
+    jailGroup.add(bar);
+    // Spike
+    const spike = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 8), barMat);
+    spike.position.set(x, H + 0.09, D / 2);
+    jailGroup.add(spike);
+  }
+  // Horizontal cross-bars at 3 heights
+  for (const y of [0.4, H / 2, H - 0.4]) {
+    const cross = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, W, 10), barMat);
+    cross.position.set(0, y, D / 2);
+    cross.rotation.z = Math.PI / 2;
+    jailGroup.add(cross);
+  }
+  // Heavy padlock + chain at the centre
+  const padlock = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.3, 0.1), new THREE.MeshStandardMaterial({ color: 0xC8B348, roughness: 0.3, metalness: 0.9 }));
+  padlock.position.set(0, 2, D / 2 + 0.08);
+  padlock.castShadow = true;
+  jailGroup.add(padlock);
+  const shackle = new THREE.Mesh(new THREE.TorusGeometry(0.09, 0.025, 8, 16, Math.PI), new THREE.MeshStandardMaterial({ color: 0xC8B348, roughness: 0.3, metalness: 0.9 }));
+  shackle.position.set(0, 2.18, D / 2 + 0.08);
+  shackle.rotation.x = Math.PI / 2;
+  jailGroup.add(shackle);
+
+  // SIGN above the bars — "JAIL"
+  const signBack = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.8, 0.18), signMat);
+  signBack.position.set(0, H + 1.3, D / 2 + 0.1);
+  jailGroup.add(signBack);
+  const sc = document.createElement('canvas');
+  sc.width = 512; sc.height = 128;
+  const ctx = sc.getContext('2d');
+  ctx.fillStyle = '#E8DDC8'; ctx.fillRect(0, 0, 512, 128);
+  ctx.fillStyle = '#1a1a2e';
+  ctx.font = 'bold 92px Nunito, sans-serif';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('JAIL', 256, 70);
+  ctx.font = 'italic 28px Nunito, sans-serif';
+  ctx.fillStyle = '#7A3E2A';
+  ctx.fillText('— meadow correctional —', 256, 115);
+  const signTex = new THREE.CanvasTexture(sc);
+  signTex.colorSpace = THREE.SRGBColorSpace;
+  const signPanel = new THREE.Mesh(new THREE.PlaneGeometry(3.3, 0.7), new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.8 }));
+  signPanel.position.set(0, H + 1.3, D / 2 + 0.21);
+  jailGroup.add(signPanel);
+  // Two small lanterns either side of the sign
+  for (const lx of [-1.6, 1.6]) {
+    const lantBracket = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.6, 0.06), barMat);
+    lantBracket.position.set(lx, H + 0.5, D / 2 + 0.2);
+    jailGroup.add(lantBracket);
+    const lant = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.3, 0.2), new THREE.MeshStandardMaterial({ color: 0x1a1a1a, roughness: 0.4, metalness: 0.6, emissive: 0xFFD740, emissiveIntensity: 0.6 }));
+    lant.position.set(lx, H + 0.85, D / 2 + 0.2);
+    jailGroup.add(lant);
+    const lantLight = new THREE.PointLight(0xFFD7A0, 0.6, 5);
+    lantLight.position.set(lx, H + 0.85, D / 2 + 0.4);
+    jailGroup.add(lantLight);
+  }
+
+  // Tiny barred WINDOW on the back wall
+  const winFrame = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.5, 0.5), stoneDark);
+  winFrame.position.set(-W / 4, H - 1.2, -D / 2 - 0.1);
+  jailGroup.add(winFrame);
+  const winHole = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.35, 0.06), new THREE.MeshBasicMaterial({ color: 0x0A0A12 }));
+  winHole.position.set(-W / 4, H - 1.2, -D / 2 - 0.3);
+  jailGroup.add(winHole);
+  for (let i = 0; i < 3; i++) {
+    const wbar = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.35, 8), barMat);
+    wbar.position.set(-W / 4 + (i - 1) * 0.2, H - 1.2, -D / 2 - 0.31);
+    jailGroup.add(wbar);
+  }
+
+  // ── Cell interior ──
+  // Bed cot with straw mattress + grey blanket
+  const cotFrame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.3, 1.0), new THREE.MeshStandardMaterial({ color: 0x5A4030, roughness: 0.85 }));
+  cotFrame.position.set(-1.4, 0.15, -D / 2 + 0.7);
+  jailGroup.add(cotFrame);
+  const mattress = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.18, 0.9), strawMat);
+  mattress.position.set(-1.4, 0.39, -D / 2 + 0.7);
+  jailGroup.add(mattress);
+  const blanket = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.06, 0.95), new THREE.MeshStandardMaterial({ color: 0x4A5868, roughness: 0.9 }));
+  blanket.position.set(-1.2, 0.51, -D / 2 + 0.7);
+  jailGroup.add(blanket);
+  // Tiny pillow
+  const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.12, 0.5), new THREE.MeshStandardMaterial({ color: 0xE8E4DC, roughness: 0.8 }));
+  pillow.position.set(-2.2, 0.51, -D / 2 + 0.7);
+  jailGroup.add(pillow);
+
+  // Wood bucket
+  const bucket = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.22, 0.35, 14), new THREE.MeshStandardMaterial({ color: 0x6B4632, roughness: 0.85 }));
+  bucket.position.set(2.2, 0.17, -D / 2 + 0.4);
+  jailGroup.add(bucket);
+
+  // Wall calendar with tally marks (drawn on canvas)
+  const calCanvas = document.createElement('canvas');
+  calCanvas.width = 256; calCanvas.height = 256;
+  const cctx = calCanvas.getContext('2d');
+  cctx.fillStyle = '#F0E8D0'; cctx.fillRect(0, 0, 256, 256);
+  cctx.strokeStyle = '#3A2818'; cctx.lineWidth = 6;
+  cctx.strokeRect(8, 8, 240, 240);
+  cctx.fillStyle = '#3A2818';
+  cctx.font = 'bold 24px Nunito, sans-serif';
+  cctx.textAlign = 'center';
+  cctx.fillText('DAYS HERE', 128, 40);
+  // Tally marks
+  cctx.lineWidth = 4;
+  for (let r = 0; r < 4; r++) {
+    for (let g = 0; g < 4; g++) {
+      const x = 40 + g * 50, y = 80 + r * 40;
+      cctx.beginPath();
+      for (let i = 0; i < 4; i++) {
+        cctx.moveTo(x + i * 6, y);
+        cctx.lineTo(x + i * 6, y + 24);
+      }
+      cctx.moveTo(x - 4, y + 6);
+      cctx.lineTo(x + 22, y + 18);
+      cctx.stroke();
+    }
+  }
+  const calTex = new THREE.CanvasTexture(calCanvas);
+  calTex.colorSpace = THREE.SRGBColorSpace;
+  const calendar = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.7), new THREE.MeshStandardMaterial({ map: calTex, roughness: 0.85 }));
+  calendar.position.set(W / 2 - 0.21, 2.0, -1.2);
+  calendar.rotation.y = -Math.PI / 2;
+  jailGroup.add(calendar);
+
+  // Floor strewn with straw
+  for (let i = 0; i < 12; i++) {
+    const straw = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.02, 0.06), strawMat);
+    straw.position.set(-W / 2 + 0.5 + Math.random() * (W - 1), 0.02, -D / 2 + 0.5 + Math.random() * (D - 1));
+    straw.rotation.y = Math.random() * Math.PI;
+    jailGroup.add(straw);
+  }
+
+  // Inside light (dim)
+  const innerLight = new THREE.PointLight(0xFFCC8A, 0.7, 6);
+  innerLight.position.set(0, H - 0.5, 0);
+  jailGroup.add(innerLight);
+
+  // ── Outside the jail ──
+  // Cobbled path leading up to the bars
+  const path = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 4), new THREE.MeshStandardMaterial({ color: 0x8E8580, roughness: 0.95 }));
+  path.rotation.x = -Math.PI / 2;
+  path.position.set(0, 0.015, D / 2 + 2);
+  jailGroup.add(path);
+  // Individual cobble darker squares for texture
+  for (let i = 0; i < 14; i++) {
+    const cobble = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.02, 0.45), new THREE.MeshStandardMaterial({ color: 0x6E665E, roughness: 0.95 }));
+    cobble.position.set(-0.8 + (i % 3) * 0.8, 0.025, D / 2 + 0.4 + Math.floor(i / 3) * 0.8);
+    jailGroup.add(cobble);
+  }
+
+  // Hedges along both sides of the path
+  const hedgeMat = new THREE.MeshStandardMaterial({ color: 0x3A6E2A, roughness: 0.9 });
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 4; i++) {
+      const hedge = new THREE.Mesh(new THREE.SphereGeometry(0.45, 12, 10), hedgeMat);
+      hedge.position.set(side * 1.8, 0.4, D / 2 + 0.8 + i * 0.9);
+      hedge.castShadow = true;
+      jailGroup.add(hedge);
+    }
+  }
+
+  // WANTED poster pinned to a fence post outside
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.8, 8), new THREE.MeshStandardMaterial({ color: 0x5A3A1E, roughness: 0.8 }));
+  post.position.set(-2.6, 0.9, D / 2 + 2.5);
+  jailGroup.add(post);
+  const posterCanvas = document.createElement('canvas');
+  posterCanvas.width = 256; posterCanvas.height = 384;
+  const pctx = posterCanvas.getContext('2d');
+  pctx.fillStyle = '#F2E5C2'; pctx.fillRect(0, 0, 256, 384);
+  pctx.strokeStyle = '#3A2818'; pctx.lineWidth = 8;
+  pctx.strokeRect(8, 8, 240, 368);
+  pctx.fillStyle = '#3A2818';
+  pctx.font = 'bold 56px Nunito, sans-serif';
+  pctx.textAlign = 'center';
+  pctx.fillText('WANTED', 128, 70);
+  pctx.font = 'italic 22px Nunito, sans-serif';
+  pctx.fillText('NO LONGER', 128, 100);
+  pctx.font = 'bold 38px Nunito, sans-serif';
+  pctx.fillText('SAWBONES', 128, 250);
+  pctx.font = 'bold 24px Nunito, sans-serif';
+  pctx.fillText('Butcher · Caught', 128, 290);
+  pctx.font = 'italic 18px Nunito, sans-serif';
+  pctx.fillText('Reward: 0 acorns', 128, 330);
+  pctx.fillStyle = '#C53B2F';
+  pctx.font = 'bold 56px Nunito, sans-serif';
+  pctx.save();
+  pctx.translate(128, 180); pctx.rotate(-0.3);
+  pctx.fillText('CAUGHT!', 0, 0);
+  pctx.restore();
+  const posterTex = new THREE.CanvasTexture(posterCanvas);
+  posterTex.colorSpace = THREE.SRGBColorSpace;
+  const poster = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 1.0), new THREE.MeshStandardMaterial({ map: posterTex, roughness: 0.85 }));
+  poster.position.set(-2.6, 1.4, D / 2 + 2.55);
+  jailGroup.add(poster);
+
+  // Reference position for the tease trigger
+  jailGroup.userData.barsWorldPos = new THREE.Vector3(JAIL_POS.x, 1, JAIL_POS.z + D / 2 + 1);
+})();
+jailGroup.visible = false;  // Hidden until free-play unlocks
+
+// Free-play SIGN POST in the meadow (also unlocks at the same time)
+const freeplaySignPost = new THREE.Group();
+freeplaySignPost.position.set(2, 0, 2);
+scene.add(freeplaySignPost);
+(function buildSignPost() {
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x6B4632, roughness: 0.85 });
+  const arrowMat = (color) => new THREE.MeshStandardMaterial({ color, roughness: 0.85 });
+  const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 2.4, 10), woodMat);
+  post.position.y = 1.2;
+  post.castShadow = true;
+  freeplaySignPost.add(post);
+  function makeArrow(label, dir, color, yOff) {
+    const grp = new THREE.Group();
+    grp.position.y = yOff;
+    grp.rotation.y = dir;
+    const plank = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.32, 0.06), arrowMat(color));
+    plank.position.x = 0.55;
+    grp.add(plank);
+    // Point at the tip
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.32, 4), arrowMat(color));
+    tip.position.x = 1.18;
+    tip.rotation.z = -Math.PI / 2;
+    tip.rotation.y = Math.PI / 4;
+    grp.add(tip);
+    // Label
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 64;
+    const cx = c.getContext('2d');
+    cx.fillStyle = '#FFFFFF';
+    cx.font = 'bold 36px Nunito, sans-serif';
+    cx.textAlign = 'center'; cx.textBaseline = 'middle';
+    cx.fillText(label, 128, 32);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    const txt = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 0.28), new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+    txt.position.set(0.55, 0, 0.04);
+    grp.add(txt);
+    return grp;
+  }
+  // 4 directional arrows pointing at the buildings + jail
+  // Compute approx direction from sign post (2, 0, 2) to each location
+  function pointAt(targetX, targetZ) {
+    return Math.atan2(targetX - 2, targetZ - 2);
+  }
+  freeplaySignPost.add(makeArrow('HOUSE',   pointAt(-12, -12),  0xC53B2F, 1.95));
+  freeplaySignPost.add(makeArrow('SCHOOL',  pointAt(-26, -8),   0x7A3E2A, 1.6));
+  freeplaySignPost.add(makeArrow('BUTCHER', pointAt(14, -8),    0xC53B2F, 1.25));
+  freeplaySignPost.add(makeArrow('JAIL',    pointAt(20, 14),    0x444444, 0.9));
+})();
+freeplaySignPost.visible = false;
+
+// A second Butcher instance lives inside the jail during free-play
+const butcherInJail = makeButcher();
+butcherInJail.scale.setScalar(0.85);  // a bit smaller, looks defeated
+butcherInJail.visible = false;
+scene.add(butcherInJail);
+
+// ═══════════════════════════════════════════════════════
 // NEW HOUSE in the meadow — Pico's new home
 // ═══════════════════════════════════════════════════════
 (function buildNewHouse() {
@@ -2846,6 +3192,30 @@ function revealStartButton() {
     startBtn.addEventListener('click', pickIntro);
   } else {
     beginIntro();
+  }
+
+  // If the player has already beaten the game, also offer "Continue Free Play"
+  let freeplayUnlocked = false;
+  try { freeplayUnlocked = localStorage.getItem('wonkyAcorn_freeplayUnlocked') === '1'; } catch (e) {}
+  if (freeplayUnlocked) {
+    const loadingCard = document.querySelector('#loading .loading-card');
+    if (loadingCard && !document.getElementById('freeplay-btn')) {
+      const fpBtn = document.createElement('button');
+      fpBtn.id = 'freeplay-btn';
+      fpBtn.type = 'button';
+      fpBtn.textContent = '🌰 Continue Free Play';
+      fpBtn.style.cssText = 'display:block;margin:12px auto 0;padding:12px 28px;font-family:Nunito,sans-serif;font-weight:900;font-size:14px;background:transparent;color:#FFE99C;border:2px solid rgba(255,215,64,0.5);border-radius:999px;cursor:pointer;letter-spacing:0.5px';
+      fpBtn.addEventListener('click', () => {
+        if (chosen) return;
+        chosen = true;
+        ensureAudio();
+        // Reveal Pico fully then jump straight to free-play
+        const loading = document.getElementById('loading');
+        if (loading) loading.style.display = 'none';
+        enterFreePlay();
+      });
+      loadingCard.appendChild(fpBtn);
+    }
   }
 }
 // animation state machine
@@ -3398,6 +3768,9 @@ function tick() {
     checkChapter4Triggers();
     // Ch.5 butcher chase
     checkButcherChase(dt);
+    // Free-play triggers (after Ch.6 ending)
+    checkFreePlayTriggers();
+    updateButcherFreeplayChase(dt);
   }
 
   updateCamera();
@@ -5169,33 +5542,54 @@ async function beginChapter6() {
   await showSpeechFromNPC('butcher', 'I answer to SOMEONE. I had to. They needed the acorns…', 3800);
   await showSpeechFromNPC('butcher', '…and I have to answer to them again. Soon.', 3000);
 
-  // ── 6.5 The morning after ──
+  // ── 6.5 The arrest ──
   showFade(true);
+  await sleep(1000);
+  showOverlayCard('The police arrive.', 1800);
+  await sleep(2000);
+  // Little siren motif while screen is black
+  playTone({ freq: 880, dur: 0.3, type: 'square', volume: 0.16 });
+  setTimeout(() => playTone({ freq: 660, dur: 0.3, type: 'square', volume: 0.16 }), 350);
+  setTimeout(() => playTone({ freq: 880, dur: 0.3, type: 'square', volume: 0.16 }), 700);
   await sleep(1200);
+  await showSpeechFromNPC('brunk', '(quietly) Take him away.', 2600);
+
+  // ── 6.6 The morning after ──
   showOverlayCard('The next morning.', 2000);
   await sleep(2200);
   showFade(false);
 
   await showSpeechFromNPC('hazel', 'You\'ve got a reason to look forward to tomorrow now.', 3000);
   await showSpeech('(small smile) Yeah. I do.', 2400);
+  await sleep(400);
+  await showSpeechFromNPC('hazel', 'The butcher\'s in the jail across the meadow. They\'ll keep him there a long time.', 4000);
 
   await sleep(800);
 
-  // ── Credits / End card ──
+  // ── FREE PLAY UNLOCK ──
+  try { localStorage.setItem('wonkyAcorn_freeplayUnlocked', '1'); } catch (e) {}
+
+  // ── Congratulations / Unlock card ──
   const endHTML = `
-    <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
-      <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">THE END</div>
-      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">Diary of a Wonky Acorn</h2>
-      <p style="font-size:13px;color:rgba(255,255,255,0.5);max-width:520px;margin:0 auto 14px;line-height:1.6">
-        <b>High School Mystery</b><br>
-        Written by Noah · Built with Three.js
+    <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px;max-width:640px">
+      <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">🌰 CONGRATULATIONS 🌰</div>
+      <h2 style="font-size:32px;font-weight:900;margin-bottom:14px;line-height:1.25">You solved the mystery of the missing acorns!</h2>
+      <p style="font-size:14px;color:rgba(255,255,255,0.85);max-width:540px;margin:0 auto 18px;line-height:1.7">
+        You've finished the game. <b>Free Play</b> is now unlocked!<br><br>
+        You can enter <b>your house</b>, <b>Conker Heights High</b>, and
+        <b>Sawbones &amp; Sons</b> at your own will. The Butcher has been
+        locked up in <b>the JAIL</b> across the meadow — wander over and
+        tease him through the bars if you want.
       </p>
-      <p style="font-size:14px;color:rgba(255,215,64,0.85);max-width:520px;margin:0 auto 24px;line-height:1.6;font-style:italic">
-        "He answers to SOMEONE."<br>
-        Pico's story continues…
+      <p style="font-size:13px;color:rgba(255,140,140,0.9);max-width:540px;margin:0 auto 24px;line-height:1.5;font-style:italic">
+        ⚠ Just don't be too rude — if you keep pestering him, he might<br>
+        find a way out and come after you…
       </p>
-      <button id="end-restart-final" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
-        Play again
+      <button id="end-freeplay" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
+        Enter Free Play
+      </button>
+      <button id="end-restart-final" type="button" style="margin:14px 8px 0;padding:14px 28px;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;background:transparent;color:rgba(255,255,255,0.7);border:1.5px solid rgba(255,255,255,0.3);border-radius:999px;cursor:pointer">
+        Play again from start
       </button>
     </div>
   `;
@@ -5205,8 +5599,266 @@ async function beginChapter6() {
     card.classList.remove('fade-out');
     card.style.display = 'flex';
     card.classList.add('show');
+    const fpBtn = document.getElementById('end-freeplay');
+    if (fpBtn) fpBtn.addEventListener('click', () => {
+      card.classList.add('fade-out');
+      setTimeout(() => { card.style.display = 'none'; }, 800);
+      enterFreePlay();
+    });
     const restart = document.getElementById('end-restart-final');
     if (restart) restart.addEventListener('click', () => location.reload());
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// FREE PLAY MODE — unlocked after beating Ch.6
+// ═══════════════════════════════════════════════════════
+let freePlayMode = false;
+let teaseCount = 0;
+let butcherEscaped = false;
+
+function enterFreePlay() {
+  freePlayMode = true;
+  teaseCount = 0;
+  butcherEscaped = false;
+  setCheckpoint('freeplay');
+  // Hide all cutscene state, show the meadow
+  bedroomGroup.visible = false;
+  kitchenGroup.visible = false;
+  newBedroomGroup.visible = false;
+  schoolGroup.visible = false;
+  butcherShopGroup.visible = false;
+  butcher.visible = false;
+  hazel.visible = false;
+  brunk.visible = false;
+  pemberton.visible = false;
+  houseMum.visible = false;
+  // Show the jail with the Butcher locked up (sitting on his cot, defeated)
+  jailGroup.visible = true;
+  freeplaySignPost.visible = true;
+  butcherInJail.position.set(JAIL_POS.x - 1.3, 0, JAIL_POS.z - 2.5);
+  butcherInJail.rotation.y = Math.PI;   // facing south toward the bars
+  butcherInJail.visible = true;
+  // Place Pico in the middle of the meadow
+  player.position.set(0, 0, 0);
+  facingY = 0;
+  player.rotation.y = 0;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  camState.target.set(0, 1.2, 0);
+  camState.distance = 7;
+  camState.yaw = 0;
+  camState.pitch = 0.28;
+  updateCamera();
+  showFade(false);
+  // HUD
+  lastZoneLabel = '';
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.classList.remove('hide');
+    objEl.querySelector('.objective-text').textContent = 'FREE PLAY — explore anywhere';
+  }
+  setStillMode(false);
+  controlsLocked = false;
+  // Briefly tell the player what they can do
+  setTimeout(() => showSpeech('Free Play! Walk to any building to enter.', 3200), 600);
+}
+
+// Quick entries — no cutscene, just teleport inside the building
+async function enterHouseFree() {
+  controlsLocked = true;
+  showFade(true);
+  await sleep(700);
+  newBedroomGroup.visible = true;
+  restoreHouseLights();
+  // Spawn at the entrance hall
+  player.position.set(NEW_BEDROOM_ORIGIN.x, 0, NEW_BEDROOM_ORIGIN.z + 7.0);
+  facingY = 0;
+  player.rotation.y = 0;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  camState.target.set(player.position.x, 1.1, player.position.z);
+  camState.distance = 6;
+  camState.yaw = Math.PI;
+  camState.pitch = 0.22;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  controlsLocked = false;
+}
+async function enterSchoolFree() {
+  controlsLocked = true;
+  showFade(true);
+  await sleep(700);
+  schoolGroup.visible = true;
+  player.position.copy(SCHOOL_ORIGIN);
+  player.position.z += 9;
+  facingY = Math.PI;
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  camState.target.set(player.position.x, 1.1, player.position.z);
+  camState.distance = 6;
+  camState.yaw = 0;
+  camState.pitch = 0.28;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  controlsLocked = false;
+}
+async function enterButcherShopFree() {
+  controlsLocked = true;
+  showFade(true);
+  await sleep(700);
+  butcherShopGroup.visible = true;
+  butcher.position.copy(BUTCHER_ORIGIN);
+  butcher.position.z -= 4.2;
+  butcher.rotation.y = 0;
+  butcher.visible = false;   // Butcher is in jail — empty shop
+  player.position.copy(BUTCHER_ORIGIN);
+  player.position.z += 3.5;
+  facingY = 0;
+  player.rotation.y = 0;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  camState.target.set(player.position.x, 1.1, player.position.z);
+  camState.distance = 6;
+  camState.yaw = Math.PI;
+  camState.pitch = 0.22;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  setTimeout(() => showSpeech('The shop\'s empty. The Butcher\'s in jail.', 2800), 400);
+  controlsLocked = false;
+}
+async function exitToMeadowFree() {
+  // From any building back to the meadow centre (free-play overworld)
+  controlsLocked = true;
+  showFade(true);
+  await sleep(700);
+  newBedroomGroup.visible = false;
+  schoolGroup.visible = false;
+  butcherShopGroup.visible = false;
+  player.position.set(0, 0, 0);
+  facingY = 0;
+  player.rotation.y = 0;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  showFade(false);
+  controlsLocked = false;
+}
+
+// Per-frame triggers active during FREE PLAY
+function checkFreePlayTriggers() {
+  if (!freePlayMode || controlsLocked) return;
+  const px = player.position.x, pz = player.position.z;
+
+  // Walking up to each building's door teleports inside (no cutscene)
+  if (!newBedroomGroup.visible && !schoolGroup.visible && !butcherShopGroup.visible) {
+    // House door (-12, 0, -9.5)
+    if (Math.hypot(px - (-12), pz - (-9.5)) < 1.5) { enterHouseFree(); return; }
+    // School door
+    const sd = schoolStorefront.userData.doorWorldPos;
+    if (Math.hypot(px - sd.x, pz - sd.z) < 2.2) { enterSchoolFree(); return; }
+    // Butcher door
+    const bd = butcherStorefront.userData.doorWorldPos;
+    if (Math.hypot(px - bd.x, pz - bd.z) < 2.0) { enterButcherShopFree(); return; }
+  }
+  // Inside any building? Walking back to its exit doorway returns to meadow
+  if (newBedroomGroup.visible) {
+    const lx = px - NEW_BEDROOM_ORIGIN.x, lz = pz - NEW_BEDROOM_ORIGIN.z;
+    if (lz >= 7.8 && Math.abs(lx) <= 0.9 && player.position.y < 0.5) { exitToMeadowFree(); return; }
+  }
+  if (schoolGroup.visible) {
+    const lx = px - SCHOOL_ORIGIN.x, lz = pz - SCHOOL_ORIGIN.z;
+    if (lz >= 11) { exitToMeadowFree(); return; }
+  }
+  if (butcherShopGroup.visible) {
+    const lz = pz - BUTCHER_ORIGIN.z;
+    if (lz >= 6.5) { exitToMeadowFree(); return; }
+  }
+
+  // ── Tease the Butcher through the bars ──
+  if (jailGroup.visible && !butcherEscaped) {
+    const bp = jailGroup.userData.barsWorldPos;
+    const d = Math.hypot(px - bp.x, pz - bp.z);
+    if (d < 1.5 && !jailGroup.userData.lastTease) {
+      jailGroup.userData.lastTease = performance.now();
+    }
+    if (jailGroup.userData.lastTease && performance.now() - jailGroup.userData.lastTease > 2500) {
+      // A "tease" — Pico stood close to the bars for a moment
+      jailGroup.userData.lastTease = performance.now() + 1500;  // cool-down
+      teaseCount++;
+      const lines = [
+        '(through the bars) Stuck in there, eh?',
+        'Bet you wish you could have a sausage now.',
+        'How\'s the salt in there?',
+        'My MUM was right about you!',
+        '(tap tap on the bars) Hello in there!'
+      ];
+      showSpeech(lines[teaseCount % lines.length], 2400);
+      const replies = [
+        '(grumble) Go away, child.',
+        'I\'ll remember this.',
+        'You\'re asking for trouble.',
+        '(low growl) Last warning.',
+        'RIGHT. THAT\'S IT.'
+      ];
+      setTimeout(() => showSpeechFromNPC('butcher', replies[Math.min(teaseCount - 1, replies.length - 1)], 2600), 1800);
+      if (teaseCount >= 5) {
+        setTimeout(triggerButcherEscape, 4800);
+      }
+    }
+  }
+}
+
+async function triggerButcherEscape() {
+  if (butcherEscaped) return;
+  butcherEscaped = true;
+  addShake(0.4);
+  playTone({ freq: 80, dur: 0.5, type: 'sawtooth', volume: 0.3 });
+  await showSpeechFromNPC('butcher', '(BANG!) I told you. HERE I COME.', 3000);
+  // Move the loose Butcher out of the jail into chase position
+  butcherInJail.visible = false;
+  butcher.position.set(JAIL_POS.x, 0, JAIL_POS.z + 3);
+  butcher.rotation.y = Math.PI;
+  butcher.visible = true;
+  // Continuous chase loop until Pico escapes to a building
+}
+
+function updateButcherFreeplayChase(dt) {
+  if (!freePlayMode || !butcherEscaped || !butcher.visible) return;
+  // Hide butcher if player ducked into a building
+  if (newBedroomGroup.visible || schoolGroup.visible || butcherShopGroup.visible) {
+    butcher.visible = false;
+    butcherEscaped = false;
+    butcherInJail.visible = true;   // re-spawn in jail
+    teaseCount = 0;
+    if (jailGroup.userData) jailGroup.userData.lastTease = 0;
+    setTimeout(() => showSpeech('(safe inside) Phew. He went back to the jail.', 2800), 500);
+    return;
+  }
+  const dx = player.position.x - butcher.position.x;
+  const dz = player.position.z - butcher.position.z;
+  const dist = Math.hypot(dx, dz);
+  if (dist > 0.001) {
+    const speed = 3.8;
+    butcher.position.x += (dx / dist) * speed * dt;
+    butcher.position.z += (dz / dist) * speed * dt;
+    butcher.rotation.y = Math.atan2(dx, dz);
+    butcher.position.y = Math.abs(Math.sin(performance.now() * 0.014)) * 0.12;
+  }
+  if (dist < 1.4) {
+    // Caught — soft penalty: Pico teleports back to meadow centre, butcher returns to jail
+    addShake(0.6);
+    playTone({ freq: 60, dur: 0.6, type: 'sawtooth', volume: 0.35 });
+    showSpeechFromNPC('butcher', 'GOTCHA! …back in I go.', 2200);
+    player.position.set(0, 0, 0);
+    butcher.visible = false;
+    butcherEscaped = false;
+    butcherInJail.visible = true;
+    teaseCount = 0;
+    if (jailGroup.userData) jailGroup.userData.lastTease = 0;
   }
 }
 
