@@ -2782,7 +2782,8 @@ async function beginIntro() {
   await showSpeechFromNPC('granny', 'Go on in and unpack, sweetheart. We\'ll be in in a minute.', 3200);
   await sleep(400);
 
-  // Hand control over to the player
+  // Hand control over to the player — clear locked pose so he walks normally
+  manualDance = null;
   controlsLocked = false;
   hudEl.classList.add('show');
   try { localStorage.setItem('wonkyAcornIntroSeen', '1'); } catch (e) {}
@@ -3472,5 +3473,7 @@ async function enterNewBedroom() {
   await showSpeechFromNPC('granny', 'Welcome to your new room, sweetheart!', 2800);
   await showSpeech('It\'s… so empty.', 2400);
 
+  // Clear the locked-pose override so Pico walks normally when player takes control
+  manualDance = null;
   controlsLocked = false;
 }
