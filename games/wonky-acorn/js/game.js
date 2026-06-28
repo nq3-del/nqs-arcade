@@ -2684,6 +2684,32 @@ scene.add(player);
 
 let pico = null;
 let mixer = null;
+let animationsLoaded = false;
+let modelLoaded = false;
+let startButtonRevealed = false;
+
+function revealStartButton() {
+  // Both async loads must finish before we let the player tap to begin —
+  // otherwise the intro cutscene runs with no actions[] map and Pico stays in T-pose.
+  if (!animationsLoaded || !modelLoaded) return;
+  if (startButtonRevealed) return;
+  startButtonRevealed = true;
+  setLoading(100, 'Tap to begin!');
+  const startBtn = document.getElementById('start-btn');
+  let chosen = false;
+  const pickIntro = () => {
+    if (chosen) return;
+    chosen = true;
+    beginIntro();
+  };
+  if (startBtn) {
+    startBtn.textContent = 'Tap to begin';
+    startBtn.classList.add('show');
+    startBtn.addEventListener('click', pickIntro);
+  } else {
+    beginIntro();
+  }
+}
 // animation state machine
 const actions = {};         // name -> AnimationAction
 let currentActionName = null;
@@ -2746,6 +2772,7 @@ loader.load(
     // Add to the player Group (not the scene directly).
     // Player.position now represents feet-on-ground.
     player.add(pico);
+    modelLoaded = true;
 
     // (picoStill removed — Noah wants the regular animated Pico always.
     //  Cutscene/idle "stillness" is now done by pausing the mixer.)
@@ -2753,6 +2780,7 @@ loader.load(
     // pico.glb's built-in is just T-pose (1 frame). Real animations live in pico_anims.glb (20+ clips).
     mixer = new THREE.AnimationMixer(pico);
 
+    setLoading(80, 'Loading animations…');
     loader.load(
       'assets/models/pico_anims.glb',
       (animGltf) => {
@@ -2762,38 +2790,31 @@ loader.load(
             console.log('  loaded animation:', clip.name, 'duration:', clip.duration.toFixed(2));
           }
           console.log('Total animations loaded:', Object.keys(actions).length);
-          // Start with the Big_Wave_Hello idle (full-body wave, very Pico-friendly)
           playAction('Bubble_Dance');
         }
+        // Now that animations are ready, reveal the Tap to begin button
+        animationsLoaded = true;
+        revealStartButton();
       },
       undefined,
       (err) => {
         console.warn('Animations file failed to load — Pico will be a T-pose statue:', err);
+        animationsLoaded = true;
+        revealStartButton();
       }
     );
 
-    setLoading(95, 'Ready!');
+    // Don't reveal the start button until BOTH the Pico model and the
+    // animations GLB are loaded — otherwise the player can click into a
+    // T-posed cutscene where playAction silently no-ops.
+    setLoading(95, 'Loading animations…');
     setTimeout(() => {
       // If the user clicked "Load" in the pause menu before this reload,
       // jump straight to the saved checkpoint and skip the start screen.
       if (applyPendingLoadIfAny()) return;
-
-      setLoading(100, 'Tap to begin!');
-      const startBtn = document.getElementById('start-btn');
-      let chosen = false;
-      const pickIntro = () => {
-        if (chosen) return;
-        chosen = true;
-        beginIntro();
-      };
-      if (startBtn) {
-        startBtn.textContent = 'Tap to begin';
-        startBtn.classList.add('show');
-        startBtn.addEventListener('click', pickIntro);
-      }
-      if (!startBtn) {
-        beginIntro();
-      }
+      // If animations finished loading before the model, this will run now;
+      // otherwise the anim-load callback will call it
+      revealStartButton();
     }, 300);
   },
   (xhr) => {
