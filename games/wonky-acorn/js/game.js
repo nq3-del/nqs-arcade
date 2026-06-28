@@ -418,10 +418,9 @@ scene.add(bedroomGroup);
   // Save a reference so the cutscene can wiggle the clock when it rings
   bedroomGroup.userData.alarmGroup = alarmGroup;
 
-  // Warm bedroom point light (turns off when the player "leaves" via cutscene end)
+  // Warm bedroom point light — no shadow casting (perf on 2015 Mac)
   const lamp = new THREE.PointLight(0xFFE0A0, 1.4, 12);
   lamp.position.set(2, 3.5, 2);
-  lamp.castShadow = true;
   bedroomGroup.add(lamp);
 
   // A small lamp model on the table
@@ -786,10 +785,9 @@ function makeParentAcorn(opts) {
   kitchenGroup.userData.granny = granny;
   kitchenGroup.userData.grampa = grampa;
 
-  // Warm kitchen ceiling light
+  // Warm kitchen ceiling light — no shadows for perf
   const ceilingLight = new THREE.PointLight(0xFFE4B0, 1.6, 14);
   ceilingLight.position.set(0, 3.5, 1.0);
-  ceilingLight.castShadow = true;
   kitchenGroup.add(ceilingLight);
 
   // Window light from outside
@@ -1499,6 +1497,14 @@ function tick() {
     };
     const wantAction = chooseAnimationState(state);
     if (wantAction) playAction(wantAction);
+
+    // Sync walk/run animation speed to actual movement speed (reduces foot sliding)
+    if (actions['Walking'] && currentActionName === 'Walking') {
+      actions['Walking'].timeScale = Math.max(0.7, horizontalSpeed / WALK_SPEED);
+    }
+    if (actions['Running'] && currentActionName === 'Running') {
+      actions['Running'].timeScale = Math.max(0.8, horizontalSpeed / (WALK_SPEED * SPRINT_MULT));
+    }
 
     // Tick mixer last so the chosen action is reflected this frame
     if (mixer) mixer.update(dt);
