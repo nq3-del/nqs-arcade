@@ -4567,17 +4567,18 @@ async function beginChapter4() {
   newBedroomGroup.visible = true;
   houseMum.visible = true;
 
-  // Place Pico at the BOTTOM of the stairs, facing the living room
+  // Place Pico at the BOTTOM of the stairs, facing the living room (+Z south)
   player.position.set(NEW_BEDROOM_ORIGIN.x, 0, NEW_BEDROOM_ORIGIN.z + 3.6);
   facingY = Math.PI;
   player.rotation.y = Math.PI;
   playerVel.set(0, 0, 0);
   grounded = true;
 
-  // Camera framed on the living room from behind Pico
+  // Camera BEHIND Pico (north of him, looking south toward the living room).
+  // Pico faces +Z (south); camera at -Z (north) of him → W key = forward = south.
   camState.target.set(player.position.x, 1.0, player.position.z);
   camState.distance = 6;
-  camState.yaw = 0;
+  camState.yaw = Math.PI;
   camState.pitch = 0.22;
   updateCamera();
   await sleep(200);
