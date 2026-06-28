@@ -230,6 +230,54 @@ for (let i = 0; i < 15; i++) {
   scene.add(cap);
 }
 
+// ═══════════════════════════════════════════════════════
+// CITY BACKDROP — distant buildings ringing the playable area
+// per SCRIPT.md: family moves to a CITY, not a meadow
+// ═══════════════════════════════════════════════════════
+(function buildCityRing() {
+  const buildingColors = [0x6B7A8A, 0x9C8F7E, 0xC4B198, 0x7E8B97, 0x5F6973, 0xA48E76, 0x88959E];
+  const facadeMat = (c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.75 });
+  // Tall slabs spread in a wide circle ~70m out, far enough that the meadow looks like a city park
+  const RADIUS = 70;
+  const COUNT = 26;
+  for (let i = 0; i < COUNT; i++) {
+    const angle = (i / COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.2;
+    const r = RADIUS + (Math.random() - 0.5) * 10;
+    const cx = Math.cos(angle) * r;
+    const cz = Math.sin(angle) * r;
+    // Random building dimensions — keeps the skyline varied
+    const bw = 5 + Math.random() * 9;
+    const bd = 5 + Math.random() * 9;
+    const bh = 8 + Math.random() * 22;
+    const color = buildingColors[Math.floor(Math.random() * buildingColors.length)];
+    const building = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), facadeMat(color));
+    building.position.set(cx, bh / 2, cz);
+    building.castShadow = true;
+    building.receiveShadow = true;
+    scene.add(building);
+    // Tiny "windows" — sprinkle of dark + glowing rectangles on the front-facing side
+    const winCount = Math.floor(bh / 1.4) * Math.floor(bw / 1.4);
+    const winMat = new THREE.MeshStandardMaterial({
+      color: 0x1a2030,
+      emissive: 0xFFE085,
+      emissiveIntensity: 0.5
+    });
+    for (let w = 0; w < winCount; w++) {
+      const wx = (Math.random() - 0.5) * (bw - 0.8);
+      const wy = (Math.random() - 0.5) * (bh - 1.4);
+      const facingOut = new THREE.Vector3(cx, 0, cz).normalize();
+      const win = new THREE.Mesh(new THREE.PlaneGeometry(0.55, 0.85), winMat);
+      win.position.set(
+        cx - facingOut.x * (bd * 0.5 + 0.02) + (-facingOut.z) * wx,
+        bh / 2 + wy,
+        cz - facingOut.z * (bd * 0.5 + 0.02) + facingOut.x * wx
+      );
+      win.lookAt(0, win.position.y, 0);
+      scene.add(win);
+    }
+  }
+})();
+
 // Floating clouds in the sky for atmosphere — drift slowly across the meadow
 const cloudMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, metalness: 0 });
 const drifters = [];  // {mesh, driftSpeed}
@@ -2183,6 +2231,10 @@ function tick() {
     updateZoneLabel();
     // Unpacking mini-objective inside the new bedroom
     checkBoxTouches();
+    // Ch.3 hallway triggers
+    checkSchoolTriggers();
+    // Hazel follows Pico once she's joined the party
+    updateHazelFollow(dt);
   }
 
   updateCamera();
@@ -3273,6 +3325,47 @@ async function ch3Trigger_corkboard() {
 
   ch3Phase = 'done';
   endChapter3();
+}
+
+// Check Ch.3 triggers each frame: Brunk fires when Pico walks past the centre of the hallway,
+// corkboard fires when Pico walks toward the corkboard once Hazel has joined.
+function checkSchoolTriggers() {
+  if (!schoolGroup.visible) return;
+  const localZ = player.position.z - SCHOOL_ORIGIN.z;
+  if (ch3Phase === 'walking' && localZ < 3) {
+    ch3Trigger_brunk();
+  } else if (ch3Phase === 'freeRoam') {
+    // Corkboard is at local (HALL_W/2 - 0.5, ..., -0.5) → world (-0.5 + SCHOOL_ORIGIN.x... wait, HALL_W/2 = 3)
+    const localX = player.position.x - SCHOOL_ORIGIN.x;
+    const dist = Math.hypot(localX - 2.5, localZ - (-0.5));  // corkboard local (2.5, -0.5)
+    if (dist < 1.6) {
+      ch3Trigger_corkboard();
+    }
+  }
+}
+
+// Hazel walks behind Pico at a fixed offset once she's joined the party
+function updateHazelFollow(dt) {
+  if (!hazel.visible || !hazel.userData.following) return;
+  // Target is just behind+left of Pico, in world coords
+  const back = new THREE.Vector3(Math.sin(player.rotation.y), 0, Math.cos(player.rotation.y));
+  const right = new THREE.Vector3(Math.cos(player.rotation.y), 0, -Math.sin(player.rotation.y));
+  const targetX = player.position.x - back.x * 1.6 - right.x * 0.6;
+  const targetZ = player.position.z - back.z * 1.6 - right.z * 0.6;
+  // Smoothly lerp toward target (gives a "follow" feel)
+  const dx = targetX - hazel.position.x;
+  const dz = targetZ - hazel.position.z;
+  const dist = Math.hypot(dx, dz);
+  if (dist > 0.05) {
+    const speed = Math.min(dist * 4, 6) * dt;
+    hazel.position.x += (dx / dist) * speed;
+    hazel.position.z += (dz / dist) * speed;
+    hazel.rotation.y = Math.atan2(dx, dz);
+    // Subtle bobbing while moving
+    hazel.position.y = Math.abs(Math.sin(performance.now() * 0.008)) * 0.04;
+  } else {
+    hazel.position.y = 0;
+  }
 }
 
 async function endChapter3() {
