@@ -4028,7 +4028,82 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// ─── Character voices via SpeechSynthesis API ────────────────
+// No audio files needed — uses the OS's built-in TTS voices. Each
+// character gets a distinct pitch + rate so they sound different.
+const VOICE_PRESETS = {
+  pico:      { rate: 1.15, pitch: 1.6, volume: 0.9 },   // little kid acorn — high + bright
+  granny:    { rate: 0.9,  pitch: 1.3, volume: 0.85 },  // older lady — kindly + slow-ish
+  grampa:    { rate: 0.8,  pitch: 0.65,volume: 0.9 },   // older man — slow + low
+  hazel:     { rate: 1.4,  pitch: 1.4, volume: 0.85 },  // fast-talking + bright girl
+  brunk:     { rate: 0.85, pitch: 0.5, volume: 0.95 },  // big bully chestnut — low + slow
+  pemberton: { rate: 0.95, pitch: 0.9, volume: 0.85 },  // teacher — measured
+  butcher:   { rate: 0.95, pitch: 0.55,volume: 0.95 },  // menacing + sing-song
+  narrator:  { rate: 1.0,  pitch: 1.0, volume: 0.8 }    // fallback
+};
+// Try to pick voices preferring a few accents for variety. The browser
+// will fall back to its default if none match.
+let cachedVoices = null;
+function pickVoice(preset, charKey) {
+  if (!('speechSynthesis' in window)) return null;
+  if (!cachedVoices || cachedVoices.length === 0) {
+    cachedVoices = window.speechSynthesis.getVoices();
+  }
+  if (!cachedVoices || cachedVoices.length === 0) return null;
+  // English voices only — sort to prefer named voices that match the character
+  const englishVoices = cachedVoices.filter(v => v.lang && v.lang.startsWith('en'));
+  if (englishVoices.length === 0) return cachedVoices[0];
+  // Preferred per character (different OS exposes different sets — these are common)
+  const prefs = {
+    pico:      ['Karen', 'Samantha', 'Allison', 'Susan', 'Junior'],
+    granny:    ['Karen', 'Tessa', 'Samantha', 'Moira'],
+    grampa:    ['Daniel', 'Fred', 'Ralph', 'Albert', 'Bruce'],
+    hazel:     ['Karen', 'Allison', 'Susan', 'Vicki', 'Princess'],
+    brunk:     ['Fred', 'Ralph', 'Bruce', 'Albert'],
+    pemberton: ['Daniel', 'Oliver', 'Aaron'],
+    butcher:   ['Bahh', 'Bad News', 'Fred', 'Ralph', 'Bruce', 'Daniel'],
+    narrator:  ['Samantha', 'Karen']
+  };
+  const want = prefs[charKey] || [];
+  for (const name of want) {
+    const v = englishVoices.find(vv => vv.name === name || vv.name.includes(name));
+    if (v) return v;
+  }
+  return englishVoices[0];
+}
+// Re-cache when voices load (some browsers load voices async)
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.onvoiceschanged = () => { cachedVoices = null; };
+}
+
+let voicesOn = (() => { try { return localStorage.getItem('wonkyAcorn_voicesOn') !== '0'; } catch (e) { return true; } })();
+let _currentUtterance = null;
+function speak(text, charKey = 'pico') {
+  if (muted || !voicesOn) return;
+  if (!('speechSynthesis' in window)) return;
+  // Cancel any in-progress utterance so dialogue doesn't overlap
+  try { window.speechSynthesis.cancel(); } catch (e) {}
+  // Strip stage directions in parentheses like "(small smile)" or italic asides
+  const clean = String(text)
+    .replace(/\([^)]*\)/g, ' ')   // remove (smiles), (quietly), etc.
+    .replace(/\s+/g, ' ')
+    .trim();
+  if (!clean) return;
+  const preset = VOICE_PRESETS[charKey] || VOICE_PRESETS.narrator;
+  const u = new SpeechSynthesisUtterance(clean);
+  const voice = pickVoice(preset, charKey);
+  if (voice) u.voice = voice;
+  u.rate = preset.rate;
+  u.pitch = preset.pitch;
+  u.volume = preset.volume;
+  u.lang = (voice && voice.lang) || 'en-US';
+  _currentUtterance = u;
+  u.onend = () => { if (_currentUtterance === u) _currentUtterance = null; };
+  try { window.speechSynthesis.speak(u); } catch (e) {}
+}
+
 function showSpeech(text, duration = 2000) {
+  speak(text, 'pico');   // Pico is the player character — default voice
   return showSpeechBubble({ text, duration });
 }
 
@@ -4347,6 +4422,7 @@ function showSpeechFromNPC(who, text, duration = 2000) {
     butcher:   { name: 'BUTCHER',      color: '#8B3A2A' }
   };
   const label = labels[who] || { name: who.toUpperCase(), color: '#555' };
+  speak(text, who);   // pick the NPC's voice preset
   return showSpeechBubble({ text, duration, npcName: label.name, npcColor: label.color });
 }
 
@@ -4365,6 +4441,10 @@ if (muted) {
 
 function setPaused(v) {
   paused = v;
+  // Pause/resume the current voice line too
+  if ('speechSynthesis' in window) {
+    try { v ? window.speechSynthesis.pause() : window.speechSynthesis.resume(); } catch (e) {}
+  }
   const menu = document.getElementById('pause-menu');
   if (menu) {
     if (v) menu.classList.add('show');
@@ -4539,6 +4619,21 @@ function applyPendingLoadIfAny() {
   if (resumeBtn) resumeBtn.addEventListener('click', () => setPaused(false));
   const muteBtn = document.getElementById('pause-mute');
   if (muteBtn) muteBtn.addEventListener('click', toggleMute);
+  // Voices toggle (per-character TTS via SpeechSynthesis)
+  const voicesBtn = document.getElementById('pause-voices');
+  function syncVoicesLabel() {
+    if (voicesBtn) voicesBtn.textContent = `Character Voices: ${voicesOn ? 'ON' : 'OFF'}`;
+  }
+  syncVoicesLabel();
+  if (voicesBtn) voicesBtn.addEventListener('click', () => {
+    voicesOn = !voicesOn;
+    try { localStorage.setItem('wonkyAcorn_voicesOn', voicesOn ? '1' : '0'); } catch (e) {}
+    if (!voicesOn && 'speechSynthesis' in window) {
+      try { window.speechSynthesis.cancel(); } catch (e) {}
+    }
+    syncVoicesLabel();
+  });
+
   // Shortcut on the GAME tab → switches to the REPLAY tab
   const replayShortcut = document.getElementById('pause-replay-shortcut');
   if (replayShortcut) replayShortcut.addEventListener('click', () => {
@@ -4645,6 +4740,8 @@ window.addEventListener('keydown', e => {
     // immediately, letting the cutscene race through to its natural end state
     // (which lands the player exactly where the cutscene was going to leave them).
     cutsceneCancelled = true;
+    // Also stop any voice line that was speaking
+    if ('speechSynthesis' in window) { try { window.speechSynthesis.cancel(); } catch (e) {} }
     if (stopAlarm) { stopAlarm(); stopAlarm = null; }
     // Hide the visible UI bubble so the speed-run isn't visible
     const bubble = document.getElementById('speech-bubble');
