@@ -843,7 +843,7 @@ function makeParentAcorn(opts) {
   });
   granny.position.set(-1.6, 0, 1.0);   // sitting at chair (but standing for simplicity)
   granny.rotation.y = Math.PI / 2;       // facing the table (right)
-  granny.scale.setScalar(0.78);   // a bit shorter than Pico
+  granny.scale.setScalar(0.66);   // a bit shorter than Pico
   kitchenGroup.add(granny);
 
   const grampa = makeParentAcorn({
@@ -852,7 +852,7 @@ function makeParentAcorn(opts) {
   });
   grampa.position.set(1.6, 0, 1.0);
   grampa.rotation.y = -Math.PI / 2;      // facing the table (left)
-  grampa.scale.setScalar(0.82);   // a bit shorter than Pico
+  grampa.scale.setScalar(0.70);   // a bit shorter than Pico
   kitchenGroup.add(grampa);
 
   // Save references for the cutscene
@@ -1426,7 +1426,7 @@ scene.add(brunk);
 
 const hazel = makeHazel();
 hazel.position.set(SCHOOL_ORIGIN.x - 1.5, 0, SCHOOL_ORIGIN.z + 2);
-hazel.scale.setScalar(0.85);   // a bit smaller than Pico
+hazel.scale.setScalar(0.72);   // a bit smaller than Pico
 hazel.visible = false;
 scene.add(hazel);
 
@@ -2127,7 +2127,7 @@ let manualDanceUntil = 0;   // ms timestamp when manual dance returns to auto
 const playerVel = new THREE.Vector3();
 let grounded = true;
 let facingY = 0;
-const TARGET_HEIGHT = 1.3;  // Pico — kept a bit bigger than the parent/Hazel acorns below
+const TARGET_HEIGHT = 1.1;  // Pico — kept a bit bigger than the parent/Hazel acorns below
 
 loader.load(
   'assets/models/pico.glb',
