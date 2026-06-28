@@ -844,6 +844,149 @@ function makeParentAcorn(opts) {
 kitchenGroup.visible = false;
 
 // ═══════════════════════════════════════════════════════
+// NEW BEDROOM (empty interior of the new house — Pico's unpacking room)
+// ═══════════════════════════════════════════════════════
+const NEW_BEDROOM_ORIGIN = new THREE.Vector3(0, 0, -600);
+const newBedroomGroup = new THREE.Group();
+newBedroomGroup.position.copy(NEW_BEDROOM_ORIGIN);
+scene.add(newBedroomGroup);
+
+(function buildNewBedroom() {
+  // Materials — feels emptier and a bit colder than Acornville bedroom
+  const wallMat   = new THREE.MeshStandardMaterial({ color: 0xE8E4DA, roughness: 0.92 });
+  const floorMat  = new THREE.MeshStandardMaterial({ color: 0xC9A77C, roughness: 0.65 });
+  const trimMat   = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 });
+  const boxMat    = new THREE.MeshStandardMaterial({ color: 0xB48A60, roughness: 0.85 });
+  const boxTapeMat = new THREE.MeshStandardMaterial({ color: 0xC8A878, roughness: 0.6 });
+  const windowMat = new THREE.MeshStandardMaterial({ color: 0xCFEFFC, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.75 });
+
+  const ROOM_W = 7, ROOM_D = 8, ROOM_H = 4;
+
+  // Floor
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  newBedroomGroup.add(floor);
+
+  // Walls
+  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+  wallBack.position.set(0, ROOM_H / 2, -ROOM_D / 2);
+  wallBack.receiveShadow = true;
+  newBedroomGroup.add(wallBack);
+
+  const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+  wallLeft.position.set(-ROOM_W / 2, ROOM_H / 2, 0);
+  wallLeft.rotation.y = Math.PI / 2;
+  wallLeft.receiveShadow = true;
+  newBedroomGroup.add(wallLeft);
+
+  const wallRight = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+  wallRight.position.set(ROOM_W / 2, ROOM_H / 2, 0);
+  wallRight.rotation.y = -Math.PI / 2;
+  wallRight.receiveShadow = true;
+  newBedroomGroup.add(wallRight);
+
+  // Skirting board trim
+  for (const [wx, wz, wRot, wLen] of [[0, -ROOM_D/2, 0, ROOM_W], [-ROOM_W/2, 0, Math.PI/2, ROOM_D], [ROOM_W/2, 0, -Math.PI/2, ROOM_D]]) {
+    const trim = new THREE.Mesh(new THREE.BoxGeometry(wLen, 0.12, 0.04), trimMat);
+    trim.position.set(wx, 0.06, wz);
+    trim.rotation.y = wRot;
+    newBedroomGroup.add(trim);
+  }
+
+  // Ceiling
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), new THREE.MeshStandardMaterial({ color: 0xF5EFDD, roughness: 0.92 }));
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.y = ROOM_H;
+  newBedroomGroup.add(ceiling);
+
+  // Window on back wall — sun streams in
+  const winFrame = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.0, 0.15), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 }));
+  winFrame.position.set(0, 2.4, -ROOM_D / 2 + 0.08);
+  newBedroomGroup.add(winFrame);
+  const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 1.6), windowMat);
+  winGlass.position.set(0, 2.4, -ROOM_D / 2 + 0.18);
+  newBedroomGroup.add(winGlass);
+  // Window panes
+  for (const cx of [-0.65, 0, 0.65]) {
+    const v = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.6, 0.04), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 }));
+    v.position.set(cx, 2.4, -ROOM_D / 2 + 0.2);
+    newBedroomGroup.add(v);
+  }
+
+  // Cardboard moving boxes — stacked, scattered, ready to unpack
+  function makeBox(x, z, w, h, d, rotY = 0, label = '') {
+    const grp = new THREE.Group();
+    grp.position.set(x, h / 2, z);
+    grp.rotation.y = rotY;
+    const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), boxMat);
+    body.castShadow = true;
+    body.receiveShadow = true;
+    grp.add(body);
+    // Tape across the top
+    const tape = new THREE.Mesh(new THREE.BoxGeometry(w + 0.01, 0.04, d * 0.25), boxTapeMat);
+    tape.position.y = h / 2 + 0.005;
+    grp.add(tape);
+    // Label (just a contrasting square — could be text later)
+    if (label) {
+      const labelEl = new THREE.Mesh(new THREE.PlaneGeometry(w * 0.45, h * 0.35), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.6 }));
+      labelEl.position.set(0, 0, d / 2 + 0.005);
+      grp.add(labelEl);
+    }
+    return grp;
+  }
+
+  // Stack of 3 boxes in the corner
+  newBedroomGroup.add(makeBox(-2.5, -2.5, 1.2, 0.8, 1.0, 0.1, 'CLOTHES'));
+  newBedroomGroup.add(makeBox(-2.5, -2.5 + 0.0, 1.0, 0.7, 0.9, -0.05));
+  const stackTop = makeBox(-2.5, -2.5, 0.9, 0.6, 0.8, 0.15, 'TOYS');
+  stackTop.position.y = 0.8 + 0.7 + 0.3;  // sit on top of the two boxes
+  newBedroomGroup.add(stackTop);
+  // The lower two need to stack physically — rebuild with explicit Y
+  const box1 = makeBox(-2.5, -2.5, 1.2, 0.8, 1.0, 0.1, 'CLOTHES');
+  box1.position.y = 0.4;
+  newBedroomGroup.add(box1);
+  const box2 = makeBox(-2.5, -2.5, 1.0, 0.7, 0.9, -0.05);
+  box2.position.y = 0.8 + 0.35;
+  newBedroomGroup.add(box2);
+
+  // Single big box in the centre
+  const bigBox = makeBox(0, 1.5, 1.6, 1.0, 1.2, 0.3, 'BOOKS');
+  bigBox.position.y = 0.5;
+  newBedroomGroup.add(bigBox);
+
+  // A smaller box near the door
+  const smallBox = makeBox(2.0, 2.8, 0.9, 0.6, 0.7, -0.2, 'STUFF');
+  smallBox.position.y = 0.3;
+  newBedroomGroup.add(smallBox);
+
+  // Suitcase-style box on its side
+  const suitcase = makeBox(2.5, -1.5, 1.0, 0.4, 0.6, 0.6);
+  suitcase.position.y = 0.2;
+  newBedroomGroup.add(suitcase);
+
+  // Empty bed frame (no mattress yet — Pico has to unpack it!)
+  const bareFrameMat = new THREE.MeshStandardMaterial({ color: 0x6B4632, roughness: 0.75 });
+  const bareFrame = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.4, 3.2), bareFrameMat);
+  bareFrame.position.set(2.2, 0.2, -2.0);
+  bareFrame.castShadow = true;
+  bareFrame.receiveShadow = true;
+  newBedroomGroup.add(bareFrame);
+  // Headboard (only thing assembled)
+  const bareHead = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.0, 0.18), bareFrameMat);
+  bareHead.position.set(2.2, 0.9, -3.5);
+  bareHead.castShadow = true;
+  newBedroomGroup.add(bareHead);
+
+  // Warm window light (no shadow casting for perf)
+  const winLight = new THREE.PointLight(0xFFE5B8, 1.4, 14);
+  winLight.position.set(0, 2.4, -ROOM_D / 2 + 1);
+  newBedroomGroup.add(winLight);
+})();
+
+newBedroomGroup.visible = false;
+
+// ═══════════════════════════════════════════════════════
 // NEW HOUSE in the meadow — Pico's new home
 // ═══════════════════════════════════════════════════════
 (function buildNewHouse() {
@@ -2091,6 +2234,7 @@ window.addEventListener('keydown', e => {
     // Hide cutscene scenes + reset player to the new house
     bedroomGroup.visible = false;
     kitchenGroup.visible = false;
+    newBedroomGroup.visible = false;
     manualDance = null;
     const spawn = scene.userData.newHouseSpawn || new THREE.Vector3(0, 0, 0);
     player.position.copy(spawn);
@@ -2155,12 +2299,19 @@ function updateZoneLabel() {
   const px = player.position.x;
   const pz = player.position.z;
   let zone;
-  // Distance to the new house front gate area
-  const distToHouse = Math.hypot(px - (-12), pz - (-6.5));
-  if (distToHouse < 5) zone = 'PICO\'S GARDEN';
-  else if (distToHouse < 12) zone = 'NEW NEIGHBOURHOOD';
-  else if (Math.hypot(px, pz) > 35) zone = 'EDGE OF THE MEADOW';
-  else zone = 'THE MEADOW';
+  // Are we inside the new bedroom interior?
+  if (newBedroomGroup.visible &&
+      Math.abs(pz - NEW_BEDROOM_ORIGIN.z) < 8 &&
+      Math.abs(px - NEW_BEDROOM_ORIGIN.x) < 8) {
+    zone = 'PICO\'S NEW ROOM';
+  } else {
+    // Distance to the new house front gate area
+    const distToHouse = Math.hypot(px - (-12), pz - (-6.5));
+    if (distToHouse < 5) zone = 'PICO\'S GARDEN';
+    else if (distToHouse < 12) zone = 'NEW NEIGHBOURHOOD';
+    else if (Math.hypot(px, pz) > 35) zone = 'EDGE OF THE MEADOW';
+    else zone = 'THE MEADOW';
+  }
 
   if (zone !== lastZoneLabel) {
     lastZoneLabel = zone;
@@ -2177,9 +2328,46 @@ function updateZoneLabel() {
       if (star) star.visible = false;
       const objEl = document.getElementById('hud-objective');
       if (objEl) objEl.classList.add('hide');
-      // Brief congratulation
-      SFX.ready();
-      showSpeech('To be continued… (your unpacking adventure starts here!)', 4000);
+      enterNewBedroom();
     }
   }
+}
+
+async function enterNewBedroom() {
+  controlsLocked = true;
+  showFade(true);
+  await sleep(900);
+  // Hide outdoor stuff (we leave it visible since fog will hide it from indoors,
+  // but the player is teleported far away anyway).
+  newBedroomGroup.visible = true;
+  // Place Pico just inside the bedroom door (south side of the room)
+  player.position.copy(NEW_BEDROOM_ORIGIN);
+  player.position.z += 3.2;       // near the front of the room
+  facingY = Math.PI;              // facing into the room (toward back wall + window)
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  // Frame the bedroom: low pitch, looking from the door
+  camState.target.copy(NEW_BEDROOM_ORIGIN);
+  camState.target.y = 1.1;
+  camState.distance = 6;
+  camState.yaw = 0;
+  camState.pitch = 0.28;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  await sleep(700);
+
+  // Update HUD label to show new zone + new objective
+  lastZoneLabel = '';  // force a re-render next frame
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.classList.remove('hide');
+    objEl.querySelector('.objective-text').textContent = 'Look around your new bedroom';
+  }
+
+  await showSpeechFromNPC('granny', 'Welcome to your new room, sweetheart!', 2800);
+  await showSpeech('It\'s… so empty.', 2400);
+
+  controlsLocked = false;
 }
