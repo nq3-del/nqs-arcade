@@ -964,7 +964,11 @@ function getHouseFloorY(localX, localZ, currentY) {
 
   // ───────── UPSTAIRS BEDROOM ─────────
   // Floor (raised at y=UPSTAIRS_Y) covering the bedroom area
-  const upFloor = new THREE.Mesh(new THREE.PlaneGeometry(H_HW * 2, UP_FRONT - UP_BACK), floorWood);
+  // DoubleSide so it also acts as the KITCHEN's ceiling (kitchen sits under it).
+  const upFloor = new THREE.Mesh(
+    new THREE.PlaneGeometry(H_HW * 2, UP_FRONT - UP_BACK),
+    new THREE.MeshStandardMaterial({ color: 0xC9A77C, roughness: 0.65, side: THREE.DoubleSide })
+  );
   upFloor.rotation.x = -Math.PI / 2;
   upFloor.position.set(0, UPSTAIRS_Y, (UP_BACK + UP_FRONT) / 2);
   upFloor.receiveShadow = true;
@@ -3986,9 +3990,15 @@ window.addEventListener('keydown', e => {
 // Allow skipping the cutscene with Escape
 window.addEventListener('keydown', e => {
   if (e.code === 'Escape' && controlsLocked) {
+    // Don't let Esc clobber an end-of-chapter card — those have their own
+    // Continue button and shouldn't be skip-dismissed mid-display.
+    const titleCard = document.getElementById('title-card');
+    if (titleCard && titleCard.style.display !== 'none' &&
+        titleCard.textContent && /END OF|THE END/i.test(titleCard.textContent)) {
+      return;
+    }
     console.log('Cutscene skipped');
     if (stopAlarm) { stopAlarm(); stopAlarm = null; }
-    const titleCard = document.getElementById('title-card');
     if (titleCard) titleCard.style.display = 'none';
     const bubble = document.getElementById('speech-bubble');
     if (bubble) { bubble.classList.remove('show'); bubble.classList.add('hide'); }
