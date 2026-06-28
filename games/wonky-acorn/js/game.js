@@ -230,13 +230,14 @@ for (let i = 0; i < 15; i++) {
   scene.add(cap);
 }
 
-// Floating clouds in the sky for atmosphere
+// Floating clouds in the sky for atmosphere — drift slowly across the meadow
 const cloudMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, metalness: 0 });
-for (let i = 0; i < 8; i++) {
+const drifters = [];  // {mesh, driftSpeed}
+for (let i = 0; i < 10; i++) {
   const cloud = new THREE.Group();
-  const x = (Math.random() - 0.5) * 140;
-  const z = (Math.random() - 0.5) * 140;
-  const y = 25 + Math.random() * 15;
+  const x = (Math.random() - 0.5) * 200;
+  const z = (Math.random() - 0.5) * 200;
+  const y = 22 + Math.random() * 18;
   for (let j = 0; j < 4; j++) {
     const puff = new THREE.Mesh(new THREE.SphereGeometry(2 + Math.random() * 1.5, 8, 6), cloudMat);
     puff.position.set(j * 2.5 - 3 + Math.random(), Math.random() * 1, Math.random() * 1);
@@ -245,7 +246,32 @@ for (let i = 0; i < 8; i++) {
   }
   cloud.position.set(x, y, z);
   scene.add(cloud);
+  drifters.push({ mesh: cloud, speed: 0.3 + Math.random() * 0.5 });
 }
+
+// Cloud drift + objective star animation — runs at constant rate
+let _cloudRaf = null;
+let _cloudLastT = performance.now();
+let objectiveReached = false;
+function driftClouds() {
+  _cloudRaf = requestAnimationFrame(driftClouds);
+  const now = performance.now();
+  const dt = Math.min(0.05, (now - _cloudLastT) / 1000);
+  _cloudLastT = now;
+  for (const d of drifters) {
+    d.mesh.position.x += d.speed * dt;
+    if (d.mesh.position.x > 110) d.mesh.position.x = -110;
+  }
+  // Objective star bounce + rotate
+  const star = scene.userData.objectiveStar;
+  if (star && star.visible) {
+    star.rotation.y = now * 0.002;
+    star.rotation.x = Math.sin(now * 0.003) * 0.2;
+    star.position.y = star.userData.baseY = star.userData.baseY ?? star.position.y;
+    star.position.y = star.userData.baseY + Math.sin(now * 0.003) * 0.18;
+  }
+}
+driftClouds();
 
 // ═══════════════════════════════════════════════════════
 // BEDROOM (cutscene location — built at offset so it doesn't overlap the meadow)
@@ -967,6 +993,23 @@ kitchenGroup.visible = false;
     houseGroup.add(slab);
   }
 
+  // Floating objective marker above the door — bouncing glowing star
+  const starMat = new THREE.MeshStandardMaterial({
+    color: 0xFFD740,
+    emissive: 0xFFA000,
+    emissiveIntensity: 0.8,
+    metalness: 0.5,
+    roughness: 0.2
+  });
+  const starGeo = new THREE.OctahedronGeometry(0.35, 0);
+  const star = new THREE.Mesh(starGeo, starMat);
+  star.position.set(0, totalH + 0.5, D / 2 + 1.2);
+  star.castShadow = true;
+  houseGroup.add(star);
+  scene.userData.objectiveStar = star;
+  scene.userData.objectiveStarPos = new THREE.Vector3();
+  star.getWorldPosition(scene.userData.objectiveStarPos);
+
   // Save reference so the cutscene can spawn the player on the welcome mat
   scene.userData.newHouseGroup = houseGroup;
   scene.userData.newHouseSpawn = new THREE.Vector3(-12, 0, -12 + D / 2 + 3.5);  // just inside the front gate
@@ -1298,14 +1341,23 @@ loader.load(
 
     setLoading(95, 'Ready!');
     setTimeout(() => {
-      setLoading(100, 'Tap the button to begin!');
-      // Reveal the start button instead of dropping straight into gameplay
+      const seenIntro = (() => {
+        try { return localStorage.getItem('wonkyAcornIntroSeen') === '1'; }
+        catch (e) { return false; }
+      })();
+      setLoading(100, seenIntro ? 'Tap to continue (Shift+tap to replay intro)' : 'Tap the button to begin!');
       const startBtn = document.getElementById('start-btn');
       if (startBtn) {
+        startBtn.textContent = seenIntro ? 'Tap to play' : 'Tap to begin';
         startBtn.classList.add('show');
-        startBtn.addEventListener('click', beginIntro, { once: true });
+        startBtn.addEventListener('click', (ev) => {
+          if (seenIntro && !ev.shiftKey) {
+            beginQuickStart();
+          } else {
+            beginIntro();
+          }
+        }, { once: true });
       } else {
-        // Fallback if button missing — go straight to gameplay
         beginIntro();
       }
     }, 300);
@@ -1990,6 +2042,31 @@ async function beginIntro() {
   // Hand control over to the player
   controlsLocked = false;
   hudEl.classList.add('show');
+  try { localStorage.setItem('wonkyAcornIntroSeen', '1'); } catch (e) {}
+}
+
+// Skip the whole intro — drop straight into free roam at the new house
+async function beginQuickStart() {
+  ensureAudio();
+  loadingEl.classList.add('fade');
+  setTimeout(() => { loadingEl.style.display = 'none'; }, 600);
+  await sleep(400);
+
+  const spawn = scene.userData.newHouseSpawn || new THREE.Vector3(0, 0, 0);
+  player.position.copy(spawn);
+  facingY = Math.PI;
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  camState.target.copy(spawn);
+  camState.target.y = 1;
+  camState.distance = 8;
+  camState.yaw = 0;
+  camState.pitch = 0.35;
+  updateCamera();
+  showFade(false);
+  controlsLocked = false;
+  hudEl.classList.add('show');
 }
 
 // Helper: show a speech bubble tagged with an NPC name
@@ -2089,5 +2166,20 @@ function updateZoneLabel() {
     lastZoneLabel = zone;
     const el = document.querySelector('.hud-zone');
     if (el) el.textContent = zone;
+  }
+
+  // Objective: walk into the new house door
+  if (!objectiveReached) {
+    const distToDoor = Math.hypot(px - (-12), pz - (-9.5));  // door is at house front
+    if (distToDoor < 1.5) {
+      objectiveReached = true;
+      const star = scene.userData.objectiveStar;
+      if (star) star.visible = false;
+      const objEl = document.getElementById('hud-objective');
+      if (objEl) objEl.classList.add('hide');
+      // Brief congratulation
+      SFX.ready();
+      showSpeech('To be continued… (your unpacking adventure starts here!)', 4000);
+    }
   }
 }
