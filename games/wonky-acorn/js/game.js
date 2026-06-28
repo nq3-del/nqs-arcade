@@ -424,6 +424,9 @@ if (isTouch) {
 }
 
 function readInput() {
+  // During cutscenes the player can't drive Pico
+  if (controlsLocked) return { mx: 0, mz: 0, sprint: false, jump: false };
+
   let mx = 0, mz = 0;
   if (keys['KeyA']) mx -= 1;
   if (keys['KeyD']) mx += 1;
@@ -563,10 +566,16 @@ loader.load(
 
     setLoading(95, 'Ready!');
     setTimeout(() => {
-      setLoading(100, 'Go!');
-      loadingEl.classList.add('fade');
-      hudEl.classList.add('show');
-      setTimeout(() => { loadingEl.style.display = 'none'; }, 600);
+      setLoading(100, 'Tap the button to begin!');
+      // Reveal the start button instead of dropping straight into gameplay
+      const startBtn = document.getElementById('start-btn');
+      if (startBtn) {
+        startBtn.classList.add('show');
+        startBtn.addEventListener('click', beginIntro, { once: true });
+      } else {
+        // Fallback if button missing — go straight to gameplay
+        beginIntro();
+      }
     }, 300);
   },
   (xhr) => {
@@ -776,4 +785,249 @@ window.addEventListener('resize', onResize);
 // Controller connect notice
 window.addEventListener('gamepadconnected', e => {
   console.log('Gamepad connected:', e.gamepad.id);
+});
+
+// ═══════════════════════════════════════════════════════
+// AUDIO — tiny Web Audio synth, no assets needed
+// ═══════════════════════════════════════════════════════
+let audioCtx = null;
+function ensureAudio() {
+  if (audioCtx) return audioCtx;
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  } catch (e) {
+    console.warn('Web Audio not available');
+    return null;
+  }
+  return audioCtx;
+}
+
+function playTone({ freq = 440, dur = 0.15, type = 'sine', volume = 0.18, attack = 0.005, release = 0.05 } = {}) {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type;
+  osc.frequency.setValueAtTime(freq, ctx.currentTime);
+  gain.gain.setValueAtTime(0, ctx.currentTime);
+  gain.gain.linearRampToValueAtTime(volume, ctx.currentTime + attack);
+  gain.gain.linearRampToValueAtTime(0, ctx.currentTime + dur + release);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + dur + release + 0.01);
+}
+
+// Sound preset library
+const SFX = {
+  alarmBeep: () => {
+    // Two-tone alarm: high → low → high → low...
+    playTone({ freq: 1200, dur: 0.12, type: 'square', volume: 0.12 });
+    setTimeout(() => playTone({ freq: 900, dur: 0.12, type: 'square', volume: 0.12 }), 130);
+  },
+  alarmRing: () => {
+    // Repeating alarm beep — returns a stop function
+    const id = setInterval(SFX.alarmBeep, 280);
+    return () => clearInterval(id);
+  },
+  jump: () => {
+    // Quick pitch slide up
+    const ctx = ensureAudio();
+    if (!ctx) return;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(380, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(680, ctx.currentTime + 0.18);
+    gain.gain.setValueAtTime(0.18, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.22);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.25);
+  },
+  step: () => {
+    // Short soft tap — slight pitch variation per call so it doesn't feel robotic
+    playTone({ freq: 130 + Math.random() * 30, dur: 0.05, type: 'sine', volume: 0.07, attack: 0.002, release: 0.04 });
+  },
+  ready: () => {
+    // Triumphant "I'M READY!" stinger — major chord arpeggio
+    playTone({ freq: 523, dur: 0.18, type: 'triangle', volume: 0.18 });          // C5
+    setTimeout(() => playTone({ freq: 659, dur: 0.18, type: 'triangle', volume: 0.18 }), 100);  // E5
+    setTimeout(() => playTone({ freq: 784, dur: 0.32, type: 'triangle', volume: 0.22 }), 200);  // G5
+  }
+};
+
+// ═══════════════════════════════════════════════════════
+// FOOTSTEP DUST PARTICLES
+// ═══════════════════════════════════════════════════════
+const dustParticles = [];
+const dustGeo = new THREE.SphereGeometry(0.06, 6, 5);
+let lastStepDist = 0;
+
+function emitDust(x, z) {
+  for (let i = 0; i < 3; i++) {
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xCDB69E,
+      transparent: true,
+      opacity: 0.55
+    });
+    const p = new THREE.Mesh(dustGeo, mat);
+    p.position.set(
+      x + (Math.random() - 0.5) * 0.25,
+      0.05 + Math.random() * 0.1,
+      z + (Math.random() - 0.5) * 0.25
+    );
+    p.scale.setScalar(0.5 + Math.random() * 0.5);
+    scene.add(p);
+    dustParticles.push({
+      mesh: p,
+      mat: mat,
+      life: 0,
+      maxLife: 0.45 + Math.random() * 0.25,
+      vx: (Math.random() - 0.5) * 0.7,
+      vy: 0.4 + Math.random() * 0.4,
+      vz: (Math.random() - 0.5) * 0.7
+    });
+  }
+}
+
+function updateDust(dt) {
+  for (let i = dustParticles.length - 1; i >= 0; i--) {
+    const p = dustParticles[i];
+    p.life += dt;
+    if (p.life >= p.maxLife) {
+      scene.remove(p.mesh);
+      p.mat.dispose();
+      dustParticles.splice(i, 1);
+      continue;
+    }
+    const t = p.life / p.maxLife;
+    p.mesh.position.x += p.vx * dt;
+    p.mesh.position.y += p.vy * dt;
+    p.mesh.position.z += p.vz * dt;
+    p.vy -= 1.2 * dt;  // soft gravity
+    p.mat.opacity = (1 - t) * 0.55;
+    p.mesh.scale.setScalar((0.5 + 0.5 * t));
+  }
+}
+
+// Hook footsteps into the game loop — call this whenever Pico moves on ground
+function maybeEmitFootstep() {
+  if (!grounded || !pico) return;
+  const traveled = Math.hypot(playerVel.x, playerVel.z);
+  if (traveled < 0.5) { lastStepDist = 0; return; }
+  // Accumulate distance traveled per frame; emit step every ~0.9 units of distance
+  const dt = clock.getDelta ? Math.min(0.05, 0.016) : 0.016;
+  lastStepDist += traveled * dt;
+  // Sprinting → tighter step cadence
+  const stepInterval = currentActionName === 'Running' ? 0.55 : 0.85;
+  if (lastStepDist >= stepInterval) {
+    emitDust(player.position.x, player.position.z);
+    SFX.step();
+    lastStepDist = 0;
+  }
+}
+
+// Wire dust into the game loop. Inject via override of mixer update; simpler: tap the global tick.
+const _origTick = tick;
+// Wrap tick to add dust updates + footsteps
+// (Can't easily wrap; instead use rAF observer)
+let _dustRaf = null;
+function dustLoop() {
+  _dustRaf = requestAnimationFrame(dustLoop);
+  const dt = Math.min(0.05, 1/60);  // fixed tick is fine for particle visuals
+  updateDust(dt);
+  maybeEmitFootstep();
+}
+dustLoop();
+
+// ═══════════════════════════════════════════════════════
+// CUTSCENE SYSTEM
+// ═══════════════════════════════════════════════════════
+let controlsLocked = true;  // locked until first cutscene completes
+let stopAlarm = null;
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function showSpeech(text, duration = 2000) {
+  const bubble = document.getElementById('speech-bubble');
+  const span = document.getElementById('speech-text');
+  if (!bubble || !span) return Promise.resolve();
+  span.textContent = text;
+  bubble.classList.remove('hide');
+  bubble.classList.add('show');
+  return new Promise(resolve => {
+    setTimeout(() => {
+      bubble.classList.remove('show');
+      bubble.classList.add('hide');
+      setTimeout(resolve, 320);  // wait for hide animation
+    }, duration);
+  });
+}
+
+function showFade(on) {
+  const f = document.getElementById('fade-overlay');
+  if (!f) return;
+  if (on) f.classList.add('show');
+  else f.classList.remove('show');
+}
+
+async function beginIntro() {
+  // User just tapped "Tap to begin" — wake the audio context (browsers require user gesture)
+  ensureAudio();
+
+  // Hide loading + show title card
+  loadingEl.classList.add('fade');
+  setTimeout(() => { loadingEl.style.display = 'none'; }, 600);
+
+  const titleCard = document.getElementById('title-card');
+  if (titleCard) {
+    titleCard.classList.add('show');
+    await sleep(3200);
+    titleCard.classList.add('fade-out');
+    await sleep(1000);
+    titleCard.style.display = 'none';
+  }
+
+  // Reveal the 3D scene with a fade-in
+  await sleep(400);
+
+  // ── Opening beat: Pico's alarm rings, he yells "I'M READY!" ──
+  stopAlarm = SFX.alarmRing();
+  await sleep(1100);
+  if (stopAlarm) { stopAlarm(); stopAlarm = null; }
+
+  // Trigger jump animation
+  if (actions['Basic_Jump']) {
+    playAction('Basic_Jump', 0.1, { once: true });
+    // Also actually jump physically for visual flair
+    if (grounded) {
+      playerVel.y = 7;
+      grounded = false;
+    }
+  }
+  SFX.jump();
+  await sleep(150);
+  SFX.ready();
+  await showSpeech("I'M READY!", 1600);
+
+  // Hand control over to the player
+  controlsLocked = false;
+  hudEl.classList.add('show');
+}
+
+// Allow skipping the cutscene with Escape (handy while we iterate)
+window.addEventListener('keydown', e => {
+  if (e.code === 'Escape' && controlsLocked) {
+    console.log('Cutscene skipped');
+    if (stopAlarm) { stopAlarm(); stopAlarm = null; }
+    const titleCard = document.getElementById('title-card');
+    if (titleCard) titleCard.style.display = 'none';
+    const bubble = document.getElementById('speech-bubble');
+    if (bubble) { bubble.classList.remove('show'); bubble.classList.add('hide'); }
+    controlsLocked = false;
+    loadingEl.style.display = 'none';
+    hudEl.classList.add('show');
+  }
 });

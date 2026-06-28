@@ -45,8 +45,24 @@
         <p class="sub">High School Mystery</p>
         <div class="bar"><div class="bar-fill" id="bar-fill"></div></div>
         <p class="status" id="loading-status">Loading…</p>
+        <button type="button" id="start-btn" class="start-btn">Tap to begin</button>
       </div>
     </div>
+
+    <!-- Title card overlay shown after the player taps "begin" -->
+    <div id="title-card">
+      <div class="chapter-eyebrow">CHAPTER 1</div>
+      <h2 class="chapter-title">The Move</h2>
+      <p class="chapter-sub">A short story in which Pico has bad news for breakfast.</p>
+    </div>
+
+    <!-- Cinematic speech bubble (positioned over the canvas) -->
+    <div id="speech-bubble">
+      <span id="speech-text"></span>
+    </div>
+
+    <!-- Fade overlay used between cutscene phases -->
+    <div id="fade-overlay"></div>
   </main>
 
   <div id="site-footer"></div>
