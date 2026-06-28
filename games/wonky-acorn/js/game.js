@@ -843,7 +843,7 @@ function makeParentAcorn(opts) {
   });
   granny.position.set(-1.6, 0, 1.0);   // sitting at chair (but standing for simplicity)
   granny.rotation.y = Math.PI / 2;       // facing the table (right)
-  granny.scale.setScalar(0.78);   // a bit shorter than Pico
+  granny.scale.setScalar(0.64);   // shorter than Pico
   kitchenGroup.add(granny);
 
   const grampa = makeParentAcorn({
@@ -852,7 +852,7 @@ function makeParentAcorn(opts) {
   });
   grampa.position.set(1.6, 0, 1.0);
   grampa.rotation.y = -Math.PI / 2;      // facing the table (left)
-  grampa.scale.setScalar(0.82);   // a bit shorter than Pico
+  grampa.scale.setScalar(0.68);   // shorter than Pico
   kitchenGroup.add(grampa);
 
   // Save references for the cutscene
@@ -911,9 +911,11 @@ const STAIR_BOT_LZ = 3.2;   // bottom of staircase (downstairs side)
 const STAIR_RUN = STAIR_BOT_LZ - STAIR_TOP_LZ;   // 4.2m of horizontal travel
 const STAIR_RISE = UPSTAIRS_Y / NUM_STAIRS;       // per-step rise
 const STAIR_HALFW = 1.4;
-function getHouseFloorY(localX, localZ) {
-  // Upstairs bedroom area: from back wall (lz=-8) to start of stair landing (lz=-1)
-  if (localZ <= STAIR_TOP_LZ && localZ >= -8 && Math.abs(localX) <= 3.6) {
+function getHouseFloorY(localX, localZ, currentY) {
+  // Upstairs bedroom area: only when player is ALREADY upstairs
+  // (otherwise the kitchen — which sits BELOW the upstairs floor in the same XZ
+  // region — would lift the player onto the upstairs floor).
+  if (currentY > 1.5 && localZ <= STAIR_TOP_LZ && localZ >= -8 && Math.abs(localX) <= 3.6) {
     return UPSTAIRS_Y;
   }
   // Staircase: 6 steps descending from y=UPSTAIRS_Y at lz=STAIR_TOP_LZ to y=0 at lz=STAIR_BOT_LZ
@@ -1848,7 +1850,7 @@ scene.add(brunk);
 
 const hazel = makeHazel();
 hazel.position.set(SCHOOL_ORIGIN.x - 1.5, 0, SCHOOL_ORIGIN.z + 2);
-hazel.scale.setScalar(0.85);   // a bit smaller than Pico
+hazel.scale.setScalar(0.76);   // a bit smaller than Pico
 hazel.visible = false;
 scene.add(hazel);
 
@@ -2549,7 +2551,7 @@ let manualDanceUntil = 0;   // ms timestamp when manual dance returns to auto
 const playerVel = new THREE.Vector3();
 let grounded = true;
 let facingY = 0;
-const TARGET_HEIGHT = 1.2;  // Pico — kept a bit bigger than the parent/Hazel acorns below
+const TARGET_HEIGHT = 1.05;  // Pico — smaller so he's not a giant in buildings, still tallest acorn
 
 loader.load(
   'assets/models/pico.glb',
@@ -2824,7 +2826,7 @@ function tick() {
       const lz = player.position.z - NEW_BEDROOM_ORIGIN.z;
       // Only treat house geometry as ground if the player is inside the footprint
       if (lx >= -5.2 && lx <= 5.2 && lz >= -8.2 && lz <= 8.2) {
-        floorY = getHouseFloorY(lx, lz);
+        floorY = getHouseFloorY(lx, lz, player.position.y);
       }
     }
     const STEP_SNAP_DOWN = 0.8;   // up to ~1.5 stair-rises — walking down feels smooth, big falls still fall
@@ -3781,9 +3783,18 @@ function updateZoneLabel() {
       Math.abs(px - SCHOOL_ORIGIN.x) < 6) {
     zone = 'CONKER HEIGHTS HIGH';
   } else if (newBedroomGroup.visible &&
-      Math.abs(pz - NEW_BEDROOM_ORIGIN.z) < 8 &&
-      Math.abs(px - NEW_BEDROOM_ORIGIN.x) < 8) {
-    zone = 'PICO\'S NEW ROOM';
+      Math.abs(pz - NEW_BEDROOM_ORIGIN.z) < 9 &&
+      Math.abs(px - NEW_BEDROOM_ORIGIN.x) < 6) {
+    const lz = pz - NEW_BEDROOM_ORIGIN.z;
+    if (lz <= -1) zone = 'PICO\'S NEW ROOM';
+    else if (lz < 3.2) zone = 'STAIRS';
+    else if (lz < 6) {
+      const lx = px - NEW_BEDROOM_ORIGIN.x;
+      if (lx > 1.5) zone = 'LIVING ROOM';
+      else if (lx < -1.5) zone = 'LIVING ROOM';
+      else zone = 'LIVING ROOM';
+    }
+    else zone = 'ENTRANCE HALL';
   } else {
     // Distance to the new house front gate area
     const distToHouse = Math.hypot(px - (-12), pz - (-6.5));
@@ -3920,9 +3931,8 @@ async function onAllBoxesTouched() {
       nightLight = o;
     }
   });
-  // Camera angle for the bedtime shot — lower, more intimate
-  camState.target.copy(NEW_BEDROOM_ORIGIN);
-  camState.target.y = 1.0;
+  // Camera angle for the bedtime shot — lower, more intimate (upstairs!)
+  camState.target.set(NEW_BEDROOM_ORIGIN.x, UPSTAIRS_Y + 1.0, NEW_BEDROOM_ORIGIN.z - 3);
   camState.distance = 5;
   camState.pitch = 0.22;
   camState.yaw = 0;
@@ -4519,13 +4529,9 @@ async function exitHouseToMeadow() {
   camState.pitch = 0.25;
   updateCamera();
 
-  // Update HUD
+  // Update HUD zone label only — leave the objective unchanged. Walking
+  // outside doesn't complete any objective, so the existing one stays put.
   lastZoneLabel = '';
-  const objEl = document.getElementById('hud-objective');
-  if (objEl) {
-    objEl.classList.remove('hide');
-    objEl.querySelector('.objective-text').textContent = 'Explore the meadow';
-  }
 
   await sleep(200);
   showFade(false);
