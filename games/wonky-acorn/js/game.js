@@ -2506,7 +2506,11 @@ function toggleDance() {
   danceQueueIndex = (danceQueueIndex + 1) % FUN_DANCES.length;
   manualDance = name;
   manualDanceUntil = performance.now() + 6000;  // 6s of dancing then back to auto
+  // If the mixer was paused (idle-still), wake it so the dance actually plays
+  if (mixer.timeScale === 0) setStillMode(false);
   playAction(name, 0.2);
+  // Reset idle timer so the auto state machine doesn't immediately re-pause
+  idleStartTime = 0;
   console.log('Dance:', name);
 }
 
@@ -3819,8 +3823,14 @@ const PENDING_LOAD_KEY = 'wonkyAcorn_pendingLoad';
 let currentCheckpoint = 'intro';
 function setCheckpoint(c, autoSave) {
   currentCheckpoint = c;
+  // Past Ch.1: kill the first-arrival objective star so it doesn't reappear
+  // after a save-load and re-trigger the bedroom cutscene
+  if (c !== 'intro') {
+    const star = scene.userData && scene.userData.objectiveStar;
+    if (star) star.visible = false;
+    objectiveReached = true;
+  }
   if (autoSave) {
-    // (Auto-save to active slot if there is one)
     const active = localStorage.getItem('wonkyAcorn_activeSlot');
     if (active && SAVE_SLOT_KEYS[+active - 1]) saveToSlot(+active);
   }
@@ -3965,7 +3975,11 @@ function applyPendingLoadIfAny() {
   // SAVE panel — wire per-slot buttons via delegation
   document.querySelectorAll('.save-slot').forEach(slotEl => {
     const n = +slotEl.dataset.slot;
-    slotEl.querySelector('.slot-save').addEventListener('click', () => saveToSlot(n));
+    slotEl.querySelector('.slot-save').addEventListener('click', () => {
+      const existing = readSlot(n);
+      if (existing && !confirm(`Overwrite File ${n}? (${existing.label})`)) return;
+      saveToSlot(n);
+    });
     slotEl.querySelector('.slot-load').addEventListener('click', () => {
       if (confirm(`Load File ${n}? Current unsaved progress will be lost.`)) loadSlot(n);
     });
@@ -4107,8 +4121,10 @@ function updateZoneLabel() {
     if (el) el.textContent = zone;
   }
 
-  // Objective: walk into the new house door
-  if (!objectiveReached) {
+  // Objective: walk into the new house door — only ever fires once, and ONLY
+  // during the first-arrival sequence (Ch.1 intro). After Ch.2 the player can
+  // walk past the house exterior without re-triggering the bedroom cutscene.
+  if (!objectiveReached && currentCheckpoint === 'intro') {
     const distToDoor = Math.hypot(px - (-12), pz - (-9.5));  // door is at house front
     if (distToDoor < 1.5) {
       objectiveReached = true;
