@@ -4036,38 +4036,19 @@ window.addEventListener('keydown', e => {
       return;
     }
     console.log('Cutscene skipped');
+    // Flip the cancellation flag — sleep() and showSpeechBubble() will resolve
+    // immediately, letting the cutscene race through to its natural end state
+    // (which lands the player exactly where the cutscene was going to leave them).
     cutsceneCancelled = true;
     if (stopAlarm) { stopAlarm(); stopAlarm = null; }
-    if (titleCard) titleCard.style.display = 'none';
+    // Hide the visible UI bubble so the speed-run isn't visible
     const bubble = document.getElementById('speech-bubble');
     if (bubble) { bubble.classList.remove('show'); bubble.classList.add('hide'); }
-    // Hide ALL cutscene scenes + cutscene-only NPCs + reset player to the new house
-    bedroomGroup.visible = false;
-    kitchenGroup.visible = false;
-    newBedroomGroup.visible = false;
-    schoolGroup.visible = false;
-    butcherShopGroup.visible = false;
-    butcher.visible = false;
-    hazel.visible = false;
-    brunk.visible = false;
-    pemberton.visible = false;
-    houseMum.visible = false;
-    if (tearWater) { tearWater.visible = false; tearWater.scale.y = 0.1; tearWater.position.y = -0.05; }
-    manualDance = null;
-    const spawn = scene.userData.newHouseSpawn || new THREE.Vector3(0, 0, 0);
-    player.position.copy(spawn);
-    facingY = Math.PI;
-    player.rotation.y = Math.PI;
-    playerVel.set(0, 0, 0);
-    grounded = true;
-    camState.target.copy(spawn);
-    camState.target.y = 1;
-    camState.distance = 8;
-    camState.yaw = 0;
-    camState.pitch = 0.35;
-    updateCamera();
+    // Also dismiss any title card that's currently up (chapter intro overlay)
+    if (titleCard && !/END OF|THE END/i.test(titleCard.textContent || '')) {
+      titleCard.style.display = 'none';
+    }
     showFade(false);
-    controlsLocked = false;
     loadingEl.style.display = 'none';
     hudEl.classList.add('show');
   }
