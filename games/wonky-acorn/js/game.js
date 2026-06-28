@@ -796,6 +796,24 @@ function makeParentAcorn(opts) {
   const winLight = new THREE.PointLight(0xCFE0F8, 0.6, 8);
   winLight.position.set(-2.5, 2.6, -2);
   kitchenGroup.add(winLight);
+
+  // Tear water — translucent blue plane that rises during the meltdown
+  const tearWater = new THREE.Mesh(
+    new THREE.BoxGeometry(ROOM_W - 0.1, 0.05, ROOM_D - 0.1),
+    new THREE.MeshStandardMaterial({
+      color: 0x4FB7E5,
+      roughness: 0.05,
+      metalness: 0.6,
+      transparent: true,
+      opacity: 0.55,
+      emissive: 0x1B5C8A,
+      emissiveIntensity: 0.05
+    })
+  );
+  tearWater.position.set(0, -0.05, 0);  // starts under the floor (invisible)
+  tearWater.visible = false;
+  kitchenGroup.add(tearWater);
+  kitchenGroup.userData.tearWater = tearWater;
 })();
 
 // Hide kitchen by default
@@ -1654,12 +1672,74 @@ async function beginIntro() {
   // Pico's reaction — big NOOOO speech
   await showSpeech('NOOOOOOOOOOOO!', 2400);
 
-  parentBobActive = false;
+  // ── Tear flood ──
+  // Water rises from the floor until it's just below the table top
+  const tearWater = kitchenGroup.userData.tearWater;
+  if (tearWater) {
+    tearWater.visible = true;
+    const TARGET_WATER_Y = 0.7;     // just below the table top at y≈0.9
+    const RISE_DURATION = 2400;
+    const riseStart = performance.now();
+    await new Promise(resolve => {
+      function step() {
+        const t = Math.min(1, (performance.now() - riseStart) / RISE_DURATION);
+        // Ease-out so it slows as it tops out
+        const eased = 1 - Math.pow(1 - t, 2);
+        const newHeight = TARGET_WATER_Y * eased;
+        tearWater.scale.y = Math.max(0.1, newHeight / 0.05);  // scale Y of the 0.05-thick box
+        tearWater.position.y = newHeight / 2;
+        if (t < 1) requestAnimationFrame(step);
+        else resolve();
+      }
+      step();
+    });
 
-  // ── Fade to meadow (round 4: tears + drive away — coming soon) ──
-  showFade(true);
+    // Gentle ripple — keep water swaying after it's settled
+    const rippleStart = performance.now();
+    let rippleActive = true;
+    (function ripple() {
+      if (!rippleActive) return;
+      const t = (performance.now() - rippleStart) / 1000;
+      const baseY = (0.7) / 2;
+      tearWater.position.y = baseY + Math.sin(t * 1.8) * 0.02;
+      requestAnimationFrame(ripple);
+    })();
+    kitchenGroup.userData.stopRipple = () => { rippleActive = false; };
+  }
+
+  await sleep(400);
+
+  // ── Soggy pancake joke ──
+  // Pico eats a pancake (use Catching_Breath as a "sigh + chew" mime)
+  if (actions['Catching_Breath']) {
+    playAction('Catching_Breath', 0.3);
+    manualDance = 'Catching_Breath';
+    manualDanceUntil = performance.now() + 4000;
+  }
   await sleep(900);
+  await showSpeech('Could do with a little less salt.', 2600);
+  await sleep(500);
+
+  parentBobActive = false;
+  if (kitchenGroup.userData.stopRipple) kitchenGroup.userData.stopRipple();
+
+  // ── Drive away (quick black-screen transition with engine sound) ──
+  showFade(true);
+  await sleep(1100);
+  // Play a quick low engine rumble while the screen is black
+  const engineDur = 1.8;
+  for (let i = 0; i < 6; i++) {
+    setTimeout(() => playTone({ freq: 80 + i * 6, dur: 0.4, type: 'sawtooth', volume: 0.08 }), i * 280);
+  }
+  await sleep(engineDur * 1000);
+
+  // ── Arrive at the new house (meadow) ──
   kitchenGroup.visible = false;
+  if (tearWater) {
+    tearWater.visible = false;
+    tearWater.scale.y = 0.1;
+    tearWater.position.y = -0.05;
+  }
   manualDance = null;
   player.position.set(0, 0, 0);
   facingY = 0;
