@@ -1539,23 +1539,30 @@ loader.load(
 
     setLoading(95, 'Ready!');
     setTimeout(() => {
-      const seenIntro = (() => {
-        try { return localStorage.getItem('wonkyAcornIntroSeen') === '1'; }
-        catch (e) { return false; }
-      })();
-      setLoading(100, seenIntro ? 'Tap to continue (Shift+tap to replay intro)' : 'Tap the button to begin!');
+      setLoading(100, 'Tap to begin!');
       const startBtn = document.getElementById('start-btn');
+      const skipBtn = document.getElementById('skip-btn');
+      let chosen = false;
+      const pickIntro = () => {
+        if (chosen) return;
+        chosen = true;
+        beginIntro();
+      };
+      const pickQuick = () => {
+        if (chosen) return;
+        chosen = true;
+        beginQuickStart();
+      };
       if (startBtn) {
-        startBtn.textContent = seenIntro ? 'Tap to play' : 'Tap to begin';
+        startBtn.textContent = 'Play full intro';
         startBtn.classList.add('show');
-        startBtn.addEventListener('click', (ev) => {
-          if (seenIntro && !ev.shiftKey) {
-            beginQuickStart();
-          } else {
-            beginIntro();
-          }
-        }, { once: true });
-      } else {
+        startBtn.addEventListener('click', pickIntro);
+      }
+      if (skipBtn) {
+        skipBtn.classList.add('show');
+        skipBtn.addEventListener('click', pickQuick);
+      }
+      if (!startBtn && !skipBtn) {
         beginIntro();
       }
     }, 300);
