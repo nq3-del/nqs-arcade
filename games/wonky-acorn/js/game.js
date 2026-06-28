@@ -892,91 +892,163 @@ function makeParentAcorn(opts) {
 kitchenGroup.visible = false;
 
 // ═══════════════════════════════════════════════════════
-// NEW BEDROOM (empty interior of the new house — Pico's unpacking room)
+// THE NEW HOUSE — full interior: bedroom (upstairs) + stairs + downstairs
+// (entrance hall, living room, kitchen) + front door that exits to the meadow.
 // ═══════════════════════════════════════════════════════
 const NEW_BEDROOM_ORIGIN = new THREE.Vector3(0, 0, -600);
 const newBedroomGroup = new THREE.Group();
 newBedroomGroup.position.copy(NEW_BEDROOM_ORIGIN);
 scene.add(newBedroomGroup);
 
-(function buildNewBedroom() {
-  // Materials — feels emptier and a bit colder than Acornville bedroom
+// ─── Floor-height map ─────────────────────────────────
+// Returns the Y the player's feet should rest on at the given LOCAL XZ
+// (relative to NEW_BEDROOM_ORIGIN). Walking upstairs/downstairs is just
+// the staircase stepping up the Y value.
+const UPSTAIRS_Y = 3.2;
+const NUM_STAIRS = 6;
+const STAIR_TOP_LZ = -1;    // top of staircase (upstairs side)
+const STAIR_BOT_LZ = 3.2;   // bottom of staircase (downstairs side)
+const STAIR_RUN = STAIR_BOT_LZ - STAIR_TOP_LZ;   // 4.2m of horizontal travel
+const STAIR_RISE = UPSTAIRS_Y / NUM_STAIRS;       // per-step rise
+const STAIR_HALFW = 1.4;
+function getHouseFloorY(localX, localZ) {
+  // Upstairs bedroom area: from back wall (lz=-8) to start of stair landing (lz=-1)
+  if (localZ <= STAIR_TOP_LZ && localZ >= -8 && Math.abs(localX) <= 3.6) {
+    return UPSTAIRS_Y;
+  }
+  // Staircase: 6 steps descending from y=UPSTAIRS_Y at lz=STAIR_TOP_LZ to y=0 at lz=STAIR_BOT_LZ
+  if (localZ > STAIR_TOP_LZ && localZ < STAIR_BOT_LZ && Math.abs(localX) <= STAIR_HALFW) {
+    const tz = (localZ - STAIR_TOP_LZ) / STAIR_RUN;        // 0..1 across the run
+    const stepIdx = Math.min(NUM_STAIRS - 1, Math.floor(tz * NUM_STAIRS));
+    return UPSTAIRS_Y - (stepIdx + 1) * STAIR_RISE;
+  }
+  // Downstairs (entrance, living, kitchen) — everything else inside the house
+  return 0;
+}
+
+(function buildNewHouse() {
+  // ───────── Materials ─────────
   const wallMat   = new THREE.MeshStandardMaterial({ color: 0xE8E4DA, roughness: 0.92 });
-  const floorMat  = new THREE.MeshStandardMaterial({ color: 0xC9A77C, roughness: 0.65 });
+  const wallWarmMat = new THREE.MeshStandardMaterial({ color: 0xE6CDA8, roughness: 0.9 });  // downstairs (warmer)
+  const floorWood = new THREE.MeshStandardMaterial({ color: 0xC9A77C, roughness: 0.65 });
+  const floorPlank = new THREE.MeshStandardMaterial({ color: 0xA47B4A, roughness: 0.75 });  // downstairs darker plank
   const trimMat   = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 });
   const boxMat    = new THREE.MeshStandardMaterial({ color: 0xB48A60, roughness: 0.85 });
   const boxTapeMat = new THREE.MeshStandardMaterial({ color: 0xC8A878, roughness: 0.6 });
   const windowMat = new THREE.MeshStandardMaterial({ color: 0xCFEFFC, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.75 });
+  const stairTreadMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.7 });
+  const stairRiserMat = new THREE.MeshStandardMaterial({ color: 0x5A3A1E, roughness: 0.7 });
+  const sofaMat = new THREE.MeshStandardMaterial({ color: 0x6FA8B0, roughness: 0.85 });
+  const sofaCushionMat = new THREE.MeshStandardMaterial({ color: 0xF5E6C8, roughness: 0.85 });
+  const rugMat = new THREE.MeshStandardMaterial({ color: 0xC2453E, roughness: 0.85 });
+  const woodTrim = new THREE.MeshStandardMaterial({ color: 0x6B4632, roughness: 0.75 });
+  const fridgeMat = new THREE.MeshStandardMaterial({ color: 0xF1F1EE, roughness: 0.4, metalness: 0.45 });
+  const counterMat = new THREE.MeshStandardMaterial({ color: 0xDDD4C0, roughness: 0.65 });
+  const cabinetMat = new THREE.MeshStandardMaterial({ color: 0xE9DBB6, roughness: 0.8 });
+  const fireBrick = new THREE.MeshStandardMaterial({ color: 0x8B3A2A, roughness: 0.9 });
+  const fireDark = new THREE.MeshStandardMaterial({ color: 0x1A0F0A, roughness: 0.95 });
+  const tvMat = new THREE.MeshStandardMaterial({ color: 0x0A0A12, roughness: 0.25, metalness: 0.3 });
 
-  const ROOM_W = 7, ROOM_D = 8, ROOM_H = 4;
+  // ───────── Layout constants (local coords; group origin is at NEW_BEDROOM_ORIGIN) ─────────
+  // House footprint: x in [-5, 5], z in [-8, 8]  (10 wide × 16 deep)
+  const H_HW = 5;          // half width
+  const UP_BACK = -8;      // upstairs back wall (also house north wall)
+  const UP_FRONT = -1;     // upstairs floor ends here (top of stairs)
+  const DOWN_BACK = -1;    // downstairs ceiling above this (= upstairs floor area)
+  const DOWN_FRONT = 8;    // house south wall (front door)
+  const UPSTAIRS_CEIL = UPSTAIRS_Y + 2.6;     // upstairs ceiling height
+  const DOWNSTAIRS_CEIL = UPSTAIRS_Y - 0.2;   // downstairs ceiling = bottom of upstairs floor
+  // STAIR_TOP_LZ/STAIR_BOT_LZ defined above the IIFE
 
-  // Floor
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat);
-  floor.rotation.x = -Math.PI / 2;
-  floor.receiveShadow = true;
-  newBedroomGroup.add(floor);
+  // ───────── UPSTAIRS BEDROOM ─────────
+  // Floor (raised at y=UPSTAIRS_Y) covering the bedroom area
+  const upFloor = new THREE.Mesh(new THREE.PlaneGeometry(H_HW * 2, UP_FRONT - UP_BACK), floorWood);
+  upFloor.rotation.x = -Math.PI / 2;
+  upFloor.position.set(0, UPSTAIRS_Y, (UP_BACK + UP_FRONT) / 2);
+  upFloor.receiveShadow = true;
+  newBedroomGroup.add(upFloor);
 
-  // Walls
-  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
-  wallBack.position.set(0, ROOM_H / 2, -ROOM_D / 2);
+  // North (back) wall — full height upstairs
+  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(H_HW * 2, UPSTAIRS_CEIL - UPSTAIRS_Y), wallMat);
+  wallBack.position.set(0, (UPSTAIRS_Y + UPSTAIRS_CEIL) / 2, UP_BACK);
   wallBack.receiveShadow = true;
   newBedroomGroup.add(wallBack);
 
-  const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
-  wallLeft.position.set(-ROOM_W / 2, ROOM_H / 2, 0);
-  wallLeft.rotation.y = Math.PI / 2;
-  wallLeft.receiveShadow = true;
-  newBedroomGroup.add(wallLeft);
+  // Upstairs east + west walls (run the length of the upstairs region)
+  const upWallLen = UP_FRONT - UP_BACK;
+  const upWallW = new THREE.Mesh(new THREE.PlaneGeometry(upWallLen, UPSTAIRS_CEIL - UPSTAIRS_Y), wallMat);
+  upWallW.position.set(-H_HW, (UPSTAIRS_Y + UPSTAIRS_CEIL) / 2, (UP_BACK + UP_FRONT) / 2);
+  upWallW.rotation.y = Math.PI / 2;
+  upWallW.receiveShadow = true;
+  newBedroomGroup.add(upWallW);
+  const upWallE = upWallW.clone();
+  upWallE.position.x = H_HW;
+  upWallE.rotation.y = -Math.PI / 2;
+  newBedroomGroup.add(upWallE);
 
-  const wallRight = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
-  wallRight.position.set(ROOM_W / 2, ROOM_H / 2, 0);
-  wallRight.rotation.y = -Math.PI / 2;
-  wallRight.receiveShadow = true;
-  newBedroomGroup.add(wallRight);
-
-  // Skirting board trim
-  for (const [wx, wz, wRot, wLen] of [[0, -ROOM_D/2, 0, ROOM_W], [-ROOM_W/2, 0, Math.PI/2, ROOM_D], [ROOM_W/2, 0, -Math.PI/2, ROOM_D]]) {
-    const trim = new THREE.Mesh(new THREE.BoxGeometry(wLen, 0.12, 0.04), trimMat);
-    trim.position.set(wx, 0.06, wz);
-    trim.rotation.y = wRot;
-    newBedroomGroup.add(trim);
+  // South wall of upstairs has a doorway in the middle (Pico's bedroom door
+  // opens onto the landing). Build two wall segments either side of the door.
+  const DOOR_W = 1.6, DOOR_H = 2.2;
+  const segLen = (H_HW * 2 - DOOR_W) / 2;
+  const upWallSL = new THREE.Mesh(new THREE.PlaneGeometry(segLen, UPSTAIRS_CEIL - UPSTAIRS_Y), wallMat);
+  upWallSL.position.set(-(DOOR_W / 2 + segLen / 2), (UPSTAIRS_Y + UPSTAIRS_CEIL) / 2, UP_FRONT);
+  upWallSL.rotation.y = Math.PI;
+  newBedroomGroup.add(upWallSL);
+  const upWallSR = upWallSL.clone();
+  upWallSR.position.x = (DOOR_W / 2 + segLen / 2);
+  newBedroomGroup.add(upWallSR);
+  // Lintel above the doorway
+  const upDoorLintel = new THREE.Mesh(new THREE.PlaneGeometry(DOOR_W, UPSTAIRS_CEIL - UPSTAIRS_Y - DOOR_H), wallMat);
+  upDoorLintel.position.set(0, UPSTAIRS_Y + DOOR_H + (UPSTAIRS_CEIL - UPSTAIRS_Y - DOOR_H) / 2, UP_FRONT);
+  upDoorLintel.rotation.y = Math.PI;
+  newBedroomGroup.add(upDoorLintel);
+  // Door frame (visible trim around the doorway)
+  const doorTrimMat = new THREE.MeshStandardMaterial({ color: 0xC9A77C, roughness: 0.7 });
+  for (const fx of [-DOOR_W / 2, DOOR_W / 2]) {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.08, DOOR_H, 0.12), doorTrimMat);
+    post.position.set(fx, UPSTAIRS_Y + DOOR_H / 2, UP_FRONT);
+    newBedroomGroup.add(post);
   }
+  const top = new THREE.Mesh(new THREE.BoxGeometry(DOOR_W + 0.16, 0.08, 0.12), doorTrimMat);
+  top.position.set(0, UPSTAIRS_Y + DOOR_H, UP_FRONT);
+  newBedroomGroup.add(top);
 
-  // Ceiling
-  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), new THREE.MeshStandardMaterial({ color: 0xF5EFDD, roughness: 0.92 }));
-  ceiling.rotation.x = Math.PI / 2;
-  ceiling.position.y = ROOM_H;
-  newBedroomGroup.add(ceiling);
+  // Upstairs ceiling
+  const upCeil = new THREE.Mesh(new THREE.PlaneGeometry(H_HW * 2, upWallLen), new THREE.MeshStandardMaterial({ color: 0xF5EFDD, roughness: 0.92 }));
+  upCeil.rotation.x = Math.PI / 2;
+  upCeil.position.set(0, UPSTAIRS_CEIL, (UP_BACK + UP_FRONT) / 2);
+  newBedroomGroup.add(upCeil);
 
-  // Window on back wall — sun streams in
+  // Window on back wall (sun streams in)
   const winFrame = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.0, 0.15), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 }));
-  winFrame.position.set(0, 2.4, -ROOM_D / 2 + 0.08);
+  winFrame.position.set(0, UPSTAIRS_Y + 1.4, UP_BACK + 0.08);
   newBedroomGroup.add(winFrame);
   const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 1.6), windowMat);
-  winGlass.position.set(0, 2.4, -ROOM_D / 2 + 0.18);
+  winGlass.position.set(0, UPSTAIRS_Y + 1.4, UP_BACK + 0.18);
   newBedroomGroup.add(winGlass);
-  // Window panes
   for (const cx of [-0.65, 0, 0.65]) {
     const v = new THREE.Mesh(new THREE.BoxGeometry(0.04, 1.6, 0.04), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 }));
-    v.position.set(cx, 2.4, -ROOM_D / 2 + 0.2);
+    v.position.set(cx, UPSTAIRS_Y + 1.4, UP_BACK + 0.2);
     newBedroomGroup.add(v);
   }
+  // Warm window light
+  const winLight = new THREE.PointLight(0xFFE5B8, 1.4, 14);
+  winLight.position.set(0, UPSTAIRS_Y + 1.6, UP_BACK + 1);
+  newBedroomGroup.add(winLight);
 
-  // Cardboard moving boxes — stacked, scattered, ready to unpack
+  // ───────── Cardboard moving boxes (upstairs) ─────────
   function makeBox(x, z, w, h, d, rotY = 0, label = '') {
     const grp = new THREE.Group();
-    grp.position.set(x, h / 2, z);
+    grp.position.set(x, UPSTAIRS_Y + h / 2, z);
     grp.rotation.y = rotY;
-    grp.userData.label = label;     // used by the box-touch dialogue lookup
+    grp.userData.label = label;
     const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), boxMat);
     body.castShadow = true;
     body.receiveShadow = true;
     grp.add(body);
-    // Tape across the top
     const tape = new THREE.Mesh(new THREE.BoxGeometry(w + 0.01, 0.04, d * 0.25), boxTapeMat);
     tape.position.y = h / 2 + 0.005;
     grp.add(tape);
-    // Label (white panel + text via canvas texture)
     if (label) {
       const labelW = w * 0.55, labelH = h * 0.4;
       const tex = makeLabelTexture(label);
@@ -986,69 +1058,408 @@ scene.add(newBedroomGroup);
     }
     return grp;
   }
-
-  // Canvas-based label texture so the boxes actually have legible text
   function makeLabelTexture(text) {
     const c = document.createElement('canvas');
     c.width = 256; c.height = 128;
     const ctx = c.getContext('2d');
-    ctx.fillStyle = '#FFFFFF';
-    ctx.fillRect(0, 0, 256, 128);
+    ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, 256, 128);
     ctx.fillStyle = '#1a1a2e';
     ctx.font = 'bold 36px Nunito, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillText(text, 128, 64);
-    // Slight border to look like a sticker
-    ctx.strokeStyle = '#1a1a2e';
-    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#1a1a2e'; ctx.lineWidth = 4;
     ctx.strokeRect(4, 4, 248, 120);
     const tex = new THREE.CanvasTexture(c);
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
   }
+  newBedroomGroup.add(makeBox(-2.4, -6.0, 1.2, 0.9, 1.0, 0.12, 'CLOTHES'));
+  newBedroomGroup.add(makeBox(-2.3, -2.5, 1.0, 0.7, 0.9, -0.2,  'TOYS'));
+  newBedroomGroup.add(makeBox( 0.0, -3.0, 1.4, 1.0, 1.1, 0.3,   'BOOKS'));
+  newBedroomGroup.add(makeBox( 1.8, -2.2, 0.9, 0.7, 0.8, -0.15, 'STUFF'));
 
-  // Per the script (Ch.2.2): exactly 4 labelled boxes — CLOTHES, TOYS, BOOKS, STUFF.
-  // Spread around the room so Pico has to wander to touch each one.
-  newBedroomGroup.add(makeBox(-2.4, -2.6, 1.2, 0.9, 1.0, 0.12, 'CLOTHES'));
-  newBedroomGroup.add(makeBox(-2.3,  1.8, 1.0, 0.7, 0.9, -0.2,  'TOYS'));
-  newBedroomGroup.add(makeBox( 0.0,  1.5, 1.4, 1.0, 1.1, 0.3,   'BOOKS'));
-  newBedroomGroup.add(makeBox( 2.4,  2.6, 0.9, 0.7, 0.8, -0.15, 'STUFF'));
-
-  // Empty bed frame (no mattress yet — Pico has to unpack it!)
-  const bareFrameMat = new THREE.MeshStandardMaterial({ color: 0x6B4632, roughness: 0.75 });
-  const bareFrame = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.4, 3.2), bareFrameMat);
-  bareFrame.position.set(2.2, 0.2, -2.0);
-  bareFrame.castShadow = true;
-  bareFrame.receiveShadow = true;
+  // Empty bed frame against the east wall
+  const bareFrame = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.4, 3.0), woodTrim);
+  bareFrame.position.set(3.0, UPSTAIRS_Y + 0.2, -5.5);
+  bareFrame.castShadow = true; bareFrame.receiveShadow = true;
   newBedroomGroup.add(bareFrame);
-  // Headboard (only thing assembled)
-  const bareHead = new THREE.Mesh(new THREE.BoxGeometry(2.0, 1.0, 0.18), bareFrameMat);
-  bareHead.position.set(2.2, 0.9, -3.5);
-  bareHead.castShadow = true;
+  const bareHead = new THREE.Mesh(new THREE.BoxGeometry(1.8, 1.0, 0.18), woodTrim);
+  bareHead.position.set(3.0, UPSTAIRS_Y + 0.9, -6.9);
   newBedroomGroup.add(bareHead);
 
-  // Warm window light (no shadow casting for perf)
-  const winLight = new THREE.PointLight(0xFFE5B8, 1.4, 14);
-  winLight.position.set(0, 2.4, -ROOM_D / 2 + 1);
-  newBedroomGroup.add(winLight);
+  // ───────── STAIRCASE (visible step geometry) ─────────
+  // 6 treads + risers from y=UPSTAIRS_Y at z=STAIR_TOP_LZ down to y=0 at z=STAIR_BOT_LZ
+  const stairW = STAIR_HALFW * 2;
+  const tread_depth = STAIR_RUN / NUM_STAIRS;
+  for (let i = 0; i < NUM_STAIRS; i++) {
+    const treadY = UPSTAIRS_Y - (i + 1) * STAIR_RISE;
+    const treadZ = STAIR_TOP_LZ + i * tread_depth + tread_depth / 2;
+    // Tread (the flat part you stand on)
+    const tread = new THREE.Mesh(new THREE.BoxGeometry(stairW, 0.06, tread_depth), stairTreadMat);
+    tread.position.set(0, treadY + 0.03, treadZ);
+    tread.castShadow = true; tread.receiveShadow = true;
+    newBedroomGroup.add(tread);
+    // Riser (the vertical face under each tread)
+    const riser = new THREE.Mesh(new THREE.BoxGeometry(stairW, STAIR_RISE, 0.04), stairRiserMat);
+    riser.position.set(0, treadY + STAIR_RISE / 2, treadZ - tread_depth / 2);
+    newBedroomGroup.add(riser);
+  }
+  // Stair banisters along both sides
+  for (const side of [-1, 1]) {
+    const rail = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, STAIR_RUN * 1.1, 8), woodTrim);
+    rail.position.set(side * STAIR_HALFW, UPSTAIRS_Y / 2 + 0.95, (STAIR_TOP_LZ + STAIR_BOT_LZ) / 2);
+    rail.rotation.x = Math.atan2(UPSTAIRS_Y, STAIR_RUN);
+    newBedroomGroup.add(rail);
+    // Newel posts
+    for (const z of [STAIR_TOP_LZ, STAIR_BOT_LZ]) {
+      const post = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.2, 0.12), woodTrim);
+      const isTop = z === STAIR_TOP_LZ;
+      post.position.set(side * STAIR_HALFW, (isTop ? UPSTAIRS_Y + 0.6 : 0.6), z);
+      newBedroomGroup.add(post);
+    }
+  }
 
-  // Build the list of touchable boxes — used by the unpacking mini-objective
+  // ───────── DOWNSTAIRS — floor, walls, ceiling ─────────
+  const downLen = DOWN_FRONT - DOWN_BACK;
+  const downFloor = new THREE.Mesh(new THREE.PlaneGeometry(H_HW * 2, downLen), floorPlank);
+  downFloor.rotation.x = -Math.PI / 2;
+  downFloor.position.set(0, 0.01, (DOWN_BACK + DOWN_FRONT) / 2);
+  downFloor.receiveShadow = true;
+  newBedroomGroup.add(downFloor);
+  // Downstairs ceiling (under the upstairs floor area only — open above the stairs/landing)
+  const downCeil = new THREE.Mesh(new THREE.PlaneGeometry(H_HW * 2, DOWN_FRONT - STAIR_BOT_LZ), new THREE.MeshStandardMaterial({ color: 0xF5EFDD, roughness: 0.92 }));
+  downCeil.rotation.x = Math.PI / 2;
+  downCeil.position.set(0, DOWNSTAIRS_CEIL, (STAIR_BOT_LZ + DOWN_FRONT) / 2);
+  newBedroomGroup.add(downCeil);
+
+  // Downstairs side walls (full house length)
+  const downWallW = new THREE.Mesh(new THREE.PlaneGeometry(downLen, DOWNSTAIRS_CEIL), wallWarmMat);
+  downWallW.position.set(-H_HW, DOWNSTAIRS_CEIL / 2, (DOWN_BACK + DOWN_FRONT) / 2);
+  downWallW.rotation.y = Math.PI / 2;
+  downWallW.receiveShadow = true;
+  newBedroomGroup.add(downWallW);
+  const downWallE = downWallW.clone();
+  downWallE.position.x = H_HW;
+  downWallE.rotation.y = -Math.PI / 2;
+  newBedroomGroup.add(downWallE);
+
+  // South wall (FRONT of the house) has a door in the middle
+  const FRONT_DOOR_W = 1.8, FRONT_DOOR_H = 2.5;
+  const fsegLen = (H_HW * 2 - FRONT_DOOR_W) / 2;
+  const downWallSL = new THREE.Mesh(new THREE.PlaneGeometry(fsegLen, DOWNSTAIRS_CEIL), wallWarmMat);
+  downWallSL.position.set(-(FRONT_DOOR_W / 2 + fsegLen / 2), DOWNSTAIRS_CEIL / 2, DOWN_FRONT);
+  downWallSL.rotation.y = Math.PI;
+  newBedroomGroup.add(downWallSL);
+  const downWallSR = downWallSL.clone();
+  downWallSR.position.x = FRONT_DOOR_W / 2 + fsegLen / 2;
+  newBedroomGroup.add(downWallSR);
+  const downDoorLintel = new THREE.Mesh(new THREE.PlaneGeometry(FRONT_DOOR_W, DOWNSTAIRS_CEIL - FRONT_DOOR_H), wallWarmMat);
+  downDoorLintel.position.set(0, FRONT_DOOR_H + (DOWNSTAIRS_CEIL - FRONT_DOOR_H) / 2, DOWN_FRONT);
+  downDoorLintel.rotation.y = Math.PI;
+  newBedroomGroup.add(downDoorLintel);
+  // Front door panel (visual, with handle)
+  const frontDoor = new THREE.Mesh(new THREE.BoxGeometry(FRONT_DOOR_W - 0.08, FRONT_DOOR_H - 0.1, 0.08), new THREE.MeshStandardMaterial({ color: 0x2C5C3E, roughness: 0.55 }));
+  frontDoor.position.set(0, FRONT_DOOR_H / 2, DOWN_FRONT - 0.06);
+  frontDoor.castShadow = true;
+  newBedroomGroup.add(frontDoor);
+  const doorHandle = new THREE.Mesh(new THREE.SphereGeometry(0.06, 10, 8), new THREE.MeshStandardMaterial({ color: 0xC9B048, roughness: 0.2, metalness: 0.85 }));
+  doorHandle.position.set(0.6, 1.1, DOWN_FRONT - 0.1);
+  newBedroomGroup.add(doorHandle);
+  newBedroomGroup.userData.frontDoorPos = new THREE.Vector3(0, 0, DOWN_FRONT - 0.5);
+
+  // North wall of downstairs has the staircase opening + an alcove for kitchen on the east side
+  // Build a back wall behind the kitchen (under the upstairs floor, north of the stairs)
+  // The space under the upstairs floor (between DOWN_BACK and STAIR_TOP_LZ on z, full width)
+  // is the kitchen area. We need a back wall at z=DOWN_BACK only where the kitchen extends.
+  const kitchenBackLen = H_HW * 2;
+  // Actually since the kitchen sits UNDER the upstairs floor, the "back wall" of the kitchen
+  // is shared with the upstairs back wall area. Use a low partition wall to separate kitchen from stairs.
+  // We'll skip a downstairs north wall — the upstairs floor IS the ceiling there.
+
+  // ───────── DOWNSTAIRS LAYOUT ─────────
+  // Visual zones (no walls between them — open-plan):
+  //   Kitchen alcove:    z ∈ [DOWN_BACK..STAIR_BOT_LZ], under the upstairs floor (low ceiling)
+  //   Living room:       z ∈ [STAIR_BOT_LZ..5], full ceiling height
+  //   Entrance hall:     z ∈ [5..DOWN_FRONT], near the front door
+
+  // ─── Kitchen (under upstairs floor, north end) ───
+  // L-shaped counter along the east wall
+  const cntH = 0.92;
+  const cntDepth = 0.6;
+  const cntE = new THREE.Mesh(new THREE.BoxGeometry(cntDepth, cntH, 4.2), cabinetMat);
+  cntE.position.set(H_HW - cntDepth / 2, cntH / 2, -1.5);
+  cntE.castShadow = true; cntE.receiveShadow = true;
+  newBedroomGroup.add(cntE);
+  // Counter top (slightly thicker, lighter colour)
+  const cntETop = new THREE.Mesh(new THREE.BoxGeometry(cntDepth + 0.04, 0.05, 4.24), counterMat);
+  cntETop.position.set(H_HW - cntDepth / 2, cntH + 0.025, -1.5);
+  newBedroomGroup.add(cntETop);
+  // Counter along the north wall (return of the L)
+  const cntN = new THREE.Mesh(new THREE.BoxGeometry(3.0, cntH, cntDepth), cabinetMat);
+  cntN.position.set(H_HW - cntDepth / 2 - 1.5, cntH / 2, DOWN_BACK + cntDepth / 2);
+  newBedroomGroup.add(cntN);
+  const cntNTop = new THREE.Mesh(new THREE.BoxGeometry(3.04, 0.05, cntDepth + 0.04), counterMat);
+  cntNTop.position.set(H_HW - cntDepth / 2 - 1.5, cntH + 0.025, DOWN_BACK + cntDepth / 2);
+  newBedroomGroup.add(cntNTop);
+  // Sink (sunken into east counter)
+  const sink = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.05, 0.6), new THREE.MeshStandardMaterial({ color: 0xB8C5CC, roughness: 0.3, metalness: 0.6 }));
+  sink.position.set(H_HW - cntDepth / 2, cntH + 0.01, -1.5);
+  newBedroomGroup.add(sink);
+  // Tap
+  const tap = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8), new THREE.MeshStandardMaterial({ color: 0xC8CCD2, roughness: 0.2, metalness: 0.85 }));
+  tap.position.set(H_HW - cntDepth / 2 + 0.15, cntH + 0.2, -1.5);
+  newBedroomGroup.add(tap);
+  // Hob (on the east counter, south of the sink)
+  const hob = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.04, 0.5), new THREE.MeshStandardMaterial({ color: 0x1A1A1A, roughness: 0.3, metalness: 0.6 }));
+  hob.position.set(H_HW - cntDepth / 2, cntH + 0.04, 0.2);
+  newBedroomGroup.add(hob);
+  // 4 hob circles
+  for (const [hx, hz] of [[-0.12, -0.12], [0.12, -0.12], [-0.12, 0.12], [0.12, 0.12]]) {
+    const circle = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.005, 16), new THREE.MeshStandardMaterial({ color: 0x444, roughness: 0.6 }));
+    circle.position.set(H_HW - cntDepth / 2 + hx, cntH + 0.06, 0.2 + hz);
+    newBedroomGroup.add(circle);
+  }
+  // Fridge (on the north counter, west end)
+  const fridge = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.9, 0.7), fridgeMat);
+  fridge.position.set(H_HW - cntDepth - 2.6, 0.95, DOWN_BACK + 0.35);
+  fridge.castShadow = true; fridge.receiveShadow = true;
+  newBedroomGroup.add(fridge);
+  // Fridge handle
+  const fridgeHandle = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.5, 0.04), new THREE.MeshStandardMaterial({ color: 0x888, roughness: 0.3, metalness: 0.85 }));
+  fridgeHandle.position.set(H_HW - cntDepth - 2.6 + 0.42, 1.0, DOWN_BACK + 0.7);
+  newBedroomGroup.add(fridgeHandle);
+  // Fridge magnets (colourful)
+  for (let i = 0; i < 5; i++) {
+    const mag = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.01), new THREE.MeshStandardMaterial({ color: [0xFFD740, 0xE54B4B, 0x4BAFFF, 0x4BE585, 0xF59442][i] }));
+    mag.position.set(H_HW - cntDepth - 2.6 + (i - 2) * 0.14, 1.4, DOWN_BACK + 0.71);
+    newBedroomGroup.add(mag);
+  }
+  // Wall cabinets above the east counter
+  for (let i = 0; i < 3; i++) {
+    const cab = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.7, 1.2), cabinetMat);
+    cab.position.set(H_HW - cntDepth / 2, 2.05, -3.0 + i * 1.3);
+    cab.castShadow = true;
+    newBedroomGroup.add(cab);
+  }
+  // Pendant light over the kitchen
+  const pendant = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.18, 18), new THREE.MeshStandardMaterial({ color: 0xCC9C5A, roughness: 0.4, metalness: 0.5 }));
+  pendant.position.set(H_HW - 1.4, 2.7, -1.0);
+  newBedroomGroup.add(pendant);
+  const pendantLight = new THREE.PointLight(0xFFD7A0, 1.2, 6);
+  pendantLight.position.set(H_HW - 1.4, 2.5, -1.0);
+  newBedroomGroup.add(pendantLight);
+
+  // ─── Living room (south of the stairs, full height) ───
+  // Big rug
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(4.5, 3.5), rugMat);
+  rug.rotation.x = -Math.PI / 2;
+  rug.position.set(-1.0, 0.02, 4.0);
+  newBedroomGroup.add(rug);
+  // Sofa (back against the east wall, facing west toward the TV)
+  const sofaBase = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.5, 2.6), sofaMat);
+  sofaBase.position.set(H_HW - 0.7, 0.25, 4.0);
+  sofaBase.castShadow = true; sofaBase.receiveShadow = true;
+  newBedroomGroup.add(sofaBase);
+  // Sofa back
+  const sofaBack = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.9, 2.6), sofaMat);
+  sofaBack.position.set(H_HW - 0.25, 0.7, 4.0);
+  sofaBack.castShadow = true;
+  newBedroomGroup.add(sofaBack);
+  // Sofa cushions
+  for (let i = -1; i <= 1; i++) {
+    const cushion = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.18, 0.7), sofaCushionMat);
+    cushion.position.set(H_HW - 0.85, 0.59, 4.0 + i * 0.85);
+    cushion.castShadow = true;
+    newBedroomGroup.add(cushion);
+  }
+  // Sofa arms
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.6, 0.3), sofaMat);
+    arm.position.set(H_HW - 0.7, 0.55, 4.0 + side * 1.45);
+    newBedroomGroup.add(arm);
+  }
+  // Throw pillow
+  const pillow = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.25, 0.4), new THREE.MeshStandardMaterial({ color: 0xE54B4B, roughness: 0.85 }));
+  pillow.position.set(H_HW - 0.85, 0.82, 4.7);
+  pillow.rotation.y = 0.3;
+  newBedroomGroup.add(pillow);
+
+  // TV stand (against the west wall, facing east toward the sofa)
+  const tvStand = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.55, 1.8), new THREE.MeshStandardMaterial({ color: 0x4A3220, roughness: 0.75 }));
+  tvStand.position.set(-H_HW + 0.25, 0.28, 4.0);
+  tvStand.castShadow = true; tvStand.receiveShadow = true;
+  newBedroomGroup.add(tvStand);
+  // TV
+  const tv = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.95, 1.5), tvMat);
+  tv.position.set(-H_HW + 0.45, 1.1, 4.0);
+  tv.castShadow = true;
+  newBedroomGroup.add(tv);
+  // TV screen glow (a faintly emissive plane on the screen side)
+  const tvScreen = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 0.85), new THREE.MeshBasicMaterial({ color: 0x6FA8C8 }));
+  tvScreen.position.set(-H_HW + 0.495, 1.1, 4.0);
+  tvScreen.rotation.y = Math.PI / 2;
+  newBedroomGroup.add(tvScreen);
+
+  // Coffee table (between sofa and TV)
+  const coffeeTop = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.06, 1.4), woodTrim);
+  coffeeTop.position.set(2.5, 0.45, 4.0);
+  coffeeTop.castShadow = true;
+  newBedroomGroup.add(coffeeTop);
+  for (const [tlx, tlz] of [[-0.38, -0.6], [0.38, -0.6], [-0.38, 0.6], [0.38, 0.6]]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.42, 0.06), woodTrim);
+    leg.position.set(2.5 + tlx, 0.21, 4.0 + tlz);
+    newBedroomGroup.add(leg);
+  }
+  // Cup of tea on the coffee table
+  const mug = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.12, 16), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 }));
+  mug.position.set(2.5, 0.55, 3.7);
+  newBedroomGroup.add(mug);
+  const mugHandle = new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.015, 6, 12, Math.PI), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 }));
+  mugHandle.position.set(2.58, 0.55, 3.7);
+  mugHandle.rotation.y = Math.PI / 2;
+  newBedroomGroup.add(mugHandle);
+
+  // Fireplace on the south-west corner area (between TV stand and front-door wall)
+  const fireWidth = 1.6, fireHeight = 1.6, fireDepth = 0.5;
+  const firePlace = new THREE.Mesh(new THREE.BoxGeometry(fireDepth, fireHeight, fireWidth), fireBrick);
+  firePlace.position.set(-H_HW + fireDepth / 2, fireHeight / 2, 6.5);
+  firePlace.castShadow = true; firePlace.receiveShadow = true;
+  newBedroomGroup.add(firePlace);
+  // Fireplace opening (black inset)
+  const fireMouth = new THREE.Mesh(new THREE.PlaneGeometry(1.0, 0.9), fireDark);
+  fireMouth.position.set(-H_HW + fireDepth + 0.001, 0.6, 6.5);
+  fireMouth.rotation.y = Math.PI / 2;
+  newBedroomGroup.add(fireMouth);
+  // Fire glow (warm light)
+  const fireLight = new THREE.PointLight(0xFF8844, 1.6, 5);
+  fireLight.position.set(-H_HW + 0.7, 0.5, 6.5);
+  newBedroomGroup.add(fireLight);
+  // Animated "fire" — 3 small flickering planes (subtle, no real animation, just emissive)
+  for (let i = 0; i < 3; i++) {
+    const flame = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.25, 8), new THREE.MeshBasicMaterial({ color: [0xFF6A1A, 0xFFC04B, 0xFF8333][i] }));
+    flame.position.set(-H_HW + 0.4, 0.3 + i * 0.05, 6.5 + (i - 1) * 0.15);
+    newBedroomGroup.add(flame);
+  }
+  // Mantelpiece + family photo
+  const mantel = new THREE.Mesh(new THREE.BoxGeometry(fireDepth + 0.2, 0.08, fireWidth + 0.4), woodTrim);
+  mantel.position.set(-H_HW + (fireDepth + 0.2) / 2, fireHeight, 6.5);
+  newBedroomGroup.add(mantel);
+  const photoFrame = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.4, 0.6), woodTrim);
+  photoFrame.position.set(-H_HW + 0.55, fireHeight + 0.25, 6.5);
+  newBedroomGroup.add(photoFrame);
+
+  // Bookshelf along the south-east area
+  const shelf = new THREE.Mesh(new THREE.BoxGeometry(0.4, 1.8, 1.4), woodTrim);
+  shelf.position.set(H_HW - 0.2, 0.9, 6.5);
+  shelf.castShadow = true;
+  newBedroomGroup.add(shelf);
+  // Books on the shelf — colourful spines
+  for (let r = 0; r < 4; r++) {
+    for (let i = 0; i < 7; i++) {
+      const bk = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.32, 0.16), new THREE.MeshStandardMaterial({ color: [0xE54B4B, 0xFFD740, 0x4BAFFF, 0x4BE585, 0xF59442, 0x9C5BE0, 0xEC5B98][i % 7], roughness: 0.7 }));
+      bk.position.set(H_HW - 0.3, 0.3 + r * 0.4, 5.85 + i * 0.18);
+      newBedroomGroup.add(bk);
+    }
+  }
+
+  // ─── Entrance hall (near the front door) ───
+  // Coat rack
+  const coatRack = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.8, 8), woodTrim);
+  coatRack.position.set(-H_HW + 0.5, 0.9, DOWN_FRONT - 0.6);
+  newBedroomGroup.add(coatRack);
+  const coatBase = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.08, 16), woodTrim);
+  coatBase.position.set(-H_HW + 0.5, 0.04, DOWN_FRONT - 0.6);
+  newBedroomGroup.add(coatBase);
+  // 4 hooks at the top
+  for (let i = 0; i < 4; i++) {
+    const hook = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.04, 0.15), woodTrim);
+    const ang = (i / 4) * Math.PI * 2;
+    hook.position.set(-H_HW + 0.5 + Math.cos(ang) * 0.08, 1.7, DOWN_FRONT - 0.6 + Math.sin(ang) * 0.08);
+    newBedroomGroup.add(hook);
+  }
+  // Yellow coat hanging on the rack (Pico's)
+  const coat = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.6, 0.1), new THREE.MeshStandardMaterial({ color: 0xFFD740, roughness: 0.7 }));
+  coat.position.set(-H_HW + 0.6, 1.2, DOWN_FRONT - 0.6);
+  newBedroomGroup.add(coat);
+  // Door mat
+  const mat = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 0.7), new THREE.MeshStandardMaterial({ color: 0x6A4A30, roughness: 0.9 }));
+  mat.rotation.x = -Math.PI / 2;
+  mat.position.set(0, 0.015, DOWN_FRONT - 0.55);
+  newBedroomGroup.add(mat);
+  // Small entrance table with a bowl of keys
+  const enTable = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.75, 0.8), woodTrim);
+  enTable.position.set(H_HW - 0.3, 0.375, DOWN_FRONT - 0.8);
+  newBedroomGroup.add(enTable);
+  const bowl = new THREE.Mesh(new THREE.SphereGeometry(0.12, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x9C5BE0, roughness: 0.6 }));
+  bowl.position.set(H_HW - 0.3, 0.78, DOWN_FRONT - 0.8);
+  newBedroomGroup.add(bowl);
+  // Framed wall art above the entrance table
+  const wallArt = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.9), new THREE.MeshStandardMaterial({ color: 0xF9F4E8 }));
+  wallArt.position.set(H_HW - 0.05, 1.6, DOWN_FRONT - 0.8);
+  wallArt.rotation.y = -Math.PI / 2;
+  newBedroomGroup.add(wallArt);
+
+  // ─── Light fixtures downstairs ───
+  // Ceiling light in living room
+  const livingLight = new THREE.PointLight(0xFFE8C8, 1.2, 10);
+  livingLight.position.set(0, DOWNSTAIRS_CEIL - 0.3, 4.5);
+  newBedroomGroup.add(livingLight);
+  // Soft fill light near the front door
+  const entranceLight = new THREE.PointLight(0xFFEFD0, 0.7, 6);
+  entranceLight.position.set(0, 2.4, DOWN_FRONT - 1.2);
+  newBedroomGroup.add(entranceLight);
+
+  // ─── House interior wall colliders ─────────
+  // List of axis-aligned rectangles (local coords) Pico can't walk through.
+  // Each entry: {minX, maxX, minZ, maxZ, minY?: optional floor (for collider that only applies at certain heights)}
+  const colliders = [];
+  // East wall (full house length)
+  colliders.push({ minX: H_HW - 0.1, maxX: H_HW + 0.5, minZ: UP_BACK, maxZ: DOWN_FRONT });
+  // West wall
+  colliders.push({ minX: -H_HW - 0.5, maxX: -H_HW + 0.1, minZ: UP_BACK, maxZ: DOWN_FRONT });
+  // North wall (back of house)
+  colliders.push({ minX: -H_HW, maxX: H_HW, minZ: UP_BACK - 0.5, maxZ: UP_BACK + 0.1 });
+  // South wall (front of house) — with door gap (door is x in [-0.9, 0.9])
+  colliders.push({ minX: -H_HW, maxX: -FRONT_DOOR_W / 2, minZ: DOWN_FRONT - 0.1, maxZ: DOWN_FRONT + 0.5 });
+  colliders.push({ minX: FRONT_DOOR_W / 2, maxX: H_HW, minZ: DOWN_FRONT - 0.1, maxZ: DOWN_FRONT + 0.5 });
+  // Upstairs south wall (everywhere except the doorway)
+  colliders.push({ minX: -H_HW, maxX: -DOOR_W / 2, minZ: UP_FRONT - 0.1, maxZ: UP_FRONT + 0.1, minY: UPSTAIRS_Y });
+  colliders.push({ minX: DOOR_W / 2, maxX: H_HW, minZ: UP_FRONT - 0.1, maxZ: UP_FRONT + 0.1, minY: UPSTAIRS_Y });
+  // Kitchen counter — east counter
+  colliders.push({ minX: H_HW - cntDepth - 0.05, maxX: H_HW, minZ: -3.6, maxZ: 0.6, maxY: cntH });
+  // Kitchen counter — north counter
+  colliders.push({ minX: H_HW - cntDepth - 3.0, maxX: H_HW - cntDepth, minZ: DOWN_BACK, maxZ: DOWN_BACK + cntDepth + 0.05, maxY: cntH });
+  // Fridge
+  colliders.push({ minX: H_HW - cntDepth - 3.1, maxX: H_HW - cntDepth - 2.1, minZ: DOWN_BACK, maxZ: DOWN_BACK + 0.7 });
+  // Sofa
+  colliders.push({ minX: H_HW - 1.2, maxX: H_HW, minZ: 2.7, maxZ: 5.3 });
+  // Coffee table
+  colliders.push({ minX: 2.05, maxX: 2.95, minZ: 3.3, maxZ: 4.7, maxY: 0.5 });
+  // TV stand
+  colliders.push({ minX: -H_HW, maxX: -H_HW + 0.55, minZ: 3.1, maxZ: 4.9 });
+  // Fireplace
+  colliders.push({ minX: -H_HW, maxX: -H_HW + fireDepth, minZ: 6.5 - fireWidth / 2, maxZ: 6.5 + fireWidth / 2 });
+  // Bookshelf
+  colliders.push({ minX: H_HW - 0.45, maxX: H_HW, minZ: 5.8, maxZ: 7.2 });
+  // Entrance table
+  colliders.push({ minX: H_HW - 0.55, maxX: H_HW, minZ: DOWN_FRONT - 1.2, maxZ: DOWN_FRONT - 0.4 });
+  // Upstairs furniture — bed frame
+  colliders.push({ minX: 2.05, maxX: 3.95, minZ: -7.0, maxZ: -4.0, minY: UPSTAIRS_Y });
+  newBedroomGroup.userData.houseColliders = colliders;
+
+  // ─── Box collider list (for the original Ch.2 unpacking mini-objective) ───
   const boxes = [];
-  // Also build a set of box colliders (one per XZ stack — duplicates collapsed)
   const colliderMap = new Map();
   newBedroomGroup.traverse(o => {
     if (o.isMesh && o.material === boxMat) {
       boxes.push(o);
       const g = o.parent;
-      // Use the box's bounding box size + the group's XZ position as the collider
       const key = `${g.position.x.toFixed(2)},${g.position.z.toFixed(2)}`;
       const params = o.geometry.parameters;
       const halfW = (params.width || 1) / 2;
       const halfD = (params.depth || 1) / 2;
       const existing = colliderMap.get(key);
       if (existing) {
-        // Same XZ — take the larger AABB so we don't penetrate any stacked box
         existing.halfW = Math.max(existing.halfW, halfW);
         existing.halfD = Math.max(existing.halfD, halfD);
       } else {
@@ -2377,16 +2788,26 @@ function tick() {
     player.position.y += playerVel.y * dt;
     player.position.z += playerVel.z * dt;
 
-    if (player.position.y <= 0) {
-      // Trigger camera shake if landing from a significant fall
+    // Determine the floor Y at the player's XZ. Inside the new house this is
+    // the staircase height (upstairs Y on the bedroom floor, 0 downstairs, and
+    // graduated on the stairs themselves).
+    let floorY = 0;
+    if (newBedroomGroup.visible) {
+      const lx = player.position.x - NEW_BEDROOM_ORIGIN.x;
+      const lz = player.position.z - NEW_BEDROOM_ORIGIN.z;
+      // Only treat house geometry as ground if the player is inside the footprint
+      if (lx >= -5.2 && lx <= 5.2 && lz >= -8.2 && lz <= 8.2) {
+        floorY = getHouseFloorY(lx, lz);
+      }
+    }
+    if (player.position.y <= floorY) {
       if (!grounded && playerVel.y < -3) {
         addShake(Math.min(0.25, Math.abs(playerVel.y) * 0.025));
-        // Landing dust puff
         emitDust(player.position.x, player.position.z);
         emitDust(player.position.x + 0.3, player.position.z);
         emitDust(player.position.x - 0.3, player.position.z);
       }
-      player.position.y = 0;
+      player.position.y = floorY;
       playerVel.y = 0;
       grounded = true;
     }
@@ -2468,6 +2889,36 @@ function tick() {
           else if (minOv === overlapF) { player.position.z = NEW_BEDROOM_ORIGIN.z + minZ - PR; if (playerVel.z > 0) playerVel.z = 0; }
           else                          { player.position.z = NEW_BEDROOM_ORIGIN.z + maxZ + PR; if (playerVel.z < 0) playerVel.z = 0; }
         }
+      }
+    }
+
+    // House wall + furniture colliders (run alongside the box colliders)
+    if (newBedroomGroup.visible && newBedroomGroup.userData.houseColliders) {
+      const PR = 0.35;
+      const localX = player.position.x - NEW_BEDROOM_ORIGIN.x;
+      const localZ = player.position.z - NEW_BEDROOM_ORIGIN.z;
+      const py = player.position.y;
+      for (const c of newBedroomGroup.userData.houseColliders) {
+        // Some colliders only block above a certain Y (e.g. upstairs walls when downstairs)
+        // or below a certain Y (e.g. counter is jump-overable in theory)
+        if (c.minY != null && py + 1.0 < c.minY) continue;   // collider is above player's head
+        if (c.maxY != null && py > c.maxY) continue;          // player is above this collider
+        if (localX > c.minX - PR && localX < c.maxX + PR && localZ > c.minZ - PR && localZ < c.maxZ + PR) {
+          const overlapL = (localX + PR) - c.minX;
+          const overlapR = c.maxX - (localX - PR);
+          const overlapF = (localZ + PR) - c.minZ;
+          const overlapB = c.maxZ - (localZ - PR);
+          const minOv = Math.min(overlapL, overlapR, overlapF, overlapB);
+          if (minOv === overlapL)      { player.position.x = NEW_BEDROOM_ORIGIN.x + c.minX - PR; if (playerVel.x > 0) playerVel.x = 0; }
+          else if (minOv === overlapR) { player.position.x = NEW_BEDROOM_ORIGIN.x + c.maxX + PR; if (playerVel.x < 0) playerVel.x = 0; }
+          else if (minOv === overlapF) { player.position.z = NEW_BEDROOM_ORIGIN.z + c.minZ - PR; if (playerVel.z > 0) playerVel.z = 0; }
+          else                          { player.position.z = NEW_BEDROOM_ORIGIN.z + c.maxZ + PR; if (playerVel.z < 0) playerVel.z = 0; }
+        }
+      }
+
+      // Front-door exit trigger — when player walks south past the front door, leave the house
+      if (localZ >= 7.8 && Math.abs(localX) <= 0.9 && py < 0.5 && !controlsLocked) {
+        exitHouseToMeadow();
       }
     }
 
@@ -3702,12 +4153,12 @@ async function beginChapter5() {
   // Stash the cleaver's resting position so we can swing it later
   butcher.userData.cleaverRestY = butcher.userData.cleaverBlade.position.y;
 
-  // Camera framing: low + close, peering into the shop from Pico's side
-  camState.target.copy(player.position);
-  camState.target.y = 1.4;
-  camState.distance = 7;
-  camState.yaw = 0;
-  camState.pitch = 0.18;
+  // Camera framing: side-on 2-shot so we can see Pico AND the Butcher
+  // (yaw=0 was pointing the camera straight through the door — bad)
+  camState.target.set(0, 1.6, BUTCHER_ORIGIN.z - 0.6);  // midway between them, slightly raised
+  camState.distance = 6;
+  camState.yaw = -Math.PI / 2;   // camera on the west side, looking east
+  camState.pitch = 0.12;
   updateCamera();
   await sleep(200);
   showFade(false);
@@ -3960,18 +4411,18 @@ async function enterNewBedroom() {
   // Hide outdoor stuff (we leave it visible since fog will hide it from indoors,
   // but the player is teleported far away anyway).
   newBedroomGroup.visible = true;
-  // Place Pico just inside the bedroom door (south side of the room)
+  // Place Pico in the upstairs bedroom, facing the back window
   player.position.copy(NEW_BEDROOM_ORIGIN);
-  player.position.z += 3.2;       // near the front of the room
-  facingY = Math.PI;              // facing into the room (toward back wall + window)
-  player.rotation.y = Math.PI;
+  player.position.y = UPSTAIRS_Y;   // standing on the upstairs floor
+  player.position.z += -3;          // middle of the bedroom
+  facingY = 0;                       // facing toward the back (-Z) window
+  player.rotation.y = 0;
   playerVel.set(0, 0, 0);
   grounded = true;
-  // Frame the bedroom: low pitch, looking from the door
-  camState.target.copy(NEW_BEDROOM_ORIGIN);
-  camState.target.y = 1.1;
+  // Frame the bedroom: low pitch, looking from the door toward the window
+  camState.target.set(NEW_BEDROOM_ORIGIN.x, UPSTAIRS_Y + 1.1, NEW_BEDROOM_ORIGIN.z - 3);
   camState.distance = 6;
-  camState.yaw = 0;
+  camState.yaw = Math.PI;     // camera south of Pico, looking north at his back
   camState.pitch = 0.28;
   updateCamera();
   await sleep(200);
@@ -3993,4 +4444,47 @@ async function enterNewBedroom() {
   manualDance = null;
   setStillMode(false);
   controlsLocked = false;
+}
+
+// Walking out of the front door leaves the house and drops Pico back in the meadow.
+let exitingHouse = false;
+async function exitHouseToMeadow() {
+  if (exitingHouse) return;
+  exitingHouse = true;
+  controlsLocked = true;
+  setStillMode(true);
+  showFade(true);
+  await sleep(900);
+
+  // Hide the house interior + place Pico outside the front gate of the new house
+  newBedroomGroup.visible = false;
+  // The new-house exterior is at world (-12, 0, -12). The front door faces +Z
+  // (toward the meadow centre), so spawn Pico a couple of metres south of it.
+  player.position.set(-12, 0, -6);
+  player.position.y = 0;
+  facingY = Math.PI;        // facing back toward the meadow (-Z is north, so face +Z is south? — set so Pico can see the meadow)
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  camState.target.set(player.position.x, 1.1, player.position.z);
+  camState.distance = 6;
+  camState.yaw = 0;
+  camState.pitch = 0.25;
+  updateCamera();
+
+  // Update HUD
+  lastZoneLabel = '';
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.classList.remove('hide');
+    objEl.querySelector('.objective-text').textContent = 'Explore the meadow';
+  }
+
+  await sleep(200);
+  showFade(false);
+  await sleep(600);
+
+  setStillMode(false);
+  controlsLocked = false;
+  exitingHouse = false;
 }
