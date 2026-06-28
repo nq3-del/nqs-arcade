@@ -2860,6 +2860,7 @@ function playAction(name, fadeTime = 0.25, opts = {}) {
 // Track when the player became idle so Pico only dances after 10s of no input.
 // Idle (< 10s) → static Pico standing pose. Idle (≥ 10s) → Bubble_Dance.
 let idleStartTime = 0;
+let lastControlsLocked = false;
 const IDLE_BEFORE_DANCE_MS = 10000;
 
 // Decide which animation should be playing based on the current player state
@@ -3168,6 +3169,14 @@ function tick() {
       sprinting: input.sprint,
       speed: horizontalSpeed
     };
+    // Detect transition from cutscene (locked) to free roam (unlocked) and
+    // reset any leftover dance/idle state from the cutscene
+    if (!controlsLocked && lastControlsLocked) {
+      manualDance = null;
+      idleStartTime = 0;
+    }
+    lastControlsLocked = controlsLocked;
+
     const wantAction = chooseAnimationState(state);
     // Special key means "stop animating, Pico stays in current pose"
     // (used for the first 10s of idle so Pico doesn't dance by default).
@@ -3941,12 +3950,9 @@ function applyPendingLoadIfAny() {
       case 'newhouse': enterNewBedroom(); break;
       case 'school':   beginChapter3(); break;
       case 'butcher':  beginChapter5(); break;
-      case 'ending':
-        // No Ch.6 yet — fallback to butcher chase end card
-        beginChapter5(); break;
+      case 'ending':   beginChapter6(); break;
       case 'intro':
-      default:
-        beginIntro(); break;
+      default:         beginIntro(); break;
     }
   }, 100);
   return true;
@@ -5000,10 +5006,11 @@ function updateHazelFollow(dt) {
     hazel.position.x += (dx / dist) * speed;
     hazel.position.z += (dz / dist) * speed;
     hazel.rotation.y = Math.atan2(dx, dz);
-    // Subtle bobbing while moving
-    hazel.position.y = Math.abs(Math.sin(performance.now() * 0.008)) * 0.04;
+    // Subtle bobbing while moving — anchored to Pico's Y so Hazel doesn't
+    // sink/float when he walks up or down stairs in the new house
+    hazel.position.y = player.position.y + Math.abs(Math.sin(performance.now() * 0.008)) * 0.04;
   } else {
-    hazel.position.y = 0;
+    hazel.position.y = player.position.y;
   }
 }
 
