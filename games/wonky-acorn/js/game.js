@@ -247,6 +247,209 @@ for (let i = 0; i < 8; i++) {
   scene.add(cloud);
 }
 
+// ═══════════════════════════════════════════════════════
+// BEDROOM (cutscene location — built at offset so it doesn't overlap the meadow)
+// ═══════════════════════════════════════════════════════
+const BEDROOM_ORIGIN = new THREE.Vector3(0, 0, -200);
+const bedroomGroup = new THREE.Group();
+bedroomGroup.position.copy(BEDROOM_ORIGIN);
+scene.add(bedroomGroup);
+
+(function buildBedroom() {
+  // Materials
+  const wallMat   = new THREE.MeshStandardMaterial({ color: 0xF6E4C0, roughness: 0.9 });
+  const floorMat  = new THREE.MeshStandardMaterial({ color: 0xB07A48, roughness: 0.7 });
+  const rugMat    = new THREE.MeshStandardMaterial({ color: 0xD16A6A, roughness: 0.95 });
+  const woodMat   = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.6 });
+  const blanketMat = new THREE.MeshStandardMaterial({ color: 0x6FAEDC, roughness: 0.8 });
+  const pillowMat  = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.85 });
+  const clockBodyMat = new THREE.MeshStandardMaterial({ color: 0xCC0000, roughness: 0.4, metalness: 0.2 });
+  const clockFaceMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.3 });
+  const bellMat    = new THREE.MeshStandardMaterial({ color: 0xDDB347, roughness: 0.2, metalness: 0.85 });
+  const windowMat  = new THREE.MeshStandardMaterial({ color: 0xB3E0F2, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.7 });
+  const curtainMat = new THREE.MeshStandardMaterial({ color: 0xEFCD79, roughness: 0.95, side: THREE.DoubleSide });
+
+  const ROOM_W = 8, ROOM_D = 8, ROOM_H = 4;
+
+  // Floor
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  bedroomGroup.add(floor);
+
+  // Rug
+  const rug = new THREE.Mesh(new THREE.PlaneGeometry(3, 4), rugMat);
+  rug.rotation.x = -Math.PI / 2;
+  rug.position.set(0, 0.01, 0.5);
+  bedroomGroup.add(rug);
+
+  // Walls (3 sides + back wall — leave front "open" so camera can look in)
+  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+  wallBack.position.set(0, ROOM_H / 2, -ROOM_D / 2);
+  wallBack.receiveShadow = true;
+  bedroomGroup.add(wallBack);
+
+  const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+  wallLeft.position.set(-ROOM_W / 2, ROOM_H / 2, 0);
+  wallLeft.rotation.y = Math.PI / 2;
+  wallLeft.receiveShadow = true;
+  bedroomGroup.add(wallLeft);
+
+  const wallRight = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+  wallRight.position.set(ROOM_W / 2, ROOM_H / 2, 0);
+  wallRight.rotation.y = -Math.PI / 2;
+  wallRight.receiveShadow = true;
+  bedroomGroup.add(wallRight);
+
+  // Ceiling — slightly darker
+  const ceilMat = new THREE.MeshStandardMaterial({ color: 0xEEDFB8, roughness: 0.95 });
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), ceilMat);
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.y = ROOM_H;
+  bedroomGroup.add(ceiling);
+
+  // Window in the back wall
+  const winFrame = new THREE.Mesh(new THREE.BoxGeometry(2.4, 1.8, 0.15), woodMat);
+  winFrame.position.set(0, 2.5, -ROOM_D / 2 + 0.07);
+  winFrame.receiveShadow = true;
+  bedroomGroup.add(winFrame);
+  const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 1.4), windowMat);
+  winGlass.position.set(0, 2.5, -ROOM_D / 2 + 0.16);
+  bedroomGroup.add(winGlass);
+  // Window cross
+  const crossV = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.4, 0.08), woodMat);
+  crossV.position.set(0, 2.5, -ROOM_D / 2 + 0.17);
+  bedroomGroup.add(crossV);
+  const crossH = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.08, 0.08), woodMat);
+  crossH.position.set(0, 2.5, -ROOM_D / 2 + 0.17);
+  bedroomGroup.add(crossH);
+  // Curtains
+  const curtainL = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 2.0), curtainMat);
+  curtainL.position.set(-1.3, 2.5, -ROOM_D / 2 + 0.2);
+  bedroomGroup.add(curtainL);
+  const curtainR = curtainL.clone();
+  curtainR.position.x = 1.3;
+  bedroomGroup.add(curtainR);
+
+  // Bed — frame, mattress, blanket, pillow
+  const bedGroup = new THREE.Group();
+  bedGroup.position.set(-2.4, 0, -1.5);
+  bedroomGroup.add(bedGroup);
+
+  const bedFrame = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.4, 3.4), woodMat);
+  bedFrame.position.y = 0.2;
+  bedFrame.castShadow = true;
+  bedFrame.receiveShadow = true;
+  bedGroup.add(bedFrame);
+
+  const mattress = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.3, 3.2), pillowMat);
+  mattress.position.y = 0.55;
+  mattress.castShadow = true;
+  mattress.receiveShadow = true;
+  bedGroup.add(mattress);
+
+  const blanket = new THREE.Mesh(new THREE.BoxGeometry(2.05, 0.12, 2.2), blanketMat);
+  blanket.position.set(0, 0.74, 0.4);
+  blanket.castShadow = true;
+  bedGroup.add(blanket);
+
+  const pillow = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.25, 0.8), pillowMat);
+  pillow.position.set(0, 0.78, -1.2);
+  pillow.castShadow = true;
+  bedGroup.add(pillow);
+
+  // Headboard
+  const headboard = new THREE.Mesh(new THREE.BoxGeometry(2.2, 1.2, 0.18), woodMat);
+  headboard.position.set(0, 1.0, -1.8);
+  headboard.castShadow = true;
+  bedGroup.add(headboard);
+
+  // Bedside table
+  const tableGroup = new THREE.Group();
+  tableGroup.position.set(-0.6, 0, -2.6);
+  bedroomGroup.add(tableGroup);
+
+  const tableTop = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.06, 0.7), woodMat);
+  tableTop.position.y = 0.95;
+  tableTop.castShadow = true;
+  tableGroup.add(tableTop);
+  // Table legs
+  for (const [lx, lz] of [[-0.38, -0.28], [0.38, -0.28], [-0.38, 0.28], [0.38, 0.28]]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.92, 0.06), woodMat);
+    leg.position.set(lx, 0.46, lz);
+    leg.castShadow = true;
+    tableGroup.add(leg);
+  }
+
+  // Alarm clock on the table — body + face + 2 bells + clapper
+  const alarmGroup = new THREE.Group();
+  alarmGroup.position.set(0, 1.18, 0);
+  tableGroup.add(alarmGroup);
+  // Body (cylindrical bell-clock)
+  const clockBody = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.16, 24), clockBodyMat);
+  clockBody.rotation.x = Math.PI / 2;
+  clockBody.castShadow = true;
+  alarmGroup.add(clockBody);
+  // Face
+  const clockFace = new THREE.Mesh(new THREE.CircleGeometry(0.18, 24), clockFaceMat);
+  clockFace.position.z = 0.085;
+  alarmGroup.add(clockFace);
+  // Clock hands
+  const hourHand = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.1, 0.005), new THREE.MeshStandardMaterial({ color: 0x000 }));
+  hourHand.position.set(0, 0.04, 0.09);
+  alarmGroup.add(hourHand);
+  const minHand = new THREE.Mesh(new THREE.BoxGeometry(0.015, 0.15, 0.005), new THREE.MeshStandardMaterial({ color: 0x000 }));
+  minHand.position.set(0, 0.06, 0.09);
+  alarmGroup.add(minHand);
+  // Bells on top
+  const bellL = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.5), bellMat);
+  bellL.position.set(-0.13, 0.22, 0);
+  bellL.castShadow = true;
+  alarmGroup.add(bellL);
+  const bellR = bellL.clone();
+  bellR.position.x = 0.13;
+  alarmGroup.add(bellR);
+  // Feet
+  for (const fx of [-0.16, 0.16]) {
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.05, 0.08), clockBodyMat);
+    foot.position.set(fx, -0.105, 0);
+    alarmGroup.add(foot);
+  }
+  // Save a reference so the cutscene can wiggle the clock when it rings
+  bedroomGroup.userData.alarmGroup = alarmGroup;
+
+  // Warm bedroom point light (turns off when the player "leaves" via cutscene end)
+  const lamp = new THREE.PointLight(0xFFE0A0, 1.4, 12);
+  lamp.position.set(2, 3.5, 2);
+  lamp.castShadow = true;
+  bedroomGroup.add(lamp);
+
+  // A small lamp model on the table
+  const lampShade = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.22, 16, 1, true), new THREE.MeshStandardMaterial({ color: 0xFFE0A0, emissive: 0xFFCC66, emissiveIntensity: 0.4, side: THREE.DoubleSide }));
+  lampShade.position.set(0.3, 1.35, 0);
+  tableGroup.add(lampShade);
+  const lampStem = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.25, 8), new THREE.MeshStandardMaterial({ color: 0x222, roughness: 0.5 }));
+  lampStem.position.set(0.3, 1.1, 0);
+  tableGroup.add(lampStem);
+
+  // Rug under the bed — different pattern
+  const bedRug = new THREE.Mesh(new THREE.PlaneGeometry(2.5, 1.2), new THREE.MeshStandardMaterial({ color: 0x6B8E5B, roughness: 0.95 }));
+  bedRug.rotation.x = -Math.PI / 2;
+  bedRug.position.set(-2.4, 0.01, 0.6);
+  bedroomGroup.add(bedRug);
+
+  // Toys/picture frame on the back wall
+  const picFrame = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.6, 0.05), woodMat);
+  picFrame.position.set(2.4, 2.3, -ROOM_D / 2 + 0.05);
+  bedroomGroup.add(picFrame);
+  const picCanvas = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.5), new THREE.MeshStandardMaterial({ color: 0x4CAF50 }));
+  picCanvas.position.set(2.4, 2.3, -ROOM_D / 2 + 0.08);
+  bedroomGroup.add(picCanvas);
+})();
+
+// Hide the bedroom by default — cutscene will toggle it on
+bedroomGroup.visible = false;
+
 // ─── Camera ───────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500);
 
@@ -977,6 +1180,24 @@ async function beginIntro() {
   // User just tapped "Tap to begin" — wake the audio context (browsers require user gesture)
   ensureAudio();
 
+  // ── Move Pico into the bedroom and frame the camera for an interior shot ──
+  bedroomGroup.visible = true;
+  player.position.copy(BEDROOM_ORIGIN);
+  player.position.y = 0;
+  facingY = 0;
+  player.rotation.y = 0;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  // Camera tuned for the bedroom: 3/4 view from the open front of the room
+  // looking past the bed toward the back wall + window
+  camState.target.copy(BEDROOM_ORIGIN);
+  camState.target.y = 1.2;
+  camState.distance = 5.5;
+  camState.pitch = 0.25;
+  camState.yaw = 0.6;  // right-front 3/4 view with bed + alarm visible on the left
+  // Snap camera immediately to its new position so we don't see the lerp
+  updateCamera();
+
   // Hide loading + show title card
   loadingEl.classList.add('fade');
   setTimeout(() => { loadingEl.style.display = 'none'; }, 600);
@@ -990,27 +1211,58 @@ async function beginIntro() {
     titleCard.style.display = 'none';
   }
 
-  // Reveal the 3D scene with a fade-in
-  await sleep(400);
+  // Tiny breather so the player can take in the bedroom
+  await sleep(600);
 
-  // ── Opening beat: Pico's alarm rings, he yells "I'M READY!" ──
+  // ── Alarm starts ringing, clock wiggles ──
   stopAlarm = SFX.alarmRing();
-  await sleep(1100);
+  const alarmGroup = bedroomGroup.userData.alarmGroup;
+  const ringStart = performance.now();
+  const ringStop = ringStart + 1300;
+  function wiggleAlarm() {
+    if (!alarmGroup) return;
+    if (performance.now() >= ringStop) {
+      alarmGroup.rotation.z = 0;
+      return;
+    }
+    const t = (performance.now() - ringStart) / 1000;
+    alarmGroup.rotation.z = Math.sin(t * 40) * 0.18;
+    requestAnimationFrame(wiggleAlarm);
+  }
+  wiggleAlarm();
+  await sleep(1300);
   if (stopAlarm) { stopAlarm(); stopAlarm = null; }
 
-  // Trigger jump animation
+  // ── Pico jumps out of bed and yells "I'M READY!" ──
   if (actions['Basic_Jump']) {
-    playAction('Basic_Jump', 0.1, { once: true });
-    // Also actually jump physically for visual flair
+    playAction('Basic_Jump', 0.15, { once: true });
     if (grounded) {
       playerVel.y = 7;
       grounded = false;
     }
   }
   SFX.jump();
-  await sleep(150);
+  await sleep(180);
   SFX.ready();
   await showSpeech("I'M READY!", 1600);
+
+  // ── Cut to meadow ──
+  showFade(true);
+  await sleep(900);
+  bedroomGroup.visible = false;
+  player.position.set(0, 0, 0);
+  facingY = 0;
+  player.rotation.y = 0;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  camState.target.set(0, 1, 0);
+  camState.distance = 5;
+  camState.yaw = 0;
+  camState.pitch = 0.35;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  await sleep(400);
 
   // Hand control over to the player
   controlsLocked = false;
