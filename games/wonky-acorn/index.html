@@ -75,9 +75,135 @@
     <div id="pause-menu">
       <div class="pause-card">
         <h2>PAUSED</h2>
-        <button type="button" id="pause-resume">Resume</button>
-        <button type="button" id="pause-mute">Mute Sound</button>
-        <button type="button" id="pause-reset">Reset Save</button>
+        <div class="pause-tabs">
+          <button type="button" class="pause-tab active" data-tab="game">GAME</button>
+          <button type="button" class="pause-tab" data-tab="save">SAVE FILES</button>
+          <button type="button" class="pause-tab" data-tab="controls">CONTROLS</button>
+          <button type="button" class="pause-tab" data-tab="connect">CONNECT CONTROLLER</button>
+        </div>
+
+        <!-- GAME tab -->
+        <div class="pause-panel" data-panel="game">
+          <button type="button" id="pause-resume" class="pause-action big">Resume</button>
+          <button type="button" id="pause-mute" class="pause-action">Mute Sound</button>
+          <button type="button" id="pause-reset" class="pause-action danger">Reset All Saves</button>
+        </div>
+
+        <!-- SAVE FILES tab -->
+        <div class="pause-panel hide" data-panel="save">
+          <p class="panel-intro">Pick a slot to save your current progress, or load a saved game.</p>
+          <div class="save-slots">
+            <div class="save-slot" data-slot="1">
+              <div class="slot-num">FILE 1</div>
+              <div class="slot-body">
+                <div class="slot-info">
+                  <div class="slot-chapter">—</div>
+                  <div class="slot-meta">Empty slot</div>
+                </div>
+                <div class="slot-actions">
+                  <button type="button" class="slot-save">Save here</button>
+                  <button type="button" class="slot-load" disabled>Load</button>
+                  <button type="button" class="slot-delete" disabled>Delete</button>
+                </div>
+              </div>
+            </div>
+            <div class="save-slot" data-slot="2">
+              <div class="slot-num">FILE 2</div>
+              <div class="slot-body">
+                <div class="slot-info">
+                  <div class="slot-chapter">—</div>
+                  <div class="slot-meta">Empty slot</div>
+                </div>
+                <div class="slot-actions">
+                  <button type="button" class="slot-save">Save here</button>
+                  <button type="button" class="slot-load" disabled>Load</button>
+                  <button type="button" class="slot-delete" disabled>Delete</button>
+                </div>
+              </div>
+            </div>
+            <div class="save-slot" data-slot="3">
+              <div class="slot-num">FILE 3</div>
+              <div class="slot-body">
+                <div class="slot-info">
+                  <div class="slot-chapter">—</div>
+                  <div class="slot-meta">Empty slot</div>
+                </div>
+                <div class="slot-actions">
+                  <button type="button" class="slot-save">Save here</button>
+                  <button type="button" class="slot-load" disabled>Load</button>
+                  <button type="button" class="slot-delete" disabled>Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <p class="panel-hint">Saves are stored in your browser. Clearing browser data will delete them.</p>
+        </div>
+
+        <!-- CONTROLS tab -->
+        <div class="pause-panel hide" data-panel="controls">
+          <div class="controls-grid">
+            <div class="control-section">
+              <h3>Keyboard</h3>
+              <div class="control-row"><span class="key">W A S D</span><span>Move</span></div>
+              <div class="control-row"><span class="key">Space</span><span>Jump</span></div>
+              <div class="control-row"><span class="key">Shift</span><span>Sprint</span></div>
+              <div class="control-row"><span class="key">T</span><span>Dance</span></div>
+              <div class="control-row"><span class="key">Right-drag</span><span>Orbit camera</span></div>
+              <div class="control-row"><span class="key">Esc / P</span><span>Pause</span></div>
+            </div>
+            <div class="control-section">
+              <h3>Gamepad</h3>
+              <div class="control-row"><span class="key">Left stick</span><span>Move</span></div>
+              <div class="control-row"><span class="key">Cross / A</span><span>Jump</span></div>
+              <div class="control-row"><span class="key">R2 / ZR / RT</span><span>Sprint</span></div>
+              <div class="control-row"><span class="key">Triangle / Y</span><span>Dance</span></div>
+              <div class="control-row"><span class="key">Right stick</span><span>Orbit camera</span></div>
+              <div class="control-row"><span class="key">Options / Start</span><span>Pause</span></div>
+            </div>
+            <div class="control-section">
+              <h3>Touch</h3>
+              <div class="control-row"><span class="key">Joystick</span><span>Move</span></div>
+              <div class="control-row"><span class="key">JUMP button</span><span>Jump</span></div>
+              <div class="control-row"><span class="key">DANCE button</span><span>Dance</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONNECT CONTROLLER tab -->
+        <div class="pause-panel hide" data-panel="connect">
+          <p class="panel-intro">Wonky Acorn supports PS5, PS4, Xbox, and Switch Pro controllers via USB or Bluetooth.</p>
+          <div class="connect-grid">
+            <div class="connect-card">
+              <h3>PlayStation 5 / 4</h3>
+              <ol>
+                <li>USB-C / Micro-USB cable into your computer</li>
+                <li>OR Bluetooth: hold <b>PS</b> + <b>Share</b> for 3 seconds — light bar flashes blue</li>
+                <li>On your computer: System Settings → Bluetooth → connect "Wireless Controller"</li>
+              </ol>
+            </div>
+            <div class="connect-card">
+              <h3>Xbox Series / One</h3>
+              <ol>
+                <li>USB cable into your computer</li>
+                <li>OR Bluetooth: hold the small <b>Pair</b> button (top of controller) for 3 seconds</li>
+                <li>System Settings → Bluetooth → connect "Xbox Wireless Controller"</li>
+              </ol>
+            </div>
+            <div class="connect-card">
+              <h3>Switch Pro Controller</h3>
+              <ol>
+                <li>USB-C cable into your computer</li>
+                <li>OR Bluetooth: hold the <b>Sync</b> button (top of controller, next to USB port) for 3 seconds</li>
+                <li>System Settings → Bluetooth → connect "Pro Controller"</li>
+              </ol>
+            </div>
+            <div class="connect-card">
+              <h3>Test it</h3>
+              <p>Open this page in Chrome/Edge and press a button on the controller. The HUD should react. If nothing happens, refresh the page <b>after</b> pairing.</p>
+            </div>
+          </div>
+        </div>
+
         <p class="pause-hint">Esc / P to resume</p>
       </div>
     </div>

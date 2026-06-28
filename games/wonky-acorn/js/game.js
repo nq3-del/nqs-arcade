@@ -2652,6 +2652,10 @@ loader.load(
 
     setLoading(95, 'Ready!');
     setTimeout(() => {
+      // If the user clicked "Load" in the pause menu before this reload,
+      // jump straight to the saved checkpoint and skip the start screen.
+      if (applyPendingLoadIfAny()) return;
+
       setLoading(100, 'Tap to begin!');
       const startBtn = document.getElementById('start-btn');
       const skipBtn = document.getElementById('skip-btn');
@@ -3373,6 +3377,7 @@ function showFade(on) {
 async function beginIntro() {
   // User just tapped "Tap to begin" — wake the audio context (browsers require user gesture)
   ensureAudio();
+  setCheckpoint('intro');
 
   // Switch to still-pose Pico for the cutscene — no dancing/waving/sad sighs
   setStillMode(true);
@@ -3672,19 +3677,174 @@ function toggleMute() {
   try { localStorage.setItem('wonkyAcornMuted', muted ? '1' : '0'); } catch (e) {}
 }
 
-// Wire pause menu buttons
+// ─────────────────────────────────────────────────────
+// SAVE SYSTEM — Kirby-style, 3 file slots in localStorage
+// ─────────────────────────────────────────────────────
+const SAVE_SLOT_KEYS = ['wonkyAcorn_save_1', 'wonkyAcorn_save_2', 'wonkyAcorn_save_3'];
+const PENDING_LOAD_KEY = 'wonkyAcorn_pendingLoad';
+
+// Current in-game progress checkpoint — updated as Pico moves through the story.
+// One of: 'intro' | 'newhouse' | 'school' | 'butcher' | 'ending'
+let currentCheckpoint = 'intro';
+function setCheckpoint(c, autoSave) {
+  currentCheckpoint = c;
+  if (autoSave) {
+    // (Auto-save to active slot if there is one)
+    const active = localStorage.getItem('wonkyAcorn_activeSlot');
+    if (active && SAVE_SLOT_KEYS[+active - 1]) saveToSlot(+active);
+  }
+}
+
+const CHECKPOINT_LABELS = {
+  intro:    'Ch. 1 — The Move',
+  newhouse: 'Ch. 2 — Big City (new house)',
+  school:   'Ch. 3 — First day at Conker Heights High',
+  butcher:  'Ch. 5 — Sawbones & Sons',
+  ending:   'Ch. 6 — Investigation'
+};
+
+function readSlot(n) {
+  try {
+    const raw = localStorage.getItem(SAVE_SLOT_KEYS[n - 1]);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function saveToSlot(n) {
+  const data = {
+    checkpoint: currentCheckpoint,
+    label: CHECKPOINT_LABELS[currentCheckpoint] || currentCheckpoint,
+    savedAt: new Date().toISOString(),
+  };
+  try {
+    localStorage.setItem(SAVE_SLOT_KEYS[n - 1], JSON.stringify(data));
+    localStorage.setItem('wonkyAcorn_activeSlot', String(n));
+    renderSlots();
+  } catch (e) { console.warn('save failed', e); }
+}
+function deleteSlot(n) {
+  try {
+    localStorage.removeItem(SAVE_SLOT_KEYS[n - 1]);
+    const active = localStorage.getItem('wonkyAcorn_activeSlot');
+    if (active === String(n)) localStorage.removeItem('wonkyAcorn_activeSlot');
+    renderSlots();
+  } catch (e) {}
+}
+function loadSlot(n) {
+  const data = readSlot(n);
+  if (!data) return;
+  // Defer until the next page load so we start in a clean state
+  try {
+    localStorage.setItem(PENDING_LOAD_KEY, JSON.stringify(data));
+    localStorage.setItem('wonkyAcorn_activeSlot', String(n));
+    localStorage.setItem('wonkyAcornIntroSeen', '1');   // skip the intro tap-to-begin
+  } catch (e) {}
+  location.reload();
+}
+function renderSlots() {
+  const active = localStorage.getItem('wonkyAcorn_activeSlot');
+  document.querySelectorAll('.save-slot').forEach(slotEl => {
+    const n = +slotEl.dataset.slot;
+    const data = readSlot(n);
+    const chapterEl = slotEl.querySelector('.slot-chapter');
+    const metaEl = slotEl.querySelector('.slot-meta');
+    const loadBtn = slotEl.querySelector('.slot-load');
+    const delBtn = slotEl.querySelector('.slot-delete');
+    if (data) {
+      slotEl.classList.add('has-data');
+      chapterEl.textContent = data.label || data.checkpoint;
+      const when = new Date(data.savedAt);
+      const today = new Date();
+      const isToday = when.toDateString() === today.toDateString();
+      const dateStr = isToday
+        ? `today ${when.getHours().toString().padStart(2, '0')}:${when.getMinutes().toString().padStart(2, '0')}`
+        : when.toLocaleString();
+      metaEl.textContent = `Saved ${dateStr}`;
+      loadBtn.disabled = false;
+      delBtn.disabled = false;
+    } else {
+      slotEl.classList.remove('has-data');
+      chapterEl.textContent = '—';
+      metaEl.textContent = 'Empty slot';
+      loadBtn.disabled = true;
+      delBtn.disabled = true;
+    }
+    slotEl.classList.toggle('active', active === String(n));
+  });
+}
+
+// Apply a pending load (set by loadSlot before reload) once the page is ready
+function applyPendingLoadIfAny() {
+  let pending;
+  try {
+    const raw = localStorage.getItem(PENDING_LOAD_KEY);
+    if (!raw) return false;
+    pending = JSON.parse(raw);
+    localStorage.removeItem(PENDING_LOAD_KEY);
+  } catch (e) { return false; }
+  // Hide the loading screen + jump straight to the saved checkpoint
+  const loading = document.getElementById('loading');
+  if (loading) loading.style.display = 'none';
+  setTimeout(() => {
+    switch (pending.checkpoint) {
+      case 'newhouse': enterNewBedroom(); break;
+      case 'school':   beginChapter3(); break;
+      case 'butcher':  beginChapter5(); break;
+      case 'ending':
+        // No Ch.6 yet — fallback to butcher chase end card
+        beginChapter5(); break;
+      case 'intro':
+      default:
+        beginIntro(); break;
+    }
+  }, 100);
+  return true;
+}
+
+// Wire pause menu — tabs + game actions + save slots
 {
+  // Tab switching
+  document.querySelectorAll('.pause-tab').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('.pause-tab').forEach(b => b.classList.toggle('active', b === btn));
+      document.querySelectorAll('.pause-panel').forEach(p => {
+        p.classList.toggle('hide', p.dataset.panel !== tab);
+      });
+      if (tab === 'save') renderSlots();
+    });
+  });
+
+  // GAME panel
   const resumeBtn = document.getElementById('pause-resume');
   if (resumeBtn) resumeBtn.addEventListener('click', () => setPaused(false));
   const muteBtn = document.getElementById('pause-mute');
   if (muteBtn) muteBtn.addEventListener('click', toggleMute);
   const resetBtn = document.getElementById('pause-reset');
   if (resetBtn) resetBtn.addEventListener('click', () => {
-    if (confirm('Reset save and reload?')) {
-      try { localStorage.removeItem('wonkyAcornIntroSeen'); } catch (e) {}
+    if (confirm('Delete ALL save files and reload?')) {
+      try {
+        for (const k of SAVE_SLOT_KEYS) localStorage.removeItem(k);
+        localStorage.removeItem('wonkyAcorn_activeSlot');
+        localStorage.removeItem('wonkyAcornIntroSeen');
+      } catch (e) {}
       location.reload();
     }
   });
+
+  // SAVE panel — wire per-slot buttons via delegation
+  document.querySelectorAll('.save-slot').forEach(slotEl => {
+    const n = +slotEl.dataset.slot;
+    slotEl.querySelector('.slot-save').addEventListener('click', () => saveToSlot(n));
+    slotEl.querySelector('.slot-load').addEventListener('click', () => {
+      if (confirm(`Load File ${n}? Current unsaved progress will be lost.`)) loadSlot(n);
+    });
+    slotEl.querySelector('.slot-delete').addEventListener('click', () => {
+      if (confirm(`Delete File ${n}? This cannot be undone.`)) deleteSlot(n);
+    });
+  });
+
+  // Render once on boot so the UI shows the right state if user opens straight to SAVE
+  renderSlots();
 }
 
 window.addEventListener('keydown', e => {
@@ -4000,6 +4160,7 @@ async function onAllBoxesTouched() {
 // ═══════════════════════════════════════════════════════
 async function beginChapter3() {
   controlsLocked = true;
+  setCheckpoint('school');
   setStillMode(true);
   showFade(true);
   await sleep(1100);
@@ -4184,6 +4345,7 @@ let butcherChaseSpeed = 3.0;
 
 async function beginChapter5() {
   controlsLocked = true;
+  setCheckpoint('butcher');
   setStillMode(true);
   showFade(true);
   await sleep(1100);
@@ -4462,6 +4624,7 @@ async function endChapter3() {
 
 async function enterNewBedroom() {
   controlsLocked = true;
+  setCheckpoint('newhouse');
   setStillMode(true);   // freeze Pico for the cutscene
   showFade(true);
   await sleep(900);
