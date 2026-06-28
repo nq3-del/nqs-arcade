@@ -2173,19 +2173,27 @@ function tick() {
     }
 
     // Soft boundary — keep Pico within the playable meadow (45m radius)
-    const WORLD_RADIUS = 45;
-    const distFromCenter = Math.hypot(player.position.x, player.position.z);
-    if (distFromCenter > WORLD_RADIUS) {
-      const scale = WORLD_RADIUS / distFromCenter;
-      player.position.x *= scale;
-      player.position.z *= scale;
-      // Kill outward velocity so player doesn't keep pressing against the wall
-      const outwardX = player.position.x / WORLD_RADIUS;
-      const outwardZ = player.position.z / WORLD_RADIUS;
-      const outwardVel = playerVel.x * outwardX + playerVel.z * outwardZ;
-      if (outwardVel > 0) {
-        playerVel.x -= outwardX * outwardVel;
-        playerVel.z -= outwardZ * outwardVel;
+    // ONLY active when no cutscene-only room is visible. Without this gate,
+    // the boundary yanks Pico back from bedroom (z=-200), kitchen (z=-400),
+    // new bedroom (z=-600), and school (z=-800) every frame.
+    const inOutdoorMeadow = !bedroomGroup.visible &&
+                            !kitchenGroup.visible &&
+                            !newBedroomGroup.visible &&
+                            !schoolGroup.visible;
+    if (inOutdoorMeadow) {
+      const WORLD_RADIUS = 45;
+      const distFromCenter = Math.hypot(player.position.x, player.position.z);
+      if (distFromCenter > WORLD_RADIUS) {
+        const scale = WORLD_RADIUS / distFromCenter;
+        player.position.x *= scale;
+        player.position.z *= scale;
+        const outwardX = player.position.x / WORLD_RADIUS;
+        const outwardZ = player.position.z / WORLD_RADIUS;
+        const outwardVel = playerVel.x * outwardX + playerVel.z * outwardZ;
+        if (outwardVel > 0) {
+          playerVel.x -= outwardX * outwardVel;
+          playerVel.z -= outwardZ * outwardVel;
+        }
       }
     }
 
@@ -2622,6 +2630,14 @@ async function beginIntro() {
   player.rotation.y = Math.PI;
   playerVel.set(0, 0, 0);
   grounded = true;
+
+  // Pico starts the kitchen happy (pancakes!) but turns sad after the bad news.
+  // Lock to Big_Wave_Hello for the opening "Pancakes!" beat instead of full dance.
+  if (actions['Big_Wave_Hello']) {
+    manualDance = 'Big_Wave_Hello';
+    manualDanceUntil = performance.now() + 10000;
+    playAction('Big_Wave_Hello', 0.3);
+  }
   // Camera framing: wide shot of the family at the table
   camState.target.copy(KITCHEN_ORIGIN);
   camState.target.y = 1.2;
@@ -2634,12 +2650,6 @@ async function beginIntro() {
   showFade(false);
   await sleep(800);
 
-  // Lock Pico into the "Big_Wave_Hello" greeting (closest to "sitting at table" we have)
-  if (actions['Big_Wave_Hello']) {
-    playAction('Big_Wave_Hello', 0.3);
-    manualDance = 'Big_Wave_Hello';
-    manualDanceUntil = performance.now() + 12000;
-  }
 
   // Make granny/grampa do a gentle bob to look alive
   const granny = kitchenGroup.userData.granny;
@@ -2663,6 +2673,13 @@ async function beginIntro() {
   await sleep(400);
   await showSpeechFromNPC('grampa', 'Pack up and say your goodbyes.', 2200);
   await sleep(300);
+
+  // The bad news lands — switch Pico from happy to weary/sad pose
+  if (actions['Catching_Breath']) {
+    manualDance = 'Catching_Breath';
+    manualDanceUntil = performance.now() + 30000;
+    playAction('Catching_Breath', 0.4);
+  }
 
   // Pico's reaction — big NOOOO speech
   await showSpeech('NOOOOOOOOOOOO!', 2400);
@@ -2739,7 +2756,11 @@ async function beginIntro() {
     tearWater.scale.y = 0.1;
     tearWater.position.y = -0.05;
   }
-  manualDance = null;
+  // Keep Pico in the weary sad pose through the arrival — he's not happy here
+  if (actions['Catching_Breath']) {
+    manualDance = 'Catching_Breath';
+    manualDanceUntil = performance.now() + 20000;
+  }
   // Spawn just inside the front gate of the new house, facing the house
   const spawn = scene.userData.newHouseSpawn || new THREE.Vector3(0, 0, 0);
   player.position.copy(spawn);
@@ -3433,6 +3454,12 @@ async function enterNewBedroom() {
   await sleep(200);
   showFade(false);
   await sleep(700);
+
+  // Pico is sad — keep the weary pose
+  if (actions['Catching_Breath']) {
+    manualDance = 'Catching_Breath';
+    manualDanceUntil = performance.now() + 60000;
+  }
 
   // Update HUD label to show new zone + new objective
   lastZoneLabel = '';  // force a re-render next frame
