@@ -2617,6 +2617,7 @@ if (isTouch) {
   }
 }
 
+const gamepadPrev = { dance: false, start: false };
 function readInput() {
   // During cutscenes the player can't drive Pico
   if (controlsLocked) return { mx: 0, mz: 0, sprint: false, jump: false };
@@ -2652,6 +2653,16 @@ function readInput() {
 
     if (pad.buttons[7] && pad.buttons[7].pressed) sprint = true;  // R2
     if (pad.buttons[0] && pad.buttons[0].pressed) jump = true;    // Cross
+    // Triangle / Y (button 3) — dance, edge-triggered
+    if (pad.buttons[3] && pad.buttons[3].pressed && !gamepadPrev.dance) {
+      toggleDance();
+    }
+    gamepadPrev.dance = !!(pad.buttons[3] && pad.buttons[3].pressed);
+    // Options / Start (button 9) — toggle pause, edge-triggered
+    if (pad.buttons[9] && pad.buttons[9].pressed && !gamepadPrev.start) {
+      if (!controlsLocked) setPaused(!paused);
+    }
+    gamepadPrev.start = !!(pad.buttons[9] && pad.buttons[9].pressed);
   }
 
   // Clamp diagonal
