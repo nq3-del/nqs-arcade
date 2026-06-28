@@ -1508,6 +1508,9 @@ function tick() {
       new THREE.Vector3(player.position.x, player.position.y + 1, player.position.z),
       smooth(8, dt)
     );
+
+    // Dynamic zone label based on Pico's position
+    updateZoneLabel();
   }
 
   updateCamera();
@@ -1705,18 +1708,52 @@ function sleep(ms) {
 }
 
 function showSpeech(text, duration = 2000) {
+  return showSpeechBubble({ text, duration });
+}
+
+// Core speech-bubble function — also handles click-to-advance + NPC labels
+function showSpeechBubble({ text, duration = 2000, npcName = null, npcColor = null }) {
   const bubble = document.getElementById('speech-bubble');
   const span = document.getElementById('speech-text');
   if (!bubble || !span) return Promise.resolve();
-  span.textContent = text;
+  if (npcName) {
+    span.innerHTML = `<span style="display:block;font-size:14px;font-weight:900;color:${npcColor || '#555'};letter-spacing:1px;margin-bottom:6px">${npcName}</span>${text}`;
+  } else {
+    span.textContent = text;
+  }
   bubble.classList.remove('hide');
   bubble.classList.add('show');
+
   return new Promise(resolve => {
-    setTimeout(() => {
+    let done = false;
+    function finish() {
+      if (done) return;
+      done = true;
       bubble.classList.remove('show');
       bubble.classList.add('hide');
-      setTimeout(resolve, 320);  // wait for hide animation
-    }, duration);
+      window.removeEventListener('click', advance);
+      window.removeEventListener('keydown', advanceKey);
+      setTimeout(resolve, 320);
+    }
+    function advance(e) {
+      // Don't advance on the very first click that originated the cutscene
+      if (e && e.target && e.target.id === 'start-btn') return;
+      finish();
+    }
+    function advanceKey(e) {
+      if (e.code === 'Space' || e.code === 'Enter') {
+        e.preventDefault();
+        finish();
+      }
+    }
+    // Auto-advance after duration
+    setTimeout(finish, duration);
+    // Or user can tap/click/press space to advance early
+    // Use a tiny delay so the click that triggered the cutscene doesn't immediately advance
+    setTimeout(() => {
+      window.addEventListener('click', advance);
+      window.addEventListener('keydown', advanceKey);
+    }, 200);
   });
 }
 
@@ -1951,27 +1988,15 @@ async function beginIntro() {
 
 // Helper: show a speech bubble tagged with an NPC name
 function showSpeechFromNPC(who, text, duration = 2000) {
-  const bubble = document.getElementById('speech-bubble');
-  const span = document.getElementById('speech-text');
-  if (!bubble || !span) return Promise.resolve();
   const labels = {
     granny: { name: 'MUM', color: '#D16A6A' },
     grampa: { name: 'DAD', color: '#5A3A20' }
   };
   const label = labels[who] || { name: who.toUpperCase(), color: '#555' };
-  span.innerHTML = `<span style="display:block;font-size:14px;font-weight:900;color:${label.color};letter-spacing:1px;margin-bottom:6px">${label.name}</span>${text}`;
-  bubble.classList.remove('hide');
-  bubble.classList.add('show');
-  return new Promise(resolve => {
-    setTimeout(() => {
-      bubble.classList.remove('show');
-      bubble.classList.add('hide');
-      setTimeout(resolve, 320);
-    }, duration);
-  });
+  return showSpeechBubble({ text, duration, npcName: label.name, npcColor: label.color });
 }
 
-// Allow skipping the cutscene with Escape (handy while we iterate)
+// Allow skipping the cutscene with Escape
 window.addEventListener('keydown', e => {
   if (e.code === 'Escape' && controlsLocked) {
     console.log('Cutscene skipped');
@@ -1980,8 +2005,83 @@ window.addEventListener('keydown', e => {
     if (titleCard) titleCard.style.display = 'none';
     const bubble = document.getElementById('speech-bubble');
     if (bubble) { bubble.classList.remove('show'); bubble.classList.add('hide'); }
+    // Hide cutscene scenes + reset player to the new house
+    bedroomGroup.visible = false;
+    kitchenGroup.visible = false;
+    manualDance = null;
+    const spawn = scene.userData.newHouseSpawn || new THREE.Vector3(0, 0, 0);
+    player.position.copy(spawn);
+    facingY = Math.PI;
+    player.rotation.y = Math.PI;
+    playerVel.set(0, 0, 0);
+    grounded = true;
+    camState.target.copy(spawn);
+    camState.target.y = 1;
+    camState.distance = 8;
+    camState.yaw = 0;
+    camState.pitch = 0.35;
+    updateCamera();
+    showFade(false);
     controlsLocked = false;
     loadingEl.style.display = 'none';
     hudEl.classList.add('show');
   }
 });
+
+// ═══════════════════════════════════════════════════════
+// AMBIENT BIRDS — synth chirps in the meadow
+// ═══════════════════════════════════════════════════════
+function birdChirp() {
+  const ctx = ensureAudio();
+  if (!ctx) return;
+  // 2-3 quick rising notes
+  const baseFreq = 1800 + Math.random() * 800;
+  const noteCount = 2 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < noteCount; i++) {
+    const t0 = ctx.currentTime + i * 0.08;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(baseFreq, t0);
+    osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.4, t0 + 0.07);
+    gain.gain.setValueAtTime(0, t0);
+    gain.gain.linearRampToValueAtTime(0.04, t0 + 0.01);
+    gain.gain.linearRampToValueAtTime(0, t0 + 0.08);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t0);
+    osc.stop(t0 + 0.1);
+  }
+}
+
+function scheduleNextBird() {
+  // Only chirp during free roam (not during cutscene)
+  const delay = 3000 + Math.random() * 8000;
+  setTimeout(() => {
+    if (!controlsLocked) birdChirp();
+    scheduleNextBird();
+  }, delay);
+}
+scheduleNextBird();
+
+// ═══════════════════════════════════════════════════════
+// DYNAMIC ZONE LABEL — shows where Pico is in the HUD
+// ═══════════════════════════════════════════════════════
+let lastZoneLabel = '';
+function updateZoneLabel() {
+  if (!pico) return;
+  const px = player.position.x;
+  const pz = player.position.z;
+  let zone;
+  // Distance to the new house front gate area
+  const distToHouse = Math.hypot(px - (-12), pz - (-6.5));
+  if (distToHouse < 5) zone = 'PICO\'S GARDEN';
+  else if (distToHouse < 12) zone = 'NEW NEIGHBOURHOOD';
+  else if (Math.hypot(px, pz) > 35) zone = 'EDGE OF THE MEADOW';
+  else zone = 'THE MEADOW';
+
+  if (zone !== lastZoneLabel) {
+    lastZoneLabel = zone;
+    const el = document.querySelector('.hud-zone');
+    if (el) el.textContent = zone;
+  }
+}
