@@ -936,33 +936,28 @@ scene.add(newBedroomGroup);
     return grp;
   }
 
-  // Stack of 3 boxes in the corner
-  newBedroomGroup.add(makeBox(-2.5, -2.5, 1.2, 0.8, 1.0, 0.1, 'CLOTHES'));
-  newBedroomGroup.add(makeBox(-2.5, -2.5 + 0.0, 1.0, 0.7, 0.9, -0.05));
-  const stackTop = makeBox(-2.5, -2.5, 0.9, 0.6, 0.8, 0.15, 'TOYS');
-  stackTop.position.y = 0.8 + 0.7 + 0.3;  // sit on top of the two boxes
-  newBedroomGroup.add(stackTop);
-  // The lower two need to stack physically — rebuild with explicit Y
-  const box1 = makeBox(-2.5, -2.5, 1.2, 0.8, 1.0, 0.1, 'CLOTHES');
-  box1.position.y = 0.4;
-  newBedroomGroup.add(box1);
-  const box2 = makeBox(-2.5, -2.5, 1.0, 0.7, 0.9, -0.05);
-  box2.position.y = 0.8 + 0.35;
-  newBedroomGroup.add(box2);
+  // Corner stack — 3 boxes stacked on top of each other
+  const corner = { x: -2.5, z: -2.5 };
+  const stack1 = makeBox(corner.x, corner.z, 1.2, 0.8, 1.0, 0.1, 'CLOTHES');
+  stack1.position.y = 0.4;
+  newBedroomGroup.add(stack1);
+  const stack2 = makeBox(corner.x, corner.z, 1.0, 0.7, 0.9, -0.05);
+  stack2.position.y = 0.8 + 0.35;
+  newBedroomGroup.add(stack2);
+  const stack3 = makeBox(corner.x + 0.05, corner.z + 0.05, 0.85, 0.55, 0.75, 0.15, 'TOYS');
+  stack3.position.y = 0.8 + 0.7 + 0.275;
+  newBedroomGroup.add(stack3);
 
   // Single big box in the centre
   const bigBox = makeBox(0, 1.5, 1.6, 1.0, 1.2, 0.3, 'BOOKS');
-  bigBox.position.y = 0.5;
   newBedroomGroup.add(bigBox);
 
   // A smaller box near the door
   const smallBox = makeBox(2.0, 2.8, 0.9, 0.6, 0.7, -0.2, 'STUFF');
-  smallBox.position.y = 0.3;
   newBedroomGroup.add(smallBox);
 
   // Suitcase-style box on its side
   const suitcase = makeBox(2.5, -1.5, 1.0, 0.4, 0.6, 0.6);
-  suitcase.position.y = 0.2;
   newBedroomGroup.add(suitcase);
 
   // Empty bed frame (no mattress yet — Pico has to unpack it!)
@@ -982,6 +977,14 @@ scene.add(newBedroomGroup);
   const winLight = new THREE.PointLight(0xFFE5B8, 1.4, 14);
   winLight.position.set(0, 2.4, -ROOM_D / 2 + 1);
   newBedroomGroup.add(winLight);
+
+  // Build the list of touchable boxes — used by the unpacking mini-objective
+  const boxes = [];
+  newBedroomGroup.traverse(o => {
+    // Heuristic: any Mesh whose material is the cardboard mat counts as a "box body"
+    if (o.isMesh && o.material === boxMat) boxes.push(o);
+  });
+  newBedroomGroup.userData.boxes = boxes;
 })();
 
 newBedroomGroup.visible = false;
@@ -1712,6 +1715,8 @@ function tick() {
 
     // Dynamic zone label based on Pico's position
     updateZoneLabel();
+    // Unpacking mini-objective inside the new bedroom
+    checkBoxTouches();
   }
 
   updateCamera();
@@ -2330,6 +2335,103 @@ function updateZoneLabel() {
       if (objEl) objEl.classList.add('hide');
       enterNewBedroom();
     }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// NEW BEDROOM — touch-the-boxes mini-objective
+// ═══════════════════════════════════════════════════════
+let allBoxesTouched = false;
+function checkBoxTouches() {
+  if (!newBedroomGroup.visible || allBoxesTouched) return;
+  const boxes = newBedroomGroup.userData.boxes;
+  if (!boxes || boxes.length === 0) return;
+
+  // Pico's position in NEW_BEDROOM local space
+  const localX = player.position.x - NEW_BEDROOM_ORIGIN.x;
+  const localZ = player.position.z - NEW_BEDROOM_ORIGIN.z;
+
+  let touchedCount = 0;
+  for (const box of boxes) {
+    if (box.userData.touched) {
+      touchedCount++;
+      continue;
+    }
+    const bx = box.parent.position.x;        // box body is inside a Group at this offset
+    const bz = box.parent.position.z;
+    const dist = Math.hypot(localX - bx, localZ - bz);
+    if (dist < 1.4) {
+      box.userData.touched = true;
+      touchedCount++;
+      // Visual: small emissive flash + scale punch
+      box.material.emissive = new THREE.Color(0xFFD740);
+      box.material.emissiveIntensity = 0.4;
+      box.parent.userData.bumpStart = performance.now();
+      // Sound
+      playTone({ freq: 660, dur: 0.12, type: 'triangle', volume: 0.18 });
+      setTimeout(() => playTone({ freq: 880, dur: 0.12, type: 'triangle', volume: 0.15 }), 80);
+    }
+  }
+
+  // Update objective text
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.querySelector('.objective-text').textContent = `Touch each box (${touchedCount}/${boxes.length})`;
+  }
+
+  // Bump animation for recently-touched boxes
+  for (const box of boxes) {
+    if (box.parent.userData.bumpStart) {
+      const t = (performance.now() - box.parent.userData.bumpStart) / 1000;
+      if (t < 0.4) {
+        const s = 1 + Math.sin(t * Math.PI / 0.4) * 0.08;
+        box.scale.setScalar(s);
+      } else {
+        box.scale.setScalar(1);
+        delete box.parent.userData.bumpStart;
+      }
+    }
+  }
+
+  if (touchedCount === boxes.length) {
+    allBoxesTouched = true;
+    onAllBoxesTouched();
+  }
+}
+
+async function onAllBoxesTouched() {
+  controlsLocked = true;
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) objEl.classList.add('hide');
+  await sleep(500);
+  SFX.ready();
+  await showSpeech('All unpacked! …well, not really.', 2400);
+  await showSpeechFromNPC('granny', 'Pico! Dinner!', 2200);
+  await sleep(400);
+  // End of demo screen
+  showFade(true);
+  await sleep(1000);
+  const endHTML = `
+    <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
+      <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">END OF DEMO</div>
+      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">More chapters soon!</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 24px">
+        Dinner, bedtime, and Pico's first day at his new high school are coming up.
+        Hazel the secret acorn awaits…
+      </p>
+      <button id="end-restart" type="button" style="margin-top:14px;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
+        Play again
+      </button>
+    </div>
+  `;
+  const card = document.querySelector('#title-card');
+  if (card) {
+    card.innerHTML = endHTML;
+    card.classList.remove('fade-out');
+    card.style.display = 'flex';
+    card.classList.add('show');
+    const btn = document.getElementById('end-restart');
+    if (btn) btn.addEventListener('click', () => location.reload());
   }
 }
 
