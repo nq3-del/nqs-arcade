@@ -1438,6 +1438,259 @@ scene.add(pemberton);
 schoolGroup.visible = false;
 
 // ═══════════════════════════════════════════════════════
+// SAWBONES & SONS, FAMILY BUTCHER (Ch.5)
+// ═══════════════════════════════════════════════════════
+const BUTCHER_ORIGIN = new THREE.Vector3(0, 0, -1000);
+const butcherShopGroup = new THREE.Group();
+butcherShopGroup.position.copy(BUTCHER_ORIGIN);
+scene.add(butcherShopGroup);
+
+(function buildButcherShop() {
+  const tileMat = new THREE.MeshStandardMaterial({ color: 0xF0F0E8, roughness: 0.35, metalness: 0.05 });
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0xE8E4DC, roughness: 0.8 });
+  const counterMat = new THREE.MeshStandardMaterial({ color: 0xCFD3D8, roughness: 0.25, metalness: 0.6 });
+  const counterBaseMat = new THREE.MeshStandardMaterial({ color: 0x646A70, roughness: 0.4, metalness: 0.3 });
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x5A3A1E, roughness: 0.7 });
+  const hamMat = new THREE.MeshStandardMaterial({ color: 0xB94E3F, roughness: 0.55 });
+  const sausageMat = new THREE.MeshStandardMaterial({ color: 0xD06A4E, roughness: 0.6 });
+  const hookMat = new THREE.MeshStandardMaterial({ color: 0xC8CCD2, roughness: 0.3, metalness: 0.85 });
+  const choppingBoardMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.85 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x3A2818, roughness: 0.6 });
+
+  const SHOP_W = 12, SHOP_D = 14, SHOP_H = 4;
+
+  // Checkerboard floor
+  const tileLightMat = new THREE.MeshStandardMaterial({ color: 0xD9D5CB, roughness: 0.35 });
+  for (let x = -SHOP_W / 2; x < SHOP_W / 2; x += 1) {
+    for (let z = -SHOP_D / 2; z < SHOP_D / 2; z += 1) {
+      const t = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), ((Math.floor(x) + Math.floor(z)) % 2 === 0) ? tileMat : tileLightMat);
+      t.rotation.x = -Math.PI / 2;
+      t.position.set(x + 0.5, 0.01, z + 0.5);
+      t.receiveShadow = true;
+      butcherShopGroup.add(t);
+    }
+  }
+
+  // Walls
+  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(SHOP_W, SHOP_H), wallMat);
+  wallBack.position.set(0, SHOP_H / 2, -SHOP_D / 2);
+  wallBack.receiveShadow = true;
+  butcherShopGroup.add(wallBack);
+  const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(SHOP_D, SHOP_H), wallMat);
+  wallLeft.position.set(-SHOP_W / 2, SHOP_H / 2, 0);
+  wallLeft.rotation.y = Math.PI / 2;
+  wallLeft.receiveShadow = true;
+  butcherShopGroup.add(wallLeft);
+  const wallRight = wallLeft.clone();
+  wallRight.position.x = SHOP_W / 2;
+  wallRight.rotation.y = -Math.PI / 2;
+  butcherShopGroup.add(wallRight);
+  // Front wall with door gap
+  const frontWallL = new THREE.Mesh(new THREE.PlaneGeometry(SHOP_W / 2 - 1, SHOP_H), wallMat);
+  frontWallL.position.set(-SHOP_W / 4 - 0.5, SHOP_H / 2, SHOP_D / 2);
+  frontWallL.rotation.y = Math.PI;
+  butcherShopGroup.add(frontWallL);
+  const frontWallR = frontWallL.clone();
+  frontWallR.position.x = SHOP_W / 4 + 0.5;
+  butcherShopGroup.add(frontWallR);
+  // Door
+  const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(2.2, 3, 0.12), woodMat);
+  doorFrame.position.set(0, 1.5, SHOP_D / 2);
+  butcherShopGroup.add(doorFrame);
+  const doorPanel = new THREE.Mesh(new THREE.BoxGeometry(1.8, 2.6, 0.08), doorMat);
+  doorPanel.position.set(0, 1.3, SHOP_D / 2 + 0.05);
+  butcherShopGroup.add(doorPanel);
+  // Bell over the door
+  const bellMat = new THREE.MeshStandardMaterial({ color: 0xDDB347, roughness: 0.25, metalness: 0.85 });
+  const bell = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 10, 0, Math.PI * 2, 0, Math.PI * 0.55), bellMat);
+  bell.position.set(0, 2.9, SHOP_D / 2 - 0.2);
+  butcherShopGroup.add(bell);
+  butcherShopGroup.userData.bell = bell;
+
+  // Ceiling + cold lighting
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(SHOP_W, SHOP_D), new THREE.MeshStandardMaterial({ color: 0xE5E5DC, roughness: 0.9 }));
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.y = SHOP_H;
+  butcherShopGroup.add(ceiling);
+  const coldLight = new THREE.PointLight(0xDCE9F5, 1.4, 22);
+  coldLight.position.set(0, SHOP_H - 0.4, 0);
+  butcherShopGroup.add(coldLight);
+  const coldLight2 = new THREE.PointLight(0xDCE9F5, 0.9, 16);
+  coldLight2.position.set(0, SHOP_H - 0.4, -4);
+  butcherShopGroup.add(coldLight2);
+
+  // Stainless steel counter spanning the room
+  const counterTop = new THREE.Mesh(new THREE.BoxGeometry(SHOP_W - 2, 0.18, 1.6), counterMat);
+  counterTop.position.set(0, 1.05, -2.5);
+  counterTop.castShadow = true;
+  counterTop.receiveShadow = true;
+  butcherShopGroup.add(counterTop);
+  const counterBase = new THREE.Mesh(new THREE.BoxGeometry(SHOP_W - 2, 1.0, 1.4), counterBaseMat);
+  counterBase.position.set(0, 0.5, -2.5);
+  counterBase.castShadow = true;
+  butcherShopGroup.add(counterBase);
+  // Glass display front
+  const displayGlass = new THREE.Mesh(new THREE.PlaneGeometry(SHOP_W - 2, 0.85), new THREE.MeshStandardMaterial({ color: 0xDDF5FF, roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.35 }));
+  displayGlass.position.set(0, 0.55, -2.5 + 0.71);
+  butcherShopGroup.add(displayGlass);
+  // Meat cuts in the display
+  for (let i = -3; i <= 3; i++) {
+    const meat = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.5), new THREE.MeshStandardMaterial({ color: 0xB94E3F, roughness: 0.6 }));
+    meat.position.set(i * 1.3, 0.32, -2.6);
+    meat.castShadow = true;
+    butcherShopGroup.add(meat);
+  }
+  // Chopping block
+  const chopBlock = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 0.8), choppingBoardMat);
+  chopBlock.position.set(2.5, 1.27, -2.5);
+  chopBlock.castShadow = true;
+  butcherShopGroup.add(chopBlock);
+
+  // Hanging hooks with hams + sausage chains
+  for (let i = 0; i < 6; i++) {
+    const hx = -4.5 + (i * 1.8);
+    const hz = -5.5 - (i % 2) * 1.5;
+    const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 6), hookMat);
+    chain.position.set(hx, SHOP_H - 0.85, hz);
+    butcherShopGroup.add(chain);
+    if (i % 2 === 0) {
+      const ham = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 12), hamMat);
+      ham.position.set(hx, SHOP_H - 1.45, hz);
+      ham.scale.set(1, 1.4, 0.85);
+      ham.castShadow = true;
+      butcherShopGroup.add(ham);
+    } else {
+      for (let s = 0; s < 6; s++) {
+        const link = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), sausageMat);
+        link.position.set(hx, SHOP_H - 1.2 - s * 0.18, hz);
+        link.castShadow = true;
+        butcherShopGroup.add(link);
+      }
+    }
+  }
+
+  // Posters on back wall
+  const poster = new THREE.Mesh(new THREE.PlaneGeometry(1.8, 1.4), new THREE.MeshStandardMaterial({ color: 0xF9F4E8, roughness: 0.85 }));
+  poster.position.set(-3, 2.4, -SHOP_D / 2 + 0.05);
+  butcherShopGroup.add(poster);
+  const poster2 = poster.clone();
+  poster2.position.x = 3;
+  butcherShopGroup.add(poster2);
+
+  // Crate stack on the side
+  const crateMat = new THREE.MeshStandardMaterial({ color: 0x9C7849, roughness: 0.85 });
+  for (let i = 0; i < 3; i++) {
+    const crate = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.9, 0.9), crateMat);
+    crate.position.set(SHOP_W / 2 - 0.6, 0.45 + i * 0.92, -SHOP_D / 2 + 1.2);
+    crate.rotation.y = (Math.random() - 0.5) * 0.2;
+    crate.castShadow = true;
+    crate.receiveShadow = true;
+    butcherShopGroup.add(crate);
+  }
+
+  butcherShopGroup.userData.doorPos = new THREE.Vector3(0, 0, SHOP_D / 2 - 0.5);
+})();
+
+butcherShopGroup.visible = false;
+
+// ═══════════════════════════════════════════════════════
+// THE BUTCHER (Ch.5 antagonist)
+// ═══════════════════════════════════════════════════════
+function makeButcher() {
+  const grp = new THREE.Group();
+  const apronMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 });
+  const shirtMat = new THREE.MeshStandardMaterial({ color: 0xC53B2F, roughness: 0.7 });
+  const skinMat = new THREE.MeshStandardMaterial({ color: 0xD9A382, roughness: 0.6 });
+  const trouserMat = new THREE.MeshStandardMaterial({ color: 0x2A2622, roughness: 0.8 });
+  const bootMat = new THREE.MeshStandardMaterial({ color: 0x1A1612, roughness: 0.5 });
+
+  // Massive torso
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.2, 1.2), shirtMat);
+  torso.position.y = 2.4;
+  torso.castShadow = true;
+  grp.add(torso);
+  // Apron
+  const apron = new THREE.Mesh(new THREE.PlaneGeometry(1.45, 1.95), apronMat);
+  apron.position.set(0, 2.4, 0.61);
+  grp.add(apron);
+  for (const sx of [-0.5, 0.5]) {
+    const strap = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.05), apronMat);
+    strap.position.set(sx, 3.4, 0.62);
+    grp.add(strap);
+  }
+  // Legs + boots
+  for (const side of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.34, 1.4, 12), trouserMat);
+    leg.position.set(side * 0.4, 0.7, 0);
+    leg.castShadow = true;
+    grp.add(leg);
+    const boot = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.25, 0.7), bootMat);
+    boot.position.set(side * 0.4, 0.12, 0.06);
+    boot.castShadow = true;
+    grp.add(boot);
+  }
+  // Head
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 20, 16), skinMat);
+  head.position.y = 3.9;
+  head.castShadow = true;
+  grp.add(head);
+  // Moustache
+  const moustache = new THREE.Mesh(new THREE.BoxGeometry(0.55, 0.12, 0.18), new THREE.MeshStandardMaterial({ color: 0x2A1612, roughness: 0.85 }));
+  moustache.position.set(0, 3.78, 0.42);
+  grp.add(moustache);
+  // Eyes
+  const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+  const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111 });
+  for (const ex of [-0.18, 0.18]) {
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 10), eyeWhiteMat);
+    w.position.set(ex, 4.0, 0.43);
+    grp.add(w);
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), pupilMat);
+    p.position.set(ex, 4.0, 0.49);
+    grp.add(p);
+  }
+  // Huge friendly grin
+  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.18, 0.025, 8, 18, Math.PI), new THREE.MeshBasicMaterial({ color: 0x111 }));
+  smile.position.set(0, 3.65, 0.45);
+  smile.rotation.z = Math.PI;
+  grp.add(smile);
+  // White butcher's cap
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.35, 24), apronMat);
+  cap.position.y = 4.4;
+  cap.castShadow = true;
+  grp.add(cap);
+  const capTop = new THREE.Mesh(new THREE.CylinderGeometry(0.55, 0.55, 0.08, 24), apronMat);
+  capTop.position.y = 4.62;
+  grp.add(capTop);
+  // Arms
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.18, 1.2, 12), shirtMat);
+    arm.position.set(side * 0.95, 2.8, 0);
+    arm.castShadow = true;
+    grp.add(arm);
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), skinMat);
+    hand.position.set(side * 0.95, 2.15, 0);
+    hand.castShadow = true;
+    grp.add(hand);
+  }
+  // CLEAVER in the right hand
+  const cleaverBlade = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.5, 0.7), new THREE.MeshStandardMaterial({ color: 0xDDE2E8, roughness: 0.15, metalness: 0.9 }));
+  cleaverBlade.position.set(0.95, 2.4, 0.35);
+  cleaverBlade.castShadow = true;
+  grp.add(cleaverBlade);
+  const cleaverHandle = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.4, 0.08), new THREE.MeshStandardMaterial({ color: 0x5A3A1E, roughness: 0.7 }));
+  cleaverHandle.position.set(0.95, 2.0, 0.35);
+  grp.add(cleaverHandle);
+  grp.userData.cleaverBlade = cleaverBlade;
+  grp.userData.cleaverHandle = cleaverHandle;
+  return grp;
+}
+
+const butcher = makeButcher();
+butcher.visible = false;
+scene.add(butcher);
+
+// ═══════════════════════════════════════════════════════
 // NEW HOUSE in the meadow — Pico's new home
 // ═══════════════════════════════════════════════════════
 (function buildNewHouse() {
@@ -2157,6 +2410,29 @@ function tick() {
       }
     }
 
+    // Butcher shop wall collision
+    if (butcherShopGroup.visible) {
+      const PR = 0.4;
+      const HW = 12 / 2 - 0.3;
+      const HL = 14 / 2 - 0.3;
+      const localX = player.position.x - BUTCHER_ORIGIN.x;
+      const localZ = player.position.z - BUTCHER_ORIGIN.z;
+      if (localX < -HW + PR) { player.position.x = BUTCHER_ORIGIN.x + (-HW + PR); if (playerVel.x < 0) playerVel.x = 0; }
+      if (localX >  HW - PR) { player.position.x = BUTCHER_ORIGIN.x + ( HW - PR); if (playerVel.x > 0) playerVel.x = 0; }
+      if (localZ < -HL + PR) { player.position.z = BUTCHER_ORIGIN.z + (-HL + PR); if (playerVel.z < 0) playerVel.z = 0; }
+      // South wall has the door gap — allow exit through it (door at local x=0, width 2.2)
+      if (localZ > HL - PR && Math.abs(localX) > 1.1 + PR) {
+        player.position.z = BUTCHER_ORIGIN.z + (HL - PR);
+        if (playerVel.z > 0) playerVel.z = 0;
+      }
+      // Counter blocks the back half — Pico can't go behind it
+      // Counter is at local z=-2.5, depth 1.6, so it spans z=[-3.3, -1.7]
+      if (localZ < -1.7 + PR && Math.abs(localX) < 5) {
+        player.position.z = BUTCHER_ORIGIN.z + (-1.7 + PR);
+        if (playerVel.z < 0) playerVel.z = 0;
+      }
+    }
+
     // School hallway wall collision (only when inside the school)
     if (schoolGroup.visible) {
       const PR = 0.4;
@@ -2221,7 +2497,8 @@ function tick() {
     const inOutdoorMeadow = !bedroomGroup.visible &&
                             !kitchenGroup.visible &&
                             !newBedroomGroup.visible &&
-                            !schoolGroup.visible;
+                            !schoolGroup.visible &&
+                            !butcherShopGroup.visible;
     if (inOutdoorMeadow) {
       const WORLD_RADIUS = 45;
       const distFromCenter = Math.hypot(player.position.x, player.position.z);
@@ -2285,6 +2562,8 @@ function tick() {
     checkSchoolTriggers();
     // Hazel follows Pico once she's joined the party
     updateHazelFollow(dt);
+    // Ch.5 butcher chase
+    checkButcherChase(dt);
   }
 
   updateCamera();
@@ -2993,8 +3272,12 @@ function updateZoneLabel() {
   const px = player.position.x;
   const pz = player.position.z;
   let zone;
-  // School hallway?
-  if (schoolGroup.visible &&
+  // Butcher shop?
+  if (butcherShopGroup.visible &&
+      Math.abs(pz - BUTCHER_ORIGIN.z) < 10 &&
+      Math.abs(px - BUTCHER_ORIGIN.x) < 8) {
+    zone = 'SAWBONES & SONS';
+  } else if (schoolGroup.visible &&
       Math.abs(pz - SCHOOL_ORIGIN.z) < 15 &&
       Math.abs(px - SCHOOL_ORIGIN.x) < 6) {
     zone = 'CONKER HEIGHTS HIGH';
@@ -3384,6 +3667,206 @@ async function ch3Trigger_corkboard() {
   endChapter3();
 }
 
+// ═══════════════════════════════════════════════════════
+// CHAPTER 5 — THE BUTCHER (Sawbones & Sons)
+// ═══════════════════════════════════════════════════════
+let ch5Phase = 'idle';   // idle | meeting | chase | escaped | caught
+let butcherChaseSpeed = 3.0;
+
+async function beginChapter5() {
+  controlsLocked = true;
+  setStillMode(true);
+  showFade(true);
+  await sleep(1100);
+
+  // Hide other rooms
+  schoolGroup.visible = false;
+  hazel.visible = false;
+  pemberton.visible = false;
+  butcherShopGroup.visible = true;
+
+  // Place Pico inside the shop, facing the counter (-Z)
+  player.position.copy(BUTCHER_ORIGIN);
+  player.position.z += 3.5;   // near the front door, facing into the shop
+  facingY = Math.PI;          // facing the back (counter side)
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+
+  // Place the Butcher behind the counter, facing Pico
+  butcher.position.copy(BUTCHER_ORIGIN);
+  butcher.position.z -= 4.2;   // behind counter
+  butcher.rotation.y = 0;       // facing +Z (toward Pico)
+  butcher.visible = true;
+  // Stash the cleaver's resting position so we can swing it later
+  butcher.userData.cleaverRestY = butcher.userData.cleaverBlade.position.y;
+
+  // Camera framing: low + close, peering into the shop from Pico's side
+  camState.target.copy(player.position);
+  camState.target.y = 1.4;
+  camState.distance = 7;
+  camState.yaw = 0;
+  camState.pitch = 0.18;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  await sleep(600);
+
+  // Update HUD
+  lastZoneLabel = '';
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.classList.remove('hide');
+    objEl.querySelector('.objective-text').textContent = 'Buy one thing for Mum';
+  }
+
+  // ── 5.1: The Counter (per SCRIPT.md) ──
+  ch5Phase = 'meeting';
+
+  // Ding the bell sound effect
+  playTone({ freq: 2100, dur: 0.18, type: 'sine', volume: 0.18, attack: 0.005, release: 0.18 });
+  setTimeout(() => playTone({ freq: 2600, dur: 0.18, type: 'sine', volume: 0.15, attack: 0.005, release: 0.2 }), 80);
+  // Wiggle the bell briefly
+  const bell = butcherShopGroup.userData.bell;
+  if (bell) {
+    const t0 = performance.now();
+    (function shakeBell() {
+      const t = (performance.now() - t0) / 1000;
+      if (t > 0.8) { bell.rotation.z = 0; return; }
+      bell.rotation.z = Math.sin(t * 30) * 0.25;
+      requestAnimationFrame(shakeBell);
+    })();
+  }
+  await sleep(900);
+
+  await showSpeechFromNPC('butcher', 'Welcome, welcome! Don\'t be shy. Come closer, little one — let me get a proper look at you.', 4500);
+  await showSpeech('Um — I just need one thing for my mum—', 2800);
+  await showSpeechFromNPC('butcher', 'Oh, you\'re a plump one. Lovely and round. You know… I don\'t get many acorns in here.', 4500);
+  await showSpeech('...Acorns?', 1800);
+
+  // The Butcher raises the cleaver — animate it lifting high
+  const blade = butcher.userData.cleaverBlade;
+  const handle = butcher.userData.cleaverHandle;
+  if (blade && handle) {
+    const t0 = performance.now();
+    const raiseStart = blade.position.y;
+    const raiseEnd = raiseStart + 1.4;
+    (function raiseCleaver() {
+      const t = Math.min(1, (performance.now() - t0) / 600);
+      blade.position.y = raiseStart + (raiseEnd - raiseStart) * t;
+      handle.position.y = (raiseStart - 0.4) + (raiseEnd - raiseStart) * t;
+      if (t < 1) requestAnimationFrame(raiseCleaver);
+    })();
+  }
+  // Sharp metallic shing sound
+  playTone({ freq: 1800, dur: 0.4, type: 'sine', volume: 0.15, attack: 0.005, release: 0.4 });
+  await showSpeechFromNPC('butcher', 'Stay verrry still, dear. This won\'t take a moment.', 3000);
+
+  // Callback gag — the salt joke at peak danger
+  addShake(0.35);
+  await showSpeech('— MUM WAS RIGHT ABOUT THE SALT!', 2400);
+
+  // ── 5.2: THE CHASE ──
+  ch5Phase = 'chase';
+  setStillMode(false);  // Pico needs to actually run
+  if (objEl) {
+    objEl.querySelector('.objective-text').textContent = 'RUN to the door!';
+  }
+  controlsLocked = false;
+}
+
+// Per-frame check for Ch.5 — butcher chases Pico, escape on reaching the door
+function checkButcherChase(dt) {
+  if (!butcherShopGroup.visible || ch5Phase !== 'chase') return;
+
+  // 1) Move the butcher toward Pico (slow lumbering chase)
+  const dx = player.position.x - butcher.position.x;
+  const dz = player.position.z - butcher.position.z;
+  const dist = Math.hypot(dx, dz);
+  if (dist > 0.001) {
+    const nx = dx / dist, nz = dz / dist;
+    butcher.position.x += nx * butcherChaseSpeed * dt;
+    butcher.position.z += nz * butcherChaseSpeed * dt;
+    butcher.rotation.y = Math.atan2(nx, nz);
+    // Heavy bobbing run
+    butcher.position.y = Math.abs(Math.sin(performance.now() * 0.012)) * 0.12;
+  }
+
+  // 2) Caught — within 1.4m of butcher = failure
+  if (dist < 1.4) {
+    onButcherCaught();
+    return;
+  }
+
+  // 3) Escaped — reached the door
+  const localZ = player.position.z - BUTCHER_ORIGIN.z;
+  if (localZ > 6.5) {
+    onButcherEscaped();
+  }
+}
+
+async function onButcherCaught() {
+  if (ch5Phase !== 'chase') return;
+  ch5Phase = 'caught';
+  controlsLocked = true;
+  setStillMode(true);
+  addShake(0.5);
+  playTone({ freq: 80, dur: 0.5, type: 'sawtooth', volume: 0.3 });
+  await showSpeechFromNPC('butcher', 'Gotcha, little one! Sit verrry still now...', 3000);
+  await sleep(500);
+  // Restart the chase
+  player.position.copy(BUTCHER_ORIGIN);
+  player.position.z += 3.5;
+  facingY = Math.PI;
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  butcher.position.copy(BUTCHER_ORIGIN);
+  butcher.position.z -= 4.2;
+  await showSpeech('(another chance!) RUN!', 1800);
+  setStillMode(false);
+  ch5Phase = 'chase';
+  controlsLocked = false;
+}
+
+async function onButcherEscaped() {
+  if (ch5Phase !== 'chase') return;
+  ch5Phase = 'escaped';
+  controlsLocked = true;
+  // Slam the door behind Pico
+  playTone({ freq: 120, dur: 0.3, type: 'square', volume: 0.25 });
+  SFX.ready();
+  await sleep(400);
+
+  showFade(true);
+  await sleep(1100);
+  butcherShopGroup.visible = false;
+  butcher.visible = false;
+
+  // End-of-Ch.5 card (Ch.6 placeholder)
+  const endHTML = `
+    <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
+      <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">END OF CHAPTER 5</div>
+      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">The Butcher</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 24px;line-height:1.6">
+        Pico made it out. The Butcher's still in there, sing-songing through the door…<br>
+        Next: the investigation. Pico + Hazel + a reformed bully called Brunk.
+      </p>
+      <button id="end-restart-ch5" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
+        Play again
+      </button>
+    </div>
+  `;
+  const card = document.querySelector('#title-card');
+  if (card) {
+    card.innerHTML = endHTML;
+    card.classList.remove('fade-out');
+    card.style.display = 'flex';
+    card.classList.add('show');
+    const restart = document.getElementById('end-restart-ch5');
+    if (restart) restart.addEventListener('click', () => location.reload());
+  }
+}
+
 // Check Ch.3 triggers each frame: Brunk fires when Pico walks past the centre of the hallway,
 // corkboard fires when Pico walks toward the corkboard once Hazel has joined.
 function checkSchoolTriggers() {
@@ -3458,8 +3941,10 @@ async function endChapter3() {
     card.classList.add('show');
     const cont = document.getElementById('continue-ch4');
     if (cont) cont.addEventListener('click', () => {
-      // Ch.4 doesn't exist yet — for now just teaser
-      alert('Chapter 4 (market + Old Walnut) is coming next!');
+      card.classList.add('fade-out');
+      setTimeout(() => { card.style.display = 'none'; }, 1000);
+      // Skip Ch.4 (market) for now and jump straight to the Butcher in Ch.5
+      beginChapter5();
     });
     const restart = document.getElementById('end-restart-ch3');
     if (restart) restart.addEventListener('click', () => location.reload());
