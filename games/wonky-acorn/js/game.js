@@ -1167,6 +1167,226 @@ function makeLabelTextureSchool(text, color) {
   schoolGroup.userData.corkboardPos = new THREE.Vector3(HALL_W / 2 - 0.5, 1.6, -0.5);
 })();
 
+// ─── NPC builders ──────────────────────────────────────
+// Brunk — big glossy conker (horse chestnut). School bully turned ally later.
+function makeBrunk() {
+  const grp = new THREE.Group();
+  // Body — glossy red-brown sphere
+  const shellMat = new THREE.MeshStandardMaterial({ color: 0x6E2A12, roughness: 0.25, metalness: 0.5 });
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(0.65, 22, 18), shellMat);
+  shell.position.y = 0.75;
+  shell.scale.set(1, 1.05, 0.95);
+  shell.castShadow = true;
+  grp.add(shell);
+  // The pale "eye" patch where a conker meets the husk
+  const eyeSpot = new THREE.Mesh(new THREE.SphereGeometry(0.25, 16, 14), new THREE.MeshStandardMaterial({ color: 0xC9A77C, roughness: 0.7 }));
+  eyeSpot.position.set(0, 0.45, 0.52);
+  eyeSpot.scale.set(0.9, 0.75, 0.25);
+  grp.add(eyeSpot);
+  // Eyes (small, angry)
+  const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+  const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111 });
+  for (const ex of [-0.15, 0.15]) {
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 10), eyeWhiteMat);
+    w.position.set(ex, 0.95, 0.5);
+    grp.add(w);
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), pupilMat);
+    p.position.set(ex, 0.93, 0.56);
+    grp.add(p);
+  }
+  // Eyebrows — angry V
+  for (const side of [-1, 1]) {
+    const brow = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.04, 0.04), new THREE.MeshStandardMaterial({ color: 0x2A1208 }));
+    brow.position.set(side * 0.15, 1.08, 0.5);
+    brow.rotation.z = side * -0.4;
+    grp.add(brow);
+  }
+  // Smirk
+  const mouth = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.012, 8, 14, Math.PI), new THREE.MeshBasicMaterial({ color: 0x111 }));
+  mouth.position.set(0, 0.75, 0.55);
+  grp.add(mouth);
+  // Stick limbs in a slightly darker red-brown
+  const limbMat = new THREE.MeshStandardMaterial({ color: 0x4A1808, roughness: 0.7 });
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.7, 8), limbMat);
+    arm.rotation.z = side * Math.PI / 4;
+    arm.position.set(side * 0.6, 0.7, 0);
+    arm.castShadow = true;
+    grp.add(arm);
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.4, 8), limbMat);
+    leg.position.set(side * 0.18, 0.2, 0);
+    leg.castShadow = true;
+    grp.add(leg);
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.09, 0.24), new THREE.MeshStandardMaterial({ color: 0x222, roughness: 0.5 }));
+    shoe.position.set(side * 0.18, 0.04, 0.05);
+    shoe.castShadow = true;
+    grp.add(shoe);
+  }
+  grp.userData.shell = shell;
+  return grp;
+}
+
+// Hazel — small acorn with round glasses + notebook. Fast, fearless, friendly.
+function makeHazel() {
+  const grp = new THREE.Group();
+  // Shell (smaller than Pico, cream/tan)
+  const shellMat = new THREE.MeshStandardMaterial({ color: 0xE6C99B, roughness: 0.65 });
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(0.4, 22, 18), shellMat);
+  shell.position.y = 0.55;
+  shell.scale.set(0.95, 1.05, 0.9);
+  shell.castShadow = true;
+  grp.add(shell);
+  // Cap (darker brown, smaller)
+  const capMat = new THREE.MeshStandardMaterial({ color: 0x6B4A26, roughness: 0.75 });
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.42, 22, 16, 0, Math.PI * 2, 0, Math.PI * 0.5), capMat);
+  cap.position.y = 0.82;
+  cap.castShadow = true;
+  grp.add(cap);
+  // Tiny stem
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.035, 0.1, 8), new THREE.MeshStandardMaterial({ color: 0x5A3A20, roughness: 0.8 }));
+  stem.position.y = 1.06;
+  grp.add(stem);
+  // Belly patch
+  const belly = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 12), new THREE.MeshStandardMaterial({ color: 0xFFE4D1, roughness: 0.7 }));
+  belly.position.set(0, 0.5, 0.32);
+  belly.scale.set(0.85, 0.7, 0.4);
+  grp.add(belly);
+  // Eyes
+  const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+  const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111 });
+  for (const ex of [-0.13, 0.13]) {
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.075, 12, 10), eyeWhiteMat);
+    w.position.set(ex, 0.7, 0.33);
+    grp.add(w);
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), pupilMat);
+    p.position.set(ex, 0.7, 0.38);
+    grp.add(p);
+  }
+  // Round glasses (signature!)
+  const ringMat = new THREE.MeshStandardMaterial({ color: 0x333, roughness: 0.4 });
+  for (const ex of [-0.13, 0.13]) {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.085, 0.012, 6, 18), ringMat);
+    ring.position.set(ex, 0.7, 0.41);
+    grp.add(ring);
+  }
+  const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.012, 0.012), ringMat);
+  bridge.position.set(0, 0.7, 0.41);
+  grp.add(bridge);
+  // Smile
+  const smile = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.012, 6, 14, Math.PI), new THREE.MeshBasicMaterial({ color: 0x222 }));
+  smile.position.set(0, 0.56, 0.4);
+  smile.rotation.z = Math.PI;
+  grp.add(smile);
+  // Stick limbs
+  const limbMat = new THREE.MeshStandardMaterial({ color: 0xF0C9A8, roughness: 0.75 });
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.55, 8), limbMat);
+    arm.rotation.z = side * Math.PI / 3.5;
+    arm.position.set(side * 0.4, 0.45, 0);
+    arm.castShadow = true;
+    grp.add(arm);
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.32, 8), limbMat);
+    leg.position.set(side * 0.15, 0.16, 0);
+    leg.castShadow = true;
+    grp.add(leg);
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.07, 0.2), new THREE.MeshStandardMaterial({ color: 0xCC5577, roughness: 0.5 }));
+    shoe.position.set(side * 0.15, 0.03, 0.04);
+    shoe.castShadow = true;
+    grp.add(shoe);
+  }
+  // Notebook in one hand (small box)
+  const notebook = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.22, 0.04), new THREE.MeshStandardMaterial({ color: 0xCC2222, roughness: 0.6 }));
+  notebook.position.set(0.55, 0.32, 0.1);
+  notebook.rotation.z = -0.2;
+  grp.add(notebook);
+  grp.userData.shell = shell;
+  return grp;
+}
+
+// Mr. Pemberton-Pine — older, distinguished. We'll style him as a tall walnut.
+function makePembertonPine() {
+  const grp = new THREE.Group();
+  // Body (large walnut — ridged, darker brown)
+  const shellMat = new THREE.MeshStandardMaterial({ color: 0x8B6B3F, roughness: 0.75 });
+  const shell = new THREE.Mesh(new THREE.SphereGeometry(0.55, 22, 18), shellMat);
+  shell.position.y = 0.75;
+  shell.scale.set(1, 1.25, 0.95);
+  shell.castShadow = true;
+  grp.add(shell);
+  // Walnut ridge running vertically down the front
+  const ridge = new THREE.Mesh(new THREE.BoxGeometry(0.025, 1.2, 0.025), new THREE.MeshStandardMaterial({ color: 0x5A4423, roughness: 0.8 }));
+  ridge.position.set(0, 0.75, 0.55);
+  grp.add(ridge);
+  // Tweed jacket "lapels" (two trapezoid panels)
+  const jacketMat = new THREE.MeshStandardMaterial({ color: 0x3F4F35, roughness: 0.85 });
+  for (const side of [-1, 1]) {
+    const lapel = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.5, 0.08), jacketMat);
+    lapel.position.set(side * 0.2, 0.55, 0.5);
+    lapel.rotation.z = side * 0.15;
+    grp.add(lapel);
+  }
+  // Eyes
+  const eyeWhiteMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+  const pupilMat = new THREE.MeshBasicMaterial({ color: 0x111 });
+  for (const ex of [-0.15, 0.15]) {
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 10), eyeWhiteMat);
+    w.position.set(ex, 1.0, 0.45);
+    grp.add(w);
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), pupilMat);
+    p.position.set(ex, 1.0, 0.5);
+    grp.add(p);
+  }
+  // Half-moon reading glasses
+  const ringMat = new THREE.MeshStandardMaterial({ color: 0xC8A23A, roughness: 0.4, metalness: 0.5 });
+  for (const ex of [-0.15, 0.15]) {
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.08, 0.01, 6, 18, Math.PI), ringMat);
+    ring.position.set(ex, 0.97, 0.53);
+    ring.rotation.z = Math.PI;
+    grp.add(ring);
+  }
+  // Thin pointed beard
+  const beard = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.25, 12), new THREE.MeshStandardMaterial({ color: 0xDFDFDF, roughness: 0.85 }));
+  beard.position.set(0, 0.7, 0.55);
+  beard.rotation.x = 0.3;
+  grp.add(beard);
+  // Stick limbs
+  const limbMat = new THREE.MeshStandardMaterial({ color: 0xC9A77C, roughness: 0.75 });
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.7, 8), limbMat);
+    arm.rotation.z = side * Math.PI / 4;
+    arm.position.set(side * 0.5, 0.6, 0);
+    arm.castShadow = true;
+    grp.add(arm);
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 0.5, 8), limbMat);
+    leg.position.set(side * 0.18, 0.25, 0);
+    leg.castShadow = true;
+    grp.add(leg);
+    const shoe = new THREE.Mesh(new THREE.BoxGeometry(0.18, 0.08, 0.24), new THREE.MeshStandardMaterial({ color: 0x222, roughness: 0.5 }));
+    shoe.position.set(side * 0.18, 0.04, 0.05);
+    shoe.castShadow = true;
+    grp.add(shoe);
+  }
+  grp.userData.shell = shell;
+  return grp;
+}
+
+// Instantiate Ch.3 NPCs and park them off-frame until their beats fire
+const brunk = makeBrunk();
+brunk.position.set(SCHOOL_ORIGIN.x, 0, SCHOOL_ORIGIN.z - 12);  // way down the hallway (off-screen)
+brunk.visible = false;
+scene.add(brunk);
+
+const hazel = makeHazel();
+hazel.position.set(SCHOOL_ORIGIN.x - 1.5, 0, SCHOOL_ORIGIN.z + 2);
+hazel.visible = false;
+scene.add(hazel);
+
+const pemberton = makePembertonPine();
+pemberton.position.set(SCHOOL_ORIGIN.x + 2.5, 0, SCHOOL_ORIGIN.z + 1);  // by his classroom door
+pemberton.rotation.y = -Math.PI / 2;   // facing into the hallway
+pemberton.visible = false;
+scene.add(pemberton);
+
 schoolGroup.visible = false;
 
 // ═══════════════════════════════════════════════════════
@@ -2925,7 +3145,175 @@ async function beginChapter3() {
   // Opening line — overwhelmed, lost
   await showSpeech('Conker Heights High. Just stay invisible.', 2600);
 
+  ch3Phase = 'walking';
   controlsLocked = false;
+}
+
+// Ch.3 phase tracking
+let ch3Phase = 'idle';   // idle | walking | brunk | hazel | freeRoam | corkboard | done
+
+async function ch3Trigger_brunk() {
+  if (ch3Phase !== 'walking') return;
+  ch3Phase = 'brunk';
+  controlsLocked = true;
+
+  // Brunk barrels in from the back of the hallway
+  brunk.visible = true;
+  brunk.position.set(SCHOOL_ORIGIN.x, 0, SCHOOL_ORIGIN.z - 12);
+  brunk.rotation.y = 0;  // facing +Z (toward Pico)
+
+  // Walk Brunk toward Pico over ~1.8 seconds
+  const startZ = brunk.position.z;
+  const endZ = player.position.z + 0.7;
+  const dur = 1800;
+  const t0 = performance.now();
+  await new Promise(resolve => {
+    function step() {
+      const t = Math.min(1, (performance.now() - t0) / dur);
+      brunk.position.z = startZ + (endZ - startZ) * t;
+      // Bobbing walk
+      brunk.position.y = Math.abs(Math.sin(t * Math.PI * 6)) * 0.06;
+      if (t < 1) requestAnimationFrame(step);
+      else resolve();
+    }
+    step();
+  });
+
+  // Impact: shake + dust + Pico bumped sideways
+  addShake(0.3);
+  emitDust(player.position.x, player.position.z);
+  emitDust(player.position.x + 0.2, player.position.z + 0.2);
+  playTone({ freq: 100, dur: 0.25, type: 'sawtooth', volume: 0.25 });
+
+  await showSpeechFromNPC('brunk', 'Watch it, soft-shell.', 1800);
+
+  // Brunk keeps walking past + offstage
+  const exitT0 = performance.now();
+  await new Promise(resolve => {
+    function step() {
+      const t = Math.min(1, (performance.now() - exitT0) / 1400);
+      brunk.position.z = endZ + (12 - 0) * t;
+      brunk.position.y = Math.abs(Math.sin(t * Math.PI * 5)) * 0.05;
+      if (t < 1) requestAnimationFrame(step);
+      else resolve();
+    }
+    step();
+  });
+  brunk.visible = false;
+
+  await showSpeech('(to himself) Reason to look forward to tomorrow. Right.', 2800);
+
+  ch3Trigger_hazel();
+}
+
+async function ch3Trigger_hazel() {
+  ch3Phase = 'hazel';
+
+  // Hazel slides in from the left side of Pico
+  hazel.position.set(player.position.x - 3, 0, player.position.z + 0.2);
+  hazel.rotation.y = Math.PI / 2;   // facing Pico
+  hazel.visible = true;
+
+  // Walk Hazel up to Pico
+  const startX = hazel.position.x;
+  const endX = player.position.x - 1.2;
+  const t0 = performance.now();
+  await new Promise(resolve => {
+    function step() {
+      const t = Math.min(1, (performance.now() - t0) / 1100);
+      hazel.position.x = startX + (endX - startX) * t;
+      hazel.position.y = Math.abs(Math.sin(t * Math.PI * 5)) * 0.04;
+      if (t < 1) requestAnimationFrame(step);
+      else resolve();
+    }
+    step();
+  });
+
+  await showSpeechFromNPC('hazel', 'Ignore Brunk. He\'s ninety percent shell and ten percent echo.', 3200);
+  await showSpeechFromNPC('hazel', 'You\'re new, right? Obviously you\'re new, nobody holds a map like that unless they\'re new. I\'m Hazel.', 4500);
+  await showSpeech('I\'m— Pico.', 1800);
+  await showSpeechFromNPC('hazel', 'Pico. Good name. Short. Efficient. Okay, we\'re friends now, that\'s decided, keep up —', 4200);
+  SFX.ready();
+  await showSpeech('(a real smile, his first in the city) …Okay.', 2800);
+
+  // Hazel falls in behind Pico — she'll follow him via the followLoop
+  hazel.userData.following = true;
+
+  // Free roam toward the corkboard
+  ch3Phase = 'freeRoam';
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.querySelector('.objective-text').textContent = 'Walk to the MISSING corkboard';
+  }
+  controlsLocked = false;
+}
+
+async function ch3Trigger_corkboard() {
+  if (ch3Phase !== 'freeRoam') return;
+  ch3Phase = 'corkboard';
+  controlsLocked = true;
+
+  // Frame camera to face the corkboard
+  camState.distance = 4.5;
+  camState.yaw = Math.PI / 2 + 0.2;  // looking at the right wall
+  camState.pitch = 0.2;
+
+  await showSpeechFromNPC('hazel', 'Three from our year. Since autumn.', 2400);
+  await showSpeech('Where\'d they go?', 2000);
+  await showSpeechFromNPC('hazel', 'Teachers say "moved away." Nobody moves away in the middle of a Tuesday and leaves their locker open.', 4400);
+
+  // Pemberton-Pine leans out of his classroom
+  pemberton.visible = true;
+  await showSpeechFromNPC('pemberton', 'Move along now, you two. And Pico — welcome.', 3000);
+  await showSpeechFromNPC('pemberton', 'Do stay where it\'s busy. The city\'s no place for an acorn on his own.', 3400);
+  await sleep(400);
+  pemberton.visible = false;     // goes back into the classroom
+
+  await showSpeechFromNPC('hazel', '(whisper) See? Even he knows something.', 2800);
+
+  ch3Phase = 'done';
+  endChapter3();
+}
+
+async function endChapter3() {
+  showFade(true);
+  await sleep(1200);
+  schoolGroup.visible = false;
+  hazel.visible = false;
+  pemberton.visible = false;
+
+  // End-of-Ch.3 card with continue → Ch.4
+  const endHTML = `
+    <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
+      <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">END OF CHAPTER 3</div>
+      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">First Day</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 24px;line-height:1.6">
+        Pico has a friend. And a mystery.<br>
+        Next: Mum sends Pico to the market for dinner.<br>
+        Straight there, straight back…
+      </p>
+      <button id="continue-ch4" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
+        Continue → Chapter 4
+      </button>
+      <button id="end-restart-ch3" type="button" style="margin:14px 8px 0;padding:14px 28px;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;background:transparent;color:rgba(255,255,255,0.7);border:1.5px solid rgba(255,255,255,0.3);border-radius:999px;cursor:pointer">
+        Restart
+      </button>
+    </div>
+  `;
+  const card = document.querySelector('#title-card');
+  if (card) {
+    card.innerHTML = endHTML;
+    card.classList.remove('fade-out');
+    card.style.display = 'flex';
+    card.classList.add('show');
+    const cont = document.getElementById('continue-ch4');
+    if (cont) cont.addEventListener('click', () => {
+      // Ch.4 doesn't exist yet — for now just teaser
+      alert('Chapter 4 (market + Old Walnut) is coming next!');
+    });
+    const restart = document.getElementById('end-restart-ch3');
+    if (restart) restart.addEventListener('click', () => location.reload());
+  }
 }
 
 async function enterNewBedroom() {
