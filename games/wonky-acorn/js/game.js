@@ -2703,6 +2703,8 @@ scene.add(freeplaySignPost);
   freeplaySignPost.add(makeArrow('JAIL',    pointAt(20, 14),    0x444444, 0.9));
 })();
 freeplaySignPost.visible = false;
+// Collider on the sign post so nothing walks through it
+treeColliders.push({ x: 2, z: 2, r: 0.35 });
 
 // A second Butcher instance lives inside the jail during free-play
 const butcherInJail = makeButcher();
@@ -3086,17 +3088,18 @@ if (isTouch) {
       sprintBtn.classList.toggle('active', touchInput.sprint);
     }, { passive: false });
   }
-  // PAUSE button in the top-right corner
+  // PAUSE button in the top-right corner — guard against touchstart+click double-fire
   const pauseBtn = document.getElementById('touch-pause');
   if (pauseBtn) {
-    pauseBtn.addEventListener('touchstart', e => {
-      e.preventDefault();
+    let pauseDebounce = 0;
+    const tryTogglePause = () => {
+      const now = performance.now();
+      if (now - pauseDebounce < 250) return;   // ignore second tap within 250ms
+      pauseDebounce = now;
       if (!controlsLocked) setPaused(!paused);
-    }, { passive: false });
-    // Also support click for non-touch testing
-    pauseBtn.addEventListener('click', () => {
-      if (!controlsLocked) setPaused(!paused);
-    });
+    };
+    pauseBtn.addEventListener('touchstart', e => { e.preventDefault(); tryTogglePause(); }, { passive: false });
+    pauseBtn.addEventListener('click', tryTogglePause);
   }
 }
 
@@ -4536,6 +4539,12 @@ function applyPendingLoadIfAny() {
   if (resumeBtn) resumeBtn.addEventListener('click', () => setPaused(false));
   const muteBtn = document.getElementById('pause-mute');
   if (muteBtn) muteBtn.addEventListener('click', toggleMute);
+  // Shortcut on the GAME tab → switches to the REPLAY tab
+  const replayShortcut = document.getElementById('pause-replay-shortcut');
+  if (replayShortcut) replayShortcut.addEventListener('click', () => {
+    const replayTab = document.querySelector('.pause-tab[data-tab="replay"]');
+    if (replayTab) replayTab.click();
+  });
   const resetBtn = document.getElementById('pause-reset');
   if (resetBtn) resetBtn.addEventListener('click', () => {
     if (confirm('Delete ALL save files and reload?')) {
@@ -4564,6 +4573,19 @@ function applyPendingLoadIfAny() {
       jailGroup.visible = false;
       freeplaySignPost.visible = false;
       butcherInJail.visible = false;
+      // Clear ALL scene visibility so we don't see ghosts of the previous chapter
+      bedroomGroup.visible = false;
+      kitchenGroup.visible = false;
+      newBedroomGroup.visible = false;
+      schoolGroup.visible = false;
+      butcherShopGroup.visible = false;
+      butcher.visible = false;
+      hazel.visible = false;
+      brunk.visible = false;
+      pemberton.visible = false;
+      houseMum.visible = false;
+      hazel.userData.following = false;
+      if (jailGroup.userData) jailGroup.userData.lastTease = null;
       // Dispatch to the chapter starter
       switch (target) {
         case 'intro':    beginIntro(); break;
@@ -4584,8 +4606,11 @@ function applyPendingLoadIfAny() {
       if (existing && !confirm(`Overwrite File ${n}? (${existing.label})`)) return;
       saveToSlot(n);
     });
-    slotEl.querySelector('.slot-load').addEventListener('click', () => {
-      if (confirm(`Load File ${n}? Current unsaved progress will be lost.`)) loadSlot(n);
+    slotEl.querySelector('.slot-load').addEventListener('click', (e) => {
+      if (confirm(`Load File ${n}? Current unsaved progress will be lost.`)) {
+        e.currentTarget.disabled = true;   // prevent rapid double-clicks racing the reload
+        loadSlot(n);
+      }
     });
     slotEl.querySelector('.slot-delete').addEventListener('click', () => {
       if (confirm(`Delete File ${n}? This cannot be undone.`)) deleteSlot(n);
@@ -5807,10 +5832,10 @@ function checkFreePlayTriggers() {
   if (jailGroup.visible && !butcherEscaped) {
     const bp = jailGroup.userData.barsWorldPos;
     const d = Math.hypot(px - bp.x, pz - bp.z);
-    if (d < 1.5 && !jailGroup.userData.lastTease) {
+    if (d < 1.5 && jailGroup.userData.lastTease == null) {
       jailGroup.userData.lastTease = performance.now();
     }
-    if (jailGroup.userData.lastTease && performance.now() - jailGroup.userData.lastTease > 2500) {
+    if (jailGroup.userData.lastTease != null && performance.now() - jailGroup.userData.lastTease > 2500) {
       // A "tease" — Pico stood close to the bars for a moment
       jailGroup.userData.lastTease = performance.now() + 1500;  // cool-down
       teaseCount++;
@@ -5830,8 +5855,11 @@ function checkFreePlayTriggers() {
         'RIGHT. THAT\'S IT.'
       ];
       setTimeout(() => showSpeechFromNPC('butcher', replies[Math.min(teaseCount - 1, replies.length - 1)], 2600), 1800);
-      if (teaseCount >= 5) {
-        setTimeout(triggerButcherEscape, 4800);
+      if (teaseCount >= 5 && !butcherEscaped) {
+        // Latch the escape flag immediately so the timeout can't be queued
+        // twice by rapid re-teases (the actual move happens after the dialogue)
+        butcherEscaped = true;
+        setTimeout(() => { butcherEscaped = false; triggerButcherEscape(); }, 4800);
       }
     }
   }
@@ -5859,7 +5887,7 @@ function updateButcherFreeplayChase(dt) {
     butcherEscaped = false;
     butcherInJail.visible = true;   // re-spawn in jail
     teaseCount = 0;
-    if (jailGroup.userData) jailGroup.userData.lastTease = 0;
+    if (jailGroup.userData) jailGroup.userData.lastTease = null;
     setTimeout(() => showSpeech('(safe inside) Phew. He went back to the jail.', 2800), 500);
     return;
   }
@@ -5883,7 +5911,7 @@ function updateButcherFreeplayChase(dt) {
     butcherEscaped = false;
     butcherInJail.visible = true;
     teaseCount = 0;
-    if (jailGroup.userData) jailGroup.userData.lastTease = 0;
+    if (jailGroup.userData) jailGroup.userData.lastTease = null;
   }
 }
 
