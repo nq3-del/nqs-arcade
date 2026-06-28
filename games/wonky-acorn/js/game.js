@@ -3083,7 +3083,15 @@ function tick() {
 
       // Front-door exit trigger — when player walks south past the front door, leave the house
       if (localZ >= 7.8 && Math.abs(localX) <= 0.9 && py < 0.5 && !controlsLocked) {
-        exitHouseToMeadow();
+        // During Ch.4, gate the exit on having spoken to Mum first
+        if (ch4Phase === 'mumWait') {
+          // Show a hint and bounce Pico back inside instead of leaving
+          showSpeech('I should talk to Mum first.', 1800);
+          player.position.z = NEW_BEDROOM_ORIGIN.z + 7.5;
+          if (playerVel.z > 0) playerVel.z = 0;
+        } else {
+          exitHouseToMeadow();
+        }
       }
     }
 
