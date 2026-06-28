@@ -3248,13 +3248,14 @@ function tick() {
 }
 tick();
 
-// Pause render loop when the tab is hidden — saves battery + heat
+// Pause render loop when the tab is hidden — saves battery + heat.
+// Don't auto-restart if the user is in the pause menu (let them resume manually).
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     if (rafHandle) cancelAnimationFrame(rafHandle);
     rafHandle = null;
-  } else if (!rafHandle) {
-    clock.getDelta();  // throw away the huge accumulated delta
+  } else if (!rafHandle && !paused) {
+    clock.getDelta();
     tick();
   }
 });
