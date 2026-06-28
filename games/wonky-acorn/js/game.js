@@ -1225,14 +1225,24 @@ const camState = {
   maxPitch: 1.2
 };
 
+// Camera shake state (additive offset that decays each frame)
+const shake = { intensity: 0, decayPerSec: 4 };
+function addShake(amount) { shake.intensity = Math.min(0.6, shake.intensity + amount); }
+
 function updateCamera() {
   const x = Math.sin(camState.yaw) * Math.cos(camState.pitch) * camState.distance;
   const z = Math.cos(camState.yaw) * Math.cos(camState.pitch) * camState.distance;
   const y = Math.sin(camState.pitch) * camState.distance;
+  let sx = 0, sy = 0, sz = 0;
+  if (shake.intensity > 0.001) {
+    sx = (Math.random() - 0.5) * shake.intensity;
+    sy = (Math.random() - 0.5) * shake.intensity;
+    sz = (Math.random() - 0.5) * shake.intensity;
+  }
   camera.position.set(
-    camState.target.x + x,
-    camState.target.y + y,
-    camState.target.z + z
+    camState.target.x + x + sx,
+    camState.target.y + y + sy,
+    camState.target.z + z + sz
   );
   camera.lookAt(camState.target);
 }
@@ -1614,6 +1624,10 @@ function chooseAnimationState({ moving, grounded, sprinting, speed }) {
 function tick() {
   rafHandle = requestAnimationFrame(tick);
   const dt = Math.min(clock.getDelta(), 0.05);
+  // Decay camera shake toward 0
+  if (shake.intensity > 0) {
+    shake.intensity = Math.max(0, shake.intensity - shake.decayPerSec * dt);
+  }
 
   if (pico) {
     const input = readInput();
@@ -1655,6 +1669,14 @@ function tick() {
     player.position.z += playerVel.z * dt;
 
     if (player.position.y <= 0) {
+      // Trigger camera shake if landing from a significant fall
+      if (!grounded && playerVel.y < -3) {
+        addShake(Math.min(0.25, Math.abs(playerVel.y) * 0.025));
+        // Landing dust puff
+        emitDust(player.position.x, player.position.z);
+        emitDust(player.position.x + 0.3, player.position.z);
+        emitDust(player.position.x - 0.3, player.position.z);
+      }
       player.position.y = 0;
       playerVel.y = 0;
       grounded = true;
@@ -2215,6 +2237,7 @@ async function beginIntro() {
 
   // ── Tear flood ──
   // Water rises from the floor until it's just below the table top
+  addShake(0.15);  // tiny world shake from Pico's outburst
   const tearWater = kitchenGroup.userData.tearWater;
   if (tearWater) {
     tearWater.visible = true;
@@ -2347,7 +2370,14 @@ function showSpeechFromNPC(who, text, duration = 2000) {
 // PAUSE MENU — Esc or P during free roam to pause
 // ═══════════════════════════════════════════════════════
 let paused = false;
-let muted = false;
+let muted = (() => { try { return localStorage.getItem('wonkyAcornMuted') === '1'; } catch (e) { return false; } })();
+// Apply saved mute state after audio context is created
+if (muted) {
+  setTimeout(() => {
+    const ctx = ensureAudio();
+    if (ctx) ctx.suspend();
+  }, 0);
+}
 
 function setPaused(v) {
   paused = v;
@@ -2356,8 +2386,11 @@ function setPaused(v) {
     if (v) menu.classList.add('show');
     else menu.classList.remove('show');
   }
+  // Sync the mute button label to current state
+  const muteBtn = document.getElementById('pause-mute');
+  if (muteBtn) muteBtn.textContent = muted ? 'Unmute Sound' : 'Mute Sound';
   if (v) {
-    // Pause render & dust loops to save battery
+    // Pause render loop to save battery (dust loop keeps running for particle decay)
     if (rafHandle) { cancelAnimationFrame(rafHandle); rafHandle = null; }
   } else if (!rafHandle) {
     clock.getDelta();
@@ -2369,13 +2402,12 @@ function toggleMute() {
   muted = !muted;
   const ctx = ensureAudio();
   if (ctx) {
-    // Disconnect/reconnect destination by setting masterGain — but we don't have one
-    // Simpler: set audioCtx volume by suspending/resuming
     if (muted) ctx.suspend();
     else ctx.resume();
   }
   const btn = document.getElementById('pause-mute');
   if (btn) btn.textContent = muted ? 'Unmute Sound' : 'Mute Sound';
+  try { localStorage.setItem('wonkyAcornMuted', muted ? '1' : '0'); } catch (e) {}
 }
 
 // Wire pause menu buttons
