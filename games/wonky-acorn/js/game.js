@@ -1890,6 +1890,57 @@ const dustParticles = [];
 const dustGeo = new THREE.SphereGeometry(0.06, 6, 5);
 let lastStepDist = 0;
 
+// Golden sparkle burst — used for box unpacking + objective hits
+const sparkleParticles = [];
+const sparkleGeo = new THREE.OctahedronGeometry(0.06, 0);
+function emitSparkles(x, y, z) {
+  for (let i = 0; i < 14; i++) {
+    const mat = new THREE.MeshBasicMaterial({
+      color: 0xFFD740,
+      transparent: true,
+      opacity: 1
+    });
+    const p = new THREE.Mesh(sparkleGeo, mat);
+    p.position.set(x, y, z);
+    const speed = 1.8 + Math.random() * 1.6;
+    const ang = Math.random() * Math.PI * 2;
+    const upBias = 1.2 + Math.random() * 1.4;
+    scene.add(p);
+    sparkleParticles.push({
+      mesh: p,
+      mat,
+      life: 0,
+      maxLife: 0.7 + Math.random() * 0.4,
+      vx: Math.cos(ang) * speed,
+      vy: upBias,
+      vz: Math.sin(ang) * speed,
+      spin: (Math.random() - 0.5) * 8
+    });
+  }
+}
+
+function updateSparkles(dt) {
+  for (let i = sparkleParticles.length - 1; i >= 0; i--) {
+    const p = sparkleParticles[i];
+    p.life += dt;
+    if (p.life >= p.maxLife) {
+      scene.remove(p.mesh);
+      p.mat.dispose();
+      sparkleParticles.splice(i, 1);
+      continue;
+    }
+    const t = p.life / p.maxLife;
+    p.mesh.position.x += p.vx * dt;
+    p.mesh.position.y += p.vy * dt;
+    p.mesh.position.z += p.vz * dt;
+    p.vy -= 4 * dt;  // gravity
+    p.mesh.rotation.y += p.spin * dt;
+    p.mesh.rotation.x += p.spin * 0.7 * dt;
+    p.mat.opacity = 1 - t;
+    p.mesh.scale.setScalar(1 - t * 0.4);
+  }
+}
+
 function emitDust(x, z) {
   for (let i = 0; i < 3; i++) {
     const mat = new THREE.MeshBasicMaterial({
@@ -1963,6 +2014,7 @@ function dustLoop() {
   _dustRaf = requestAnimationFrame(dustLoop);
   const dt = Math.min(0.05, 1/60);  // fixed tick is fine for particle visuals
   updateDust(dt);
+  updateSparkles(dt);
   maybeEmitFootstep();
 }
 dustLoop();
@@ -2497,6 +2549,11 @@ function checkBoxTouches() {
       box.material.emissive = new THREE.Color(0xFFD740);
       box.material.emissiveIntensity = 0.4;
       box.parent.userData.bumpStart = performance.now();
+      // Sparkle burst at the box's world position
+      const worldX = NEW_BEDROOM_ORIGIN.x + box.parent.position.x;
+      const worldY = box.parent.position.y + 0.4;
+      const worldZ = NEW_BEDROOM_ORIGIN.z + box.parent.position.z;
+      emitSparkles(worldX, worldY, worldZ);
       // Sound
       playTone({ freq: 660, dur: 0.12, type: 'triangle', volume: 0.18 });
       setTimeout(() => playTone({ freq: 880, dur: 0.12, type: 'triangle', volume: 0.15 }), 80);
