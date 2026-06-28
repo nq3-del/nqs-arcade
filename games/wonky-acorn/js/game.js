@@ -1486,6 +1486,134 @@ function getHouseFloorY(localX, localZ, currentY) {
 
 newBedroomGroup.visible = false;
 
+// MUM (Granny acorn) — appears in the new house entrance hall for the Ch.4 errand.
+// Hidden by default; revealed by beginChapter4().
+const houseMum = makeParentAcorn({
+  kind: 'granny',
+  colors: { shell: 0xE6C99B, cap: 0x8B5A2B, belly: 0xFFE4D1, skin: 0xF0C9A8, shoes: 0x6B4632 }
+});
+houseMum.scale.setScalar(0.64);
+houseMum.position.set(NEW_BEDROOM_ORIGIN.x + 1.0, 0, NEW_BEDROOM_ORIGIN.z + 6.0);
+houseMum.rotation.y = 0;
+houseMum.visible = false;
+scene.add(houseMum);
+
+// ═══════════════════════════════════════════════════════
+// BUTCHER STOREFRONT — visible exterior in the meadow.
+// Pico walks up to it during Ch.4 to enter the butcher shop interior.
+// ═══════════════════════════════════════════════════════
+const BUTCHER_STOREFRONT_POS = new THREE.Vector3(14, 0, -8);
+const butcherStorefront = new THREE.Group();
+butcherStorefront.position.copy(BUTCHER_STOREFRONT_POS);
+scene.add(butcherStorefront);
+(function buildButcherStorefront() {
+  // 2-storey corner building with a striped awning + signage. Tall and a bit
+  // looming so it stands out in the meadow.
+  const brickMat = new THREE.MeshStandardMaterial({ color: 0xB04032, roughness: 0.85 });
+  const trimMat  = new THREE.MeshStandardMaterial({ color: 0xF1F1EE, roughness: 0.6 });
+  const windowMat = new THREE.MeshStandardMaterial({ color: 0xDDF5FF, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.6 });
+  const awningMat = new THREE.MeshStandardMaterial({ color: 0xC53B2F, roughness: 0.75 });
+  const awningStripe = new THREE.MeshStandardMaterial({ color: 0xF1F1EE, roughness: 0.75 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x4A2818, roughness: 0.6 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0x2A2A28, roughness: 0.85 });
+  const W = 8, D = 7, H = 6.5;
+
+  // Body
+  const body = new THREE.Mesh(new THREE.BoxGeometry(W, H, D), brickMat);
+  body.position.set(0, H / 2, 0);
+  body.castShadow = true;
+  body.receiveShadow = true;
+  butcherStorefront.add(body);
+  // White trim around the top
+  const topTrim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.3, D + 0.4), trimMat);
+  topTrim.position.set(0, H - 0.15, 0);
+  butcherStorefront.add(topTrim);
+  // Hipped tile roof
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(W * 0.9, 1.6, 4), roofMat);
+  roof.position.set(0, H + 0.8, 0);
+  roof.rotation.y = Math.PI / 4;
+  butcherStorefront.add(roof);
+  // Chimney
+  const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.6, 1.2, 0.6), brickMat);
+  chimney.position.set(W / 4, H + 1.0, -D / 4);
+  butcherStorefront.add(chimney);
+
+  // Big front window
+  const winFrame = new THREE.Mesh(new THREE.BoxGeometry(4.0, 2.4, 0.2), trimMat);
+  winFrame.position.set(-1.5, 2.2, D / 2 + 0.08);
+  butcherStorefront.add(winFrame);
+  const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 2.0), windowMat);
+  winGlass.position.set(-1.5, 2.2, D / 2 + 0.2);
+  butcherStorefront.add(winGlass);
+  // Window cross
+  const winCross1 = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.06, 0.04), trimMat);
+  winCross1.position.set(-1.5, 2.2, D / 2 + 0.22);
+  butcherStorefront.add(winCross1);
+  const winCross2 = new THREE.Mesh(new THREE.BoxGeometry(0.06, 2.0, 0.04), trimMat);
+  winCross2.position.set(-1.5, 2.2, D / 2 + 0.22);
+  butcherStorefront.add(winCross2);
+
+  // Striped awning above the window
+  for (let i = 0; i < 7; i++) {
+    const stripe = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.18, 1.2), i % 2 === 0 ? awningMat : awningStripe);
+    stripe.position.set(-1.5 + (i - 3) * 0.6, 3.6, D / 2 + 0.6);
+    stripe.rotation.x = -0.2;
+    butcherStorefront.add(stripe);
+  }
+
+  // Front door (entrance for Ch.5)
+  const door = new THREE.Mesh(new THREE.BoxGeometry(1.6, 2.6, 0.18), doorMat);
+  door.position.set(2.2, 1.3, D / 2 + 0.06);
+  door.castShadow = true;
+  butcherStorefront.add(door);
+  // Door handle
+  const handle = new THREE.Mesh(new THREE.SphereGeometry(0.08, 12, 8), new THREE.MeshStandardMaterial({ color: 0xDDB347, roughness: 0.3, metalness: 0.85 }));
+  handle.position.set(2.7, 1.3, D / 2 + 0.18);
+  butcherStorefront.add(handle);
+  // Step
+  const step = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.18, 0.7), trimMat);
+  step.position.set(2.2, 0.09, D / 2 + 0.45);
+  butcherStorefront.add(step);
+
+  // BIG SIGN above the awning — "SAWBONES & SONS"
+  const signBack = new THREE.Mesh(new THREE.BoxGeometry(6.5, 1.0, 0.2), trimMat);
+  signBack.position.set(0, 5.0, D / 2 + 0.15);
+  butcherStorefront.add(signBack);
+  // Canvas-based sign text
+  const signCanvas = document.createElement('canvas');
+  signCanvas.width = 1024; signCanvas.height = 160;
+  const sctx = signCanvas.getContext('2d');
+  sctx.fillStyle = '#F1F1EE';
+  sctx.fillRect(0, 0, 1024, 160);
+  sctx.fillStyle = '#1a1a2e';
+  sctx.font = 'bold 90px Nunito, sans-serif';
+  sctx.textAlign = 'center';
+  sctx.textBaseline = 'middle';
+  sctx.fillText('SAWBONES & SONS', 512, 70);
+  sctx.font = 'bold 32px Nunito, sans-serif';
+  sctx.fillStyle = '#C53B2F';
+  sctx.fillText('FAMILY BUTCHER', 512, 130);
+  const signTex = new THREE.CanvasTexture(signCanvas);
+  signTex.colorSpace = THREE.SRGBColorSpace;
+  const signPanel = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 0.95), new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.8 }));
+  signPanel.position.set(0, 5.0, D / 2 + 0.26);
+  butcherStorefront.add(signPanel);
+
+  // Cleaver icon hanging from the sign
+  const cleaver = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.5, 0.7), new THREE.MeshStandardMaterial({ color: 0xDDE2E8, roughness: 0.15, metalness: 0.9 }));
+  cleaver.position.set(-3.5, 5.7, D / 2 + 0.3);
+  cleaver.rotation.z = 0.3;
+  butcherStorefront.add(cleaver);
+
+  // Sidewalk / paving in front
+  const paving = new THREE.Mesh(new THREE.PlaneGeometry(W + 2, 3), new THREE.MeshStandardMaterial({ color: 0xA09890, roughness: 0.85 }));
+  paving.rotation.x = -Math.PI / 2;
+  paving.position.set(0, 0.02, D / 2 + 1.5);
+  butcherStorefront.add(paving);
+
+  butcherStorefront.userData.doorWorldPos = new THREE.Vector3(BUTCHER_STOREFRONT_POS.x + 2.2, 0, BUTCHER_STOREFRONT_POS.z + D / 2 + 0.6);
+})();
+
 // ═══════════════════════════════════════════════════════
 // CONKER HEIGHTS HIGH (Ch.3 — school hallway)
 // ═══════════════════════════════════════════════════════
@@ -2658,28 +2786,18 @@ loader.load(
 
       setLoading(100, 'Tap to begin!');
       const startBtn = document.getElementById('start-btn');
-      const skipBtn = document.getElementById('skip-btn');
       let chosen = false;
       const pickIntro = () => {
         if (chosen) return;
         chosen = true;
         beginIntro();
       };
-      const pickQuick = () => {
-        if (chosen) return;
-        chosen = true;
-        beginQuickStart();
-      };
       if (startBtn) {
-        startBtn.textContent = 'Play full intro';
+        startBtn.textContent = 'Tap to begin';
         startBtn.classList.add('show');
         startBtn.addEventListener('click', pickIntro);
       }
-      if (skipBtn) {
-        skipBtn.classList.add('show');
-        skipBtn.addEventListener('click', pickQuick);
-      }
-      if (!startBtn && !skipBtn) {
+      if (!startBtn) {
         beginIntro();
       }
     }, 300);
@@ -2714,15 +2832,19 @@ let rafHandle = null;
 // Frame-rate-independent exponential smoothing factor
 function smooth(rate, dt) { return 1 - Math.exp(-rate * dt); }
 
-// Cutscene mode: swap to the still-pose Pico (no skeleton/animation)
-// so he doesn't dance / sigh / wave during dialogue.
+// "Still mode" used during cutscenes + brief idle moments.
+// Noah wants ALWAYS the regular animated Pico (no static swap), so this is
+// implemented by pausing the animation mixer in place. Pico freezes mid-pose.
 function setStillMode(on) {
+  // Ensure animated Pico is always the visible one
+  if (pico) pico.visible = true;
+  if (picoStill) picoStill.visible = false;
+  if (!mixer) return;
   if (on) {
-    if (picoStill) picoStill.visible = true;
-    if (pico) pico.visible = false;
+    // Pause the rig — Pico stays in whatever pose he was last in
+    mixer.timeScale = 0;
   } else {
-    if (picoStill) picoStill.visible = false;
-    if (pico) pico.visible = true;
+    mixer.timeScale = 1;
     currentActionName = null;  // let the state machine re-pick a clip
   }
 }
@@ -3067,6 +3189,8 @@ function tick() {
     checkSchoolTriggers();
     // Hazel follows Pico once she's joined the party
     updateHazelFollow(dt);
+    // Ch.4 errand triggers (talk to Mum, walk to storefront)
+    checkChapter4Triggers();
     // Ch.5 butcher chase
     checkButcherChase(dt);
   }
@@ -4343,6 +4467,104 @@ async function ch3Trigger_corkboard() {
 let ch5Phase = 'idle';   // idle | meeting | chase | escaped | caught
 let butcherChaseSpeed = 3.0;
 
+// ═══════════════════════════════════════════════════════
+// CHAPTER 4 — THE ERRAND (mum sends Pico to the butcher's)
+// ═══════════════════════════════════════════════════════
+let ch4Phase = 'idle';   // idle | mumWait | mumTalking | toButcher | done
+async function beginChapter4() {
+  controlsLocked = true;
+  setCheckpoint('newhouse');
+  setStillMode(true);
+  showFade(true);
+  await sleep(1100);
+
+  // Hide other scenes
+  schoolGroup.visible = false;
+  hazel.visible = false;
+  pemberton.visible = false;
+  butcherShopGroup.visible = false;
+  butcher.visible = false;
+  // Show the new house interior + Mum
+  newBedroomGroup.visible = true;
+  houseMum.visible = true;
+
+  // Place Pico at the BOTTOM of the stairs, facing the living room
+  player.position.set(NEW_BEDROOM_ORIGIN.x, 0, NEW_BEDROOM_ORIGIN.z + 3.6);
+  facingY = Math.PI;
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+
+  // Camera framed on the living room from behind Pico
+  camState.target.set(player.position.x, 1.0, player.position.z);
+  camState.distance = 6;
+  camState.yaw = 0;
+  camState.pitch = 0.22;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  await sleep(600);
+
+  // Objective
+  lastZoneLabel = '';
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.classList.remove('hide');
+    objEl.querySelector('.objective-text').textContent = 'Talk to Mum';
+  }
+
+  ch4Phase = 'mumWait';
+  setStillMode(false);
+  controlsLocked = false;
+}
+
+async function ch4_talkToMum() {
+  if (ch4Phase !== 'mumWait') return;
+  ch4Phase = 'mumTalking';
+  controlsLocked = true;
+  setStillMode(true);
+
+  // Face Pico toward Mum
+  const dx = houseMum.position.x - player.position.x;
+  const dz = houseMum.position.z - player.position.z;
+  facingY = Math.atan2(dx, dz);
+  player.rotation.y = facingY;
+
+  await showSpeechFromNPC('granny', 'Pico, love! Could you pop down to the butcher\'s for me? Sausages for tea.', 4200);
+  await showSpeech('On my own?', 1800);
+  await showSpeechFromNPC('granny', 'Straight there, straight back. You\'ll be just fine.', 3000);
+  await showSpeech('…Okay, Mum.', 1800);
+
+  // Update objective and let player roam
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.querySelector('.objective-text').textContent = 'Walk to the butcher\'s shop';
+  }
+
+  ch4Phase = 'toButcher';
+  setStillMode(false);
+  controlsLocked = false;
+}
+
+// Per-frame proximity check during Ch.4
+function checkChapter4Triggers() {
+  if (ch4Phase === 'mumWait') {
+    if (!newBedroomGroup.visible || !houseMum.visible) return;
+    const dx = player.position.x - houseMum.position.x;
+    const dz = player.position.z - houseMum.position.z;
+    if (Math.hypot(dx, dz) < 1.8) ch4_talkToMum();
+  } else if (ch4Phase === 'toButcher') {
+    // Pico needs to walk to the butcher storefront in the meadow
+    if (newBedroomGroup.visible || butcherShopGroup.visible) return;
+    const dx = player.position.x - butcherStorefront.userData.doorWorldPos.x;
+    const dz = player.position.z - butcherStorefront.userData.doorWorldPos.z;
+    if (Math.hypot(dx, dz) < 2.0) {
+      ch4Phase = 'done';
+      beginChapter5();
+    }
+  }
+}
+
 async function beginChapter5() {
   controlsLocked = true;
   setCheckpoint('butcher');
@@ -4513,16 +4735,141 @@ async function onButcherEscaped() {
   butcherShopGroup.visible = false;
   butcher.visible = false;
 
-  // End-of-Ch.5 card (Ch.6 placeholder)
+  // End-of-Ch.5 card → continue to Ch.6
   const endHTML = `
     <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
       <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">END OF CHAPTER 5</div>
       <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">The Butcher</h2>
       <p style="font-size:15px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 24px;line-height:1.6">
-        Pico made it out. The Butcher's still in there, sing-songing through the door…<br>
-        Next: the investigation. Pico + Hazel + a reformed bully called Brunk.
+        Pico made it out. The Butcher is still in there, sing-songing through the door…<br>
+        He runs all the way home. Hazel and Brunk are already on the doorstep.
       </p>
-      <button id="end-restart-ch5" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
+      <button id="continue-ch6" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
+        Continue → Chapter 6
+      </button>
+      <button id="end-restart-ch5" type="button" style="margin:14px 8px 0;padding:14px 28px;font-family:'Nunito',sans-serif;font-weight:700;font-size:14px;background:transparent;color:rgba(255,255,255,0.7);border:1.5px solid rgba(255,255,255,0.3);border-radius:999px;cursor:pointer">
+        Restart
+      </button>
+    </div>
+  `;
+  const card = document.querySelector('#title-card');
+  if (card) {
+    card.innerHTML = endHTML;
+    card.classList.remove('fade-out');
+    card.style.display = 'flex';
+    card.classList.add('show');
+    const cont = document.getElementById('continue-ch6');
+    if (cont) cont.addEventListener('click', () => {
+      card.classList.add('fade-out');
+      setTimeout(() => { card.style.display = 'none'; }, 1000);
+      beginChapter6();
+    });
+    const restart = document.getElementById('end-restart-ch5');
+    if (restart) restart.addEventListener('click', () => location.reload());
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CHAPTER 6 — THE INVESTIGATION + ENDING
+// ═══════════════════════════════════════════════════════
+async function beginChapter6() {
+  controlsLocked = true;
+  setCheckpoint('ending');
+  setStillMode(true);
+  showFade(true);
+  await sleep(1100);
+
+  // Show the new house exterior with Pico + Hazel + Brunk on the doorstep
+  schoolGroup.visible = false;
+  butcherShopGroup.visible = false;
+  butcher.visible = false;
+  newBedroomGroup.visible = false;
+  // Put Hazel and Brunk visible in the meadow near the new house
+  hazel.position.set(-10, 0, -7);
+  hazel.rotation.y = -Math.PI / 2;
+  hazel.visible = true;
+  brunk.position.set(-14, 0, -7);
+  brunk.rotation.y = Math.PI / 2;
+  brunk.visible = true;
+  // Pico arrives in the middle
+  player.position.set(-12, 0, -6);
+  facingY = 0;
+  player.rotation.y = 0;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  // Camera frames the three of them
+  camState.target.set(-12, 1.0, -7);
+  camState.distance = 7;
+  camState.yaw = 0;
+  camState.pitch = 0.2;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  await sleep(700);
+
+  lastZoneLabel = '';
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.classList.remove('hide');
+    objEl.querySelector('.objective-text').textContent = 'Solve the mystery';
+  }
+
+  // ── 6.1 The doorstep ──
+  await showSpeech('I saw him! He tried to —', 2200);
+  await showSpeechFromNPC('hazel', 'We know. The corkboard kids. They\'re still alive.', 3200);
+  await showSpeechFromNPC('brunk', '(quietly) …I helped him. The pranks. The acorns.', 3000);
+  await showSpeech('You WHAT?!', 1800);
+  await showSpeechFromNPC('brunk', 'I didn\'t know what he was DOING with them. I do now. I\'m here.', 3400);
+  await showSpeechFromNPC('hazel', 'They\'re in his cellar. We checked. They\'re scared but they\'re okay.', 3600);
+
+  // ── 6.2 The cellar (compressed beat — fade-card "Later that night") ──
+  showFade(true);
+  await sleep(1200);
+  showOverlayCard('Later that night…', 2200);
+  await sleep(2500);
+
+  // ── 6.3 The rescue ──
+  showFade(false);
+  await sleep(500);
+  await showSpeechFromNPC('hazel', 'Pico, behind you — the LATCH!', 2800);
+  await showSpeech('Got it!', 1200);
+  playTone({ freq: 880, dur: 0.18, type: 'triangle', volume: 0.18 });
+  addShake(0.2);
+  await showSpeech('(the cellar door creaks open) Run! All of you, RUN!', 3200);
+  await sleep(500);
+
+  // ── 6.4 The Butcher unmasked ──
+  await showSpeechFromNPC('butcher', '(from above) You little SHELL. You don\'t understand.', 3400);
+  await showSpeech('Then EXPLAIN.', 1600);
+  await showSpeechFromNPC('butcher', 'I answer to SOMEONE. I had to. They needed the acorns…', 3800);
+  await showSpeechFromNPC('butcher', '…and I have to answer to them again. Soon.', 3000);
+
+  // ── 6.5 The morning after ──
+  showFade(true);
+  await sleep(1200);
+  showOverlayCard('The next morning.', 2000);
+  await sleep(2200);
+  showFade(false);
+
+  await showSpeechFromNPC('hazel', 'You\'ve got a reason to look forward to tomorrow now.', 3000);
+  await showSpeech('(small smile) Yeah. I do.', 2400);
+
+  await sleep(800);
+
+  // ── Credits / End card ──
+  const endHTML = `
+    <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
+      <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">THE END</div>
+      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">Diary of a Wonky Acorn</h2>
+      <p style="font-size:13px;color:rgba(255,255,255,0.5);max-width:520px;margin:0 auto 14px;line-height:1.6">
+        <b>High School Mystery</b><br>
+        Written by Noah · Built with Three.js
+      </p>
+      <p style="font-size:14px;color:rgba(255,215,64,0.85);max-width:520px;margin:0 auto 24px;line-height:1.6;font-style:italic">
+        "He answers to SOMEONE."<br>
+        Pico's story continues…
+      </p>
+      <button id="end-restart-final" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
         Play again
       </button>
     </div>
@@ -4533,9 +4880,23 @@ async function onButcherEscaped() {
     card.classList.remove('fade-out');
     card.style.display = 'flex';
     card.classList.add('show');
-    const restart = document.getElementById('end-restart-ch5');
+    const restart = document.getElementById('end-restart-final');
     if (restart) restart.addEventListener('click', () => location.reload());
   }
+}
+
+// Helper for Ch.6 — show a centred overlay caption for a few seconds
+function showOverlayCard(text, durationMs) {
+  let card = document.getElementById('overlay-card');
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'overlay-card';
+    card.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:Nunito,sans-serif;font-size:36px;font-weight:900;color:#FFD740;letter-spacing:4px;text-shadow:0 4px 20px rgba(0,0,0,0.8);z-index:25;pointer-events:none;opacity:0;transition:opacity 0.6s';
+    document.querySelector('.game-wrapper').appendChild(card);
+  }
+  card.textContent = text;
+  card.style.opacity = '1';
+  setTimeout(() => { card.style.opacity = '0'; }, durationMs);
 }
 
 // Check Ch.3 triggers each frame: Brunk fires when Pico walks past the centre of the hallway,
@@ -4614,8 +4975,7 @@ async function endChapter3() {
     if (cont) cont.addEventListener('click', () => {
       card.classList.add('fade-out');
       setTimeout(() => { card.style.display = 'none'; }, 1000);
-      // Skip Ch.4 (market) for now and jump straight to the Butcher in Ch.5
-      beginChapter5();
+      beginChapter4();
     });
     const restart = document.getElementById('end-restart-ch3');
     if (restart) restart.addEventListener('click', () => location.reload());
