@@ -1004,11 +1004,29 @@ scene.add(newBedroomGroup);
 
   // Build the list of touchable boxes — used by the unpacking mini-objective
   const boxes = [];
+  // Also build a set of box colliders (one per XZ stack — duplicates collapsed)
+  const colliderMap = new Map();
   newBedroomGroup.traverse(o => {
-    // Heuristic: any Mesh whose material is the cardboard mat counts as a "box body"
-    if (o.isMesh && o.material === boxMat) boxes.push(o);
+    if (o.isMesh && o.material === boxMat) {
+      boxes.push(o);
+      const g = o.parent;
+      // Use the box's bounding box size + the group's XZ position as the collider
+      const key = `${g.position.x.toFixed(2)},${g.position.z.toFixed(2)}`;
+      const params = o.geometry.parameters;
+      const halfW = (params.width || 1) / 2;
+      const halfD = (params.depth || 1) / 2;
+      const existing = colliderMap.get(key);
+      if (existing) {
+        // Same XZ — take the larger AABB so we don't penetrate any stacked box
+        existing.halfW = Math.max(existing.halfW, halfW);
+        existing.halfD = Math.max(existing.halfD, halfD);
+      } else {
+        colliderMap.set(key, { x: g.position.x, z: g.position.z, halfW, halfD });
+      }
+    }
   });
   newBedroomGroup.userData.boxes = boxes;
+  newBedroomGroup.userData.boxColliders = Array.from(colliderMap.values());
 })();
 
 newBedroomGroup.visible = false;
@@ -1662,6 +1680,28 @@ function tick() {
       }
     }
 
+    // New-bedroom box collision (only when player is inside that room)
+    if (newBedroomGroup.visible && newBedroomGroup.userData.boxColliders) {
+      const PR = 0.4;
+      for (const c of newBedroomGroup.userData.boxColliders) {
+        const localX = player.position.x - NEW_BEDROOM_ORIGIN.x;
+        const localZ = player.position.z - NEW_BEDROOM_ORIGIN.z;
+        const minX = c.x - c.halfW, maxX = c.x + c.halfW;
+        const minZ = c.z - c.halfD, maxZ = c.z + c.halfD;
+        if (localX > minX - PR && localX < maxX + PR && localZ > minZ - PR && localZ < maxZ + PR) {
+          const overlapL = (localX + PR) - minX;
+          const overlapR = maxX - (localX - PR);
+          const overlapF = (localZ + PR) - minZ;
+          const overlapB = maxZ - (localZ - PR);
+          const minOv = Math.min(overlapL, overlapR, overlapF, overlapB);
+          if (minOv === overlapL)      { player.position.x = NEW_BEDROOM_ORIGIN.x + minX - PR; if (playerVel.x > 0) playerVel.x = 0; }
+          else if (minOv === overlapR) { player.position.x = NEW_BEDROOM_ORIGIN.x + maxX + PR; if (playerVel.x < 0) playerVel.x = 0; }
+          else if (minOv === overlapF) { player.position.z = NEW_BEDROOM_ORIGIN.z + minZ - PR; if (playerVel.z > 0) playerVel.z = 0; }
+          else                          { player.position.z = NEW_BEDROOM_ORIGIN.z + maxZ + PR; if (playerVel.z < 0) playerVel.z = 0; }
+        }
+      }
+    }
+
     // Tree collision — push player out of any tree trunk they walk into
     const PLAYER_RADIUS = 0.4;
     for (const t of treeColliders) {
@@ -2250,6 +2290,65 @@ function showSpeechFromNPC(who, text, duration = 2000) {
   const label = labels[who] || { name: who.toUpperCase(), color: '#555' };
   return showSpeechBubble({ text, duration, npcName: label.name, npcColor: label.color });
 }
+
+// ═══════════════════════════════════════════════════════
+// PAUSE MENU — Esc or P during free roam to pause
+// ═══════════════════════════════════════════════════════
+let paused = false;
+let muted = false;
+
+function setPaused(v) {
+  paused = v;
+  const menu = document.getElementById('pause-menu');
+  if (menu) {
+    if (v) menu.classList.add('show');
+    else menu.classList.remove('show');
+  }
+  if (v) {
+    // Pause render & dust loops to save battery
+    if (rafHandle) { cancelAnimationFrame(rafHandle); rafHandle = null; }
+  } else if (!rafHandle) {
+    clock.getDelta();
+    tick();
+  }
+}
+
+function toggleMute() {
+  muted = !muted;
+  const ctx = ensureAudio();
+  if (ctx) {
+    // Disconnect/reconnect destination by setting masterGain — but we don't have one
+    // Simpler: set audioCtx volume by suspending/resuming
+    if (muted) ctx.suspend();
+    else ctx.resume();
+  }
+  const btn = document.getElementById('pause-mute');
+  if (btn) btn.textContent = muted ? 'Unmute Sound' : 'Mute Sound';
+}
+
+// Wire pause menu buttons
+{
+  const resumeBtn = document.getElementById('pause-resume');
+  if (resumeBtn) resumeBtn.addEventListener('click', () => setPaused(false));
+  const muteBtn = document.getElementById('pause-mute');
+  if (muteBtn) muteBtn.addEventListener('click', toggleMute);
+  const resetBtn = document.getElementById('pause-reset');
+  if (resetBtn) resetBtn.addEventListener('click', () => {
+    if (confirm('Reset save and reload?')) {
+      try { localStorage.removeItem('wonkyAcornIntroSeen'); } catch (e) {}
+      location.reload();
+    }
+  });
+}
+
+window.addEventListener('keydown', e => {
+  // P or Esc during free roam toggles pause
+  if ((e.code === 'KeyP' || e.code === 'Escape') && !controlsLocked) {
+    e.preventDefault();
+    setPaused(!paused);
+    return;
+  }
+});
 
 // Allow skipping the cutscene with Escape
 window.addEventListener('keydown', e => {

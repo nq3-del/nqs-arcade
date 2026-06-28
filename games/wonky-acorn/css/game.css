@@ -325,3 +325,61 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0b1224; }
   transition: opacity 0.8s ease;
 }
 #fade-overlay.show { opacity: 1; }
+
+/* ─── Pause menu ─── */
+#pause-menu {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5, 10, 24, 0.75);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  z-index: 60;
+  font-family: 'Nunito', sans-serif;
+}
+#pause-menu.show { display: flex; }
+.pause-card {
+  background: rgba(20, 30, 60, 0.85);
+  border: 2px solid rgba(255, 215, 64, 0.4);
+  border-radius: 18px;
+  padding: 36px 48px;
+  text-align: center;
+  min-width: 280px;
+  color: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+.pause-card h2 {
+  font-size: 28px; font-weight: 900;
+  color: #FFD740;
+  letter-spacing: 6px;
+  margin-bottom: 24px;
+}
+.pause-card button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 12px 16px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 14px;
+  letter-spacing: 1px;
+  background: rgba(255, 215, 64, 0.15);
+  color: #fff;
+  border: 1.5px solid rgba(255, 215, 64, 0.4);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.pause-card button:hover {
+  background: rgba(255, 215, 64, 0.35);
+  color: #1a1a2e;
+}
+.pause-card button:active { transform: scale(0.97); }
+.pause-hint {
+  margin-top: 16px;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.4);
+  letter-spacing: 1px;
+}
