@@ -2683,7 +2683,6 @@ player.name = 'player';
 scene.add(player);
 
 let pico = null;
-let picoStill = null;        // static-pose Pico used during cutscenes
 let mixer = null;
 // animation state machine
 const actions = {};         // name -> AnimationAction
@@ -4028,10 +4027,18 @@ window.addEventListener('keydown', e => {
     if (titleCard) titleCard.style.display = 'none';
     const bubble = document.getElementById('speech-bubble');
     if (bubble) { bubble.classList.remove('show'); bubble.classList.add('hide'); }
-    // Hide cutscene scenes + reset player to the new house
+    // Hide ALL cutscene scenes + cutscene-only NPCs + reset player to the new house
     bedroomGroup.visible = false;
     kitchenGroup.visible = false;
     newBedroomGroup.visible = false;
+    schoolGroup.visible = false;
+    butcherShopGroup.visible = false;
+    butcher.visible = false;
+    hazel.visible = false;
+    brunk.visible = false;
+    pemberton.visible = false;
+    houseMum.visible = false;
+    if (tearWater) { tearWater.visible = false; tearWater.scale.y = 0.1; tearWater.position.y = -0.05; }
     manualDance = null;
     const spawn = scene.userData.newHouseSpawn || new THREE.Vector3(0, 0, 0);
     player.position.copy(spawn);
