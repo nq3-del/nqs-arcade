@@ -2728,33 +2728,8 @@ loader.load(
     // Player.position now represents feet-on-ground.
     player.add(pico);
 
-    // Also load the still-pose Pico for cutscenes (no skeleton, no animation)
-    loader.load(
-      'assets/models/pico_still.glb',
-      (stillGltf) => {
-        picoStill = stillGltf.scene;
-        // Match the scale + ground offset of the animated Pico so swap is seamless
-        const sBox = new THREE.Box3().setFromObject(picoStill);
-        const sSize = new THREE.Vector3();
-        sBox.getSize(sSize);
-        if (sSize.y > 0 && isFinite(sSize.y)) {
-          const sScale = TARGET_HEIGHT / sSize.y;
-          picoStill.scale.setScalar(sScale);
-          const sNewBox = new THREE.Box3().setFromObject(picoStill);
-          picoStill.position.y -= sNewBox.min.y;
-        }
-        picoStill.traverse(o => {
-          if (o.isMesh) {
-            o.castShadow = true;
-            o.receiveShadow = false;
-          }
-        });
-        picoStill.visible = false;   // animated Pico is the default
-        player.add(picoStill);
-      },
-      undefined,
-      (err) => { console.warn('Still Pico failed to load — fallback to animated:', err); }
-    );
+    // (picoStill removed — Noah wants the regular animated Pico always.
+    //  Cutscene/idle "stillness" is now done by pausing the mixer.)
 
     // pico.glb's built-in is just T-pose (1 frame). Real animations live in pico_anims.glb (20+ clips).
     mixer = new THREE.AnimationMixer(pico);
@@ -2836,9 +2811,6 @@ function smooth(rate, dt) { return 1 - Math.exp(-rate * dt); }
 // Noah wants ALWAYS the regular animated Pico (no static swap), so this is
 // implemented by pausing the animation mixer in place. Pico freezes mid-pose.
 function setStillMode(on) {
-  // Ensure animated Pico is always the visible one
-  if (pico) pico.visible = true;
-  if (picoStill) picoStill.visible = false;
   if (!mixer) return;
   if (on) {
     // Pause the rig — Pico stays in whatever pose he was last in
@@ -2975,6 +2947,24 @@ function tick() {
     } else {
       // Above the floor and out of step-snap range — actually airborne
       grounded = false;
+    }
+
+    // Butcher storefront collision — solid building exterior
+    {
+      const sf = BUTCHER_STOREFRONT_POS;
+      const r = 0.4, halfW = 4.2, halfD = 3.7;
+      const px = player.position.x, pz = player.position.z;
+      if (px > sf.x - halfW - r && px < sf.x + halfW + r && pz > sf.z - halfD - r && pz < sf.z + halfD + r) {
+        const oL = (px + r) - (sf.x - halfW);
+        const oR = (sf.x + halfW) - (px - r);
+        const oF = (pz + r) - (sf.z - halfD);
+        const oB = (sf.z + halfD) - (pz - r);
+        const m = Math.min(oL, oR, oF, oB);
+        if (m === oL)      { player.position.x = sf.x - halfW - r; if (playerVel.x > 0) playerVel.x = 0; }
+        else if (m === oR) { player.position.x = sf.x + halfW + r; if (playerVel.x < 0) playerVel.x = 0; }
+        else if (m === oF) { player.position.z = sf.z - halfD - r; if (playerVel.z > 0) playerVel.z = 0; }
+        else               { player.position.z = sf.z + halfD + r; if (playerVel.z < 0) playerVel.z = 0; }
+      }
     }
 
     // House collision (AABB) — Pico can't walk through walls
@@ -3160,14 +3150,15 @@ function tick() {
       speed: horizontalSpeed
     };
     const wantAction = chooseAnimationState(state);
-    // Special key means "stop animating, swap to the static-pose Pico"
+    // Special key means "stop animating, Pico stays in current pose"
     // (used for the first 10s of idle so Pico doesn't dance by default).
     // We only auto-toggle still mode during free roam — cutscenes manage their own.
     if (!controlsLocked) {
+      const mixerPaused = mixer && mixer.timeScale === 0;
       if (wantAction === '__idle_still__') {
-        if (pico && pico.visible) setStillMode(true);
+        if (!mixerPaused) setStillMode(true);
       } else if (wantAction) {
-        if (picoStill && picoStill.visible) setStillMode(false);
+        if (mixerPaused) setStillMode(false);
         playAction(wantAction);
       }
     }
@@ -4577,6 +4568,8 @@ async function beginChapter5() {
   controlsLocked = true;
   setCheckpoint('butcher');
   setStillMode(true);
+  houseMum.visible = false;
+  newBedroomGroup.visible = false;
   showFade(true);
   await sleep(1100);
 
@@ -4792,6 +4785,7 @@ async function beginChapter6() {
   butcherShopGroup.visible = false;
   butcher.visible = false;
   newBedroomGroup.visible = false;
+  houseMum.visible = false;
   // Put Hazel and Brunk visible in the meadow near the new house
   hazel.position.set(-10, 0, -7);
   hazel.rotation.y = -Math.PI / 2;
