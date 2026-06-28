@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diary of a Wonky Acorn — NQ's Arcade</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../../assets/css/arcade.css">
+  <link rel="stylesheet" href="css/game.css">
+
+  <!-- Three.js (modern import map approach) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <div id="site-header" data-back-link="true"></div>
+
+  <main class="game-wrapper">
+    <canvas id="renderCanvas"></canvas>
+
+    <div id="hud">
+      <div class="hud-zone">MEADOW</div>
+      <div class="hud-controls">WASD: Move &nbsp;·&nbsp; Space: Jump &nbsp;·&nbsp; Shift: Sprint &nbsp;·&nbsp; T: Dance &nbsp;·&nbsp; Right-drag: Camera</div>
+    </div>
+
+    <!-- Touch controls (shown only on touch devices) -->
+    <div id="touch-controls">
+      <div id="touch-stick"><div id="touch-stick-knob"></div></div>
+      <div class="touch-buttons">
+        <button type="button" id="touch-jump" class="touch-btn">JUMP</button>
+        <button type="button" id="touch-dance" class="touch-btn">DANCE</button>
+      </div>
+    </div>
+
+    <div id="loading">
+      <div class="loading-card">
+        <h1>DIARY OF A WONKY ACORN</h1>
+        <p class="sub">High School Mystery</p>
+        <div class="bar"><div class="bar-fill" id="bar-fill"></div></div>
+        <p class="status" id="loading-status">Loading…</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="site-footer"></div>
+
+  <script src="../../assets/js/arcade.js"></script>
+  <script type="module" src="js/game.js"></script>
+</body>
+</html>
