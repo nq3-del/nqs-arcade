@@ -3464,7 +3464,12 @@ dustLoop();
 let controlsLocked = true;  // locked until first cutscene completes
 let stopAlarm = null;
 
+// Cutscene cancellation — Esc-skip flips this on; sleep() + showSpeech()
+// resolve immediately so async cutscenes race to their end without blocking.
+// Cutscene functions can also short-circuit by checking `cutsceneCancelled`.
+let cutsceneCancelled = false;
 function sleep(ms) {
+  if (cutsceneCancelled) return Promise.resolve();
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
@@ -3474,6 +3479,7 @@ function showSpeech(text, duration = 2000) {
 
 // Core speech-bubble function — also handles click-to-advance + NPC labels
 function showSpeechBubble({ text, duration = 2000, npcName = null, npcColor = null }) {
+  if (cutsceneCancelled) return Promise.resolve();
   const bubble = document.getElementById('speech-bubble');
   const span = document.getElementById('speech-text');
   if (!bubble || !span) return Promise.resolve();
@@ -3529,6 +3535,7 @@ async function beginIntro() {
   // User just tapped "Tap to begin" — wake the audio context (browsers require user gesture)
   ensureAudio();
   setCheckpoint('intro');
+  cutsceneCancelled = false;
 
   // Switch to still-pose Pico for the cutscene — no dancing/waving/sad sighs
   setStillMode(true);
@@ -4029,6 +4036,7 @@ window.addEventListener('keydown', e => {
       return;
     }
     console.log('Cutscene skipped');
+    cutsceneCancelled = true;
     if (stopAlarm) { stopAlarm(); stopAlarm = null; }
     if (titleCard) titleCard.style.display = 'none';
     const bubble = document.getElementById('speech-bubble');
@@ -4339,6 +4347,7 @@ async function onAllBoxesTouched() {
 async function beginChapter3() {
   controlsLocked = true;
   setCheckpoint('school');
+  cutsceneCancelled = false;
   setStillMode(true);
   // Reset NPC state so a fresh Ch.3 start (or load) is clean
   brunk.visible = false;
@@ -4534,6 +4543,7 @@ let ch4Phase = 'idle';   // idle | mumWait | mumTalking | toButcher | done
 async function beginChapter4() {
   controlsLocked = true;
   setCheckpoint('newhouse');
+  cutsceneCancelled = false;
   setStillMode(true);
   // Reset Ch.3 NPC state in case the player came in from a save mid-school
   hazel.userData.following = false;
@@ -4635,6 +4645,7 @@ function checkChapter4Triggers() {
 async function beginChapter5() {
   controlsLocked = true;
   setCheckpoint('butcher');
+  cutsceneCancelled = false;
   setStillMode(true);
   houseMum.visible = false;
   newBedroomGroup.visible = false;
@@ -4847,6 +4858,7 @@ async function onButcherEscaped() {
 async function beginChapter6() {
   controlsLocked = true;
   setCheckpoint('ending');
+  cutsceneCancelled = false;
   setStillMode(true);
   showFade(true);
   await sleep(1100);
@@ -5070,6 +5082,7 @@ function restoreHouseLights() {
 async function enterNewBedroom() {
   controlsLocked = true;
   setCheckpoint('newhouse');
+  cutsceneCancelled = false;
   setStillMode(true);   // freeze Pico for the cutscene
   // Hide other-scene NPCs in case we're loading from a later checkpoint
   hazel.visible = false;
