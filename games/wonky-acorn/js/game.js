@@ -450,6 +450,357 @@ scene.add(bedroomGroup);
 // Hide the bedroom by default — cutscene will toggle it on
 bedroomGroup.visible = false;
 
+// ═══════════════════════════════════════════════════════
+// KITCHEN (round 2 of cutscene — at a separate offset)
+// ═══════════════════════════════════════════════════════
+const KITCHEN_ORIGIN = new THREE.Vector3(0, 0, -400);
+const kitchenGroup = new THREE.Group();
+kitchenGroup.position.copy(KITCHEN_ORIGIN);
+scene.add(kitchenGroup);
+
+function makeParentAcorn(opts) {
+  // Simple primitive-based acorn parent (granny/grampa)
+  // Built so they're recognizably acorns but visually distinct from Pico
+  const group = new THREE.Group();
+  const c = opts.colors;
+
+  // Shell — slightly squat sphere, body color
+  const shellGeo = new THREE.SphereGeometry(0.45, 18, 16);
+  const shellMat = new THREE.MeshStandardMaterial({ color: c.shell, roughness: 0.65 });
+  const shell = new THREE.Mesh(shellGeo, shellMat);
+  shell.position.y = 0.6;
+  shell.scale.set(1, 1.05, 0.95);
+  shell.castShadow = true;
+  group.add(shell);
+
+  // Cap — half-sphere, cap color
+  const capGeo = new THREE.SphereGeometry(0.46, 18, 12, 0, Math.PI * 2, 0, Math.PI * 0.55);
+  const capMat = new THREE.MeshStandardMaterial({ color: c.cap, roughness: 0.7 });
+  const cap = new THREE.Mesh(capGeo, capMat);
+  cap.position.y = 0.9;
+  cap.castShadow = true;
+  group.add(cap);
+
+  // Tiny stem
+  const stem = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.03, 0.04, 0.12, 8),
+    new THREE.MeshStandardMaterial({ color: 0x5A3A20, roughness: 0.8 })
+  );
+  stem.position.y = 1.18;
+  group.add(stem);
+
+  // Belly patch (peach oval like Pico)
+  const belly = new THREE.Mesh(
+    new THREE.SphereGeometry(0.32, 14, 12),
+    new THREE.MeshStandardMaterial({ color: c.belly, roughness: 0.7 })
+  );
+  belly.position.set(0, 0.55, 0.35);
+  belly.scale.set(0.85, 0.7, 0.4);
+  group.add(belly);
+
+  // Eyes
+  const eyeWhite = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+  const eyePupil = new THREE.MeshBasicMaterial({ color: 0x000 });
+  for (const ex of [-0.13, 0.13]) {
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 10), eyeWhite);
+    w.position.set(ex, 0.78, 0.36);
+    group.add(w);
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), eyePupil);
+    p.position.set(ex, 0.78, 0.41);
+    group.add(p);
+  }
+
+  // Smile arc
+  const smileGeo = new THREE.TorusGeometry(0.07, 0.012, 8, 14, Math.PI);
+  const smile = new THREE.Mesh(smileGeo, new THREE.MeshBasicMaterial({ color: 0x222 }));
+  smile.position.set(0, 0.62, 0.43);
+  smile.rotation.z = Math.PI;
+  group.add(smile);
+
+  // Tiny stick arms
+  const armGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.6, 8);
+  const armMat = new THREE.MeshStandardMaterial({ color: c.skin, roughness: 0.75 });
+  const armL = new THREE.Mesh(armGeo, armMat);
+  armL.rotation.z = Math.PI / 3.5;
+  armL.position.set(-0.45, 0.5, 0);
+  armL.castShadow = true;
+  group.add(armL);
+  const armR = armL.clone();
+  armR.rotation.z = -Math.PI / 3.5;
+  armR.position.x = 0.45;
+  group.add(armR);
+
+  // Tiny stick legs
+  const legGeo = new THREE.CylinderGeometry(0.05, 0.05, 0.35, 8);
+  const legL = new THREE.Mesh(legGeo, armMat);
+  legL.position.set(-0.18, 0.18, 0);
+  legL.castShadow = true;
+  group.add(legL);
+  const legR = legL.clone();
+  legR.position.x = 0.18;
+  group.add(legR);
+
+  // Shoes
+  const shoeMat = new THREE.MeshStandardMaterial({ color: c.shoes, roughness: 0.5 });
+  const shoeGeo = new THREE.BoxGeometry(0.16, 0.08, 0.22);
+  for (const sx of [-0.18, 0.18]) {
+    const shoe = new THREE.Mesh(shoeGeo, shoeMat);
+    shoe.position.set(sx, 0.04, 0.05);
+    shoe.castShadow = true;
+    group.add(shoe);
+  }
+
+  // Granny: little flower on cap. Grampa: bushy moustache
+  if (opts.kind === 'granny') {
+    const flowerCenter = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 6), new THREE.MeshStandardMaterial({ color: 0xFFD740 }));
+    flowerCenter.position.set(0.18, 1.04, 0);
+    group.add(flowerCenter);
+    for (let i = 0; i < 5; i++) {
+      const angle = (i / 5) * Math.PI * 2;
+      const petal = new THREE.Mesh(new THREE.SphereGeometry(0.04, 8, 6), new THREE.MeshStandardMaterial({ color: 0xFF6B9D, roughness: 0.6 }));
+      petal.position.set(0.18 + Math.cos(angle) * 0.08, 1.04, Math.sin(angle) * 0.08);
+      group.add(petal);
+    }
+    // White hair tufts under the cap
+    const hair1 = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), new THREE.MeshStandardMaterial({ color: 0xEDEDED, roughness: 0.85 }));
+    hair1.position.set(-0.4, 0.92, 0.1);
+    group.add(hair1);
+    const hair2 = hair1.clone();
+    hair2.position.x = 0.4;
+    group.add(hair2);
+  } else {
+    // Grampa: white moustache + tiny glasses
+    const moustache = new THREE.Mesh(
+      new THREE.TorusGeometry(0.08, 0.025, 6, 12, Math.PI),
+      new THREE.MeshStandardMaterial({ color: 0xEDEDED, roughness: 0.85 })
+    );
+    moustache.position.set(0, 0.64, 0.42);
+    moustache.rotation.z = Math.PI;
+    moustache.rotation.x = -0.25;
+    group.add(moustache);
+    // Glasses (two rings)
+    const ringMat = new THREE.MeshStandardMaterial({ color: 0x333, roughness: 0.4 });
+    for (const rx of [-0.13, 0.13]) {
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.075, 0.012, 6, 16), ringMat);
+      ring.position.set(rx, 0.78, 0.44);
+      group.add(ring);
+    }
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.012, 0.012), ringMat);
+    bridge.position.set(0, 0.78, 0.44);
+    group.add(bridge);
+  }
+
+  group.userData.shell = shell;
+  return group;
+}
+
+(function buildKitchen() {
+  // Materials
+  const wallMat   = new THREE.MeshStandardMaterial({ color: 0xFFF1D0, roughness: 0.9 });
+  const floorMat  = new THREE.MeshStandardMaterial({ color: 0xBEAA82, roughness: 0.7 });
+  const woodMat   = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.65 });
+  const cabinetMat = new THREE.MeshStandardMaterial({ color: 0xE0E8DC, roughness: 0.6 });
+  const counterMat = new THREE.MeshStandardMaterial({ color: 0xF8F4ED, roughness: 0.4 });
+  const fridgeMat  = new THREE.MeshStandardMaterial({ color: 0xF5F1EA, roughness: 0.35, metalness: 0.2 });
+
+  const ROOM_W = 10, ROOM_D = 9, ROOM_H = 4;
+
+  // Floor
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), floorMat);
+  floor.rotation.x = -Math.PI / 2;
+  floor.receiveShadow = true;
+  kitchenGroup.add(floor);
+
+  // Walls
+  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_H), wallMat);
+  wallBack.position.set(0, ROOM_H / 2, -ROOM_D / 2);
+  wallBack.receiveShadow = true;
+  kitchenGroup.add(wallBack);
+
+  const wallLeft = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+  wallLeft.position.set(-ROOM_W / 2, ROOM_H / 2, 0);
+  wallLeft.rotation.y = Math.PI / 2;
+  wallLeft.receiveShadow = true;
+  kitchenGroup.add(wallLeft);
+
+  const wallRight = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_D, ROOM_H), wallMat);
+  wallRight.position.set(ROOM_W / 2, ROOM_H / 2, 0);
+  wallRight.rotation.y = -Math.PI / 2;
+  wallRight.receiveShadow = true;
+  kitchenGroup.add(wallRight);
+
+  // Ceiling
+  const ceiling = new THREE.Mesh(new THREE.PlaneGeometry(ROOM_W, ROOM_D), new THREE.MeshStandardMaterial({ color: 0xF5E8C0, roughness: 0.9 }));
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.position.y = ROOM_H;
+  kitchenGroup.add(ceiling);
+
+  // Window on back wall
+  const winFrame = new THREE.Mesh(new THREE.BoxGeometry(2.6, 1.6, 0.15), woodMat);
+  winFrame.position.set(-2.5, 2.6, -ROOM_D / 2 + 0.08);
+  kitchenGroup.add(winFrame);
+  const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 1.2), new THREE.MeshStandardMaterial({ color: 0xCFEFFC, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.75 }));
+  winGlass.position.set(-2.5, 2.6, -ROOM_D / 2 + 0.18);
+  kitchenGroup.add(winGlass);
+
+  // Counter + cabinets along back wall
+  const counterTop = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.1, 0.9), counterMat);
+  counterTop.position.set(1.2, 1.0, -ROOM_D / 2 + 0.55);
+  counterTop.castShadow = true;
+  counterTop.receiveShadow = true;
+  kitchenGroup.add(counterTop);
+  const cabinets = new THREE.Mesh(new THREE.BoxGeometry(5.5, 0.9, 0.8), cabinetMat);
+  cabinets.position.set(1.2, 0.5, -ROOM_D / 2 + 0.5);
+  cabinets.castShadow = true;
+  cabinets.receiveShadow = true;
+  kitchenGroup.add(cabinets);
+  // Cabinet handles
+  for (const cx of [-1.0, 0, 1.0, 2.0, 3.0]) {
+    const handle = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.18, 8), new THREE.MeshStandardMaterial({ color: 0x333, metalness: 0.7, roughness: 0.4 }));
+    handle.rotation.z = Math.PI / 2;
+    handle.position.set(cx, 0.5, -ROOM_D / 2 + 0.1);
+    kitchenGroup.add(handle);
+  }
+
+  // Fridge
+  const fridge = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.2, 0.9), fridgeMat);
+  fridge.position.set(4.0, 1.1, -ROOM_D / 2 + 0.6);
+  fridge.castShadow = true;
+  fridge.receiveShadow = true;
+  kitchenGroup.add(fridge);
+  // Fridge handle
+  const fridgeHandle = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.5, 0.05), new THREE.MeshStandardMaterial({ color: 0x222 }));
+  fridgeHandle.position.set(3.6, 1.5, -ROOM_D / 2 + 1.07);
+  kitchenGroup.add(fridgeHandle);
+
+  // Round dining table (centerpiece)
+  const tableTop = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.1, 32), woodMat);
+  tableTop.position.set(0, 0.9, 1.0);
+  tableTop.castShadow = true;
+  tableTop.receiveShadow = true;
+  kitchenGroup.add(tableTop);
+  // Central pedestal
+  const tablePed = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.9, 16), woodMat);
+  tablePed.position.set(0, 0.45, 1.0);
+  tablePed.castShadow = true;
+  kitchenGroup.add(tablePed);
+  // Base disk
+  const tableBase = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.08, 24), woodMat);
+  tableBase.position.set(0, 0.04, 1.0);
+  tableBase.castShadow = true;
+  kitchenGroup.add(tableBase);
+
+  // Chairs around the table (3 sides)
+  function makeChair(x, z, rotY) {
+    const chair = new THREE.Group();
+    chair.position.set(x, 0, z);
+    chair.rotation.y = rotY;
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.08, 0.7), woodMat);
+    seat.position.y = 0.55;
+    seat.castShadow = true;
+    chair.add(seat);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.8, 0.08), woodMat);
+    back.position.set(0, 0.95, -0.31);
+    back.castShadow = true;
+    chair.add(back);
+    for (const [lx, lz] of [[-0.3, -0.3], [0.3, -0.3], [-0.3, 0.3], [0.3, 0.3]]) {
+      const leg = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.55, 0.07), woodMat);
+      leg.position.set(lx, 0.275, lz);
+      leg.castShadow = true;
+      chair.add(leg);
+    }
+    return chair;
+  }
+  kitchenGroup.add(makeChair(0, 2.6, 0));         // Pico's chair (front)
+  kitchenGroup.add(makeChair(-1.6, 1.0, Math.PI / 2));   // Granny mum (left)
+  kitchenGroup.add(makeChair(1.6, 1.0, -Math.PI / 2));   // Grampa dad (right)
+
+  // Plates with pancake stacks + syrup
+  function makePancakeStack(x, z) {
+    const stack = new THREE.Group();
+    stack.position.set(x, 0.96, z);
+    // Plate
+    const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.28, 0.04, 24), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 }));
+    plate.position.y = 0.02;
+    plate.castShadow = true;
+    plate.receiveShadow = true;
+    stack.add(plate);
+    // Three pancakes
+    for (let i = 0; i < 3; i++) {
+      const pc = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.22 - i * 0.005, 0.22 - i * 0.005, 0.06, 18),
+        new THREE.MeshStandardMaterial({ color: 0xCC8B4E, roughness: 0.8 })
+      );
+      pc.position.y = 0.06 + i * 0.06;
+      pc.castShadow = true;
+      stack.add(pc);
+    }
+    // Syrup pool on top — flatter & translucent amber
+    const syrup = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.2, 0.18, 0.04, 18),
+      new THREE.MeshStandardMaterial({ color: 0x6B3A12, roughness: 0.2, transparent: true, opacity: 0.85, emissive: 0x2A1505, emissiveIntensity: 0.15 })
+    );
+    syrup.position.y = 0.27;
+    stack.add(syrup);
+    // Pat of butter
+    const butter = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.04, 0.08), new THREE.MeshStandardMaterial({ color: 0xFFF59D, roughness: 0.5 }));
+    butter.position.y = 0.31;
+    stack.add(butter);
+    return stack;
+  }
+  kitchenGroup.add(makePancakeStack(0, 1.7));   // Pico's plate
+  kitchenGroup.add(makePancakeStack(-0.9, 1.0));  // Mum's plate
+  kitchenGroup.add(makePancakeStack(0.9, 1.0));   // Dad's plate
+
+  // Syrup bottle in centre of table
+  const syrupBottle = new THREE.Group();
+  syrupBottle.position.set(0, 0.96, 1.0);
+  const bottleBody = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.25, 14), new THREE.MeshStandardMaterial({ color: 0xC8761E, roughness: 0.25, transparent: true, opacity: 0.85 }));
+  bottleBody.position.y = 0.125;
+  syrupBottle.add(bottleBody);
+  const bottleCap = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.08, 12), new THREE.MeshStandardMaterial({ color: 0x444 }));
+  bottleCap.position.y = 0.29;
+  syrupBottle.add(bottleCap);
+  kitchenGroup.add(syrupBottle);
+
+  // Parents — granny mum (left chair) and grampa dad (right chair)
+  const granny = makeParentAcorn({
+    kind: 'granny',
+    colors: { shell: 0xE6C99B, cap: 0x8B5A2B, belly: 0xFFE4D1, skin: 0xF0C9A8, shoes: 0x6B4632 }
+  });
+  granny.position.set(-1.6, 0, 1.0);   // sitting at chair (but standing for simplicity)
+  granny.rotation.y = Math.PI / 2;       // facing the table (right)
+  granny.scale.setScalar(1.1);
+  kitchenGroup.add(granny);
+
+  const grampa = makeParentAcorn({
+    kind: 'grampa',
+    colors: { shell: 0xB89070, cap: 0x5A3A20, belly: 0xE8C9A8, skin: 0xD9B08A, shoes: 0x3A2818 }
+  });
+  grampa.position.set(1.6, 0, 1.0);
+  grampa.rotation.y = -Math.PI / 2;      // facing the table (left)
+  grampa.scale.setScalar(1.15);
+  kitchenGroup.add(grampa);
+
+  // Save references for the cutscene
+  kitchenGroup.userData.granny = granny;
+  kitchenGroup.userData.grampa = grampa;
+
+  // Warm kitchen ceiling light
+  const ceilingLight = new THREE.PointLight(0xFFE4B0, 1.6, 14);
+  ceilingLight.position.set(0, 3.5, 1.0);
+  ceilingLight.castShadow = true;
+  kitchenGroup.add(ceilingLight);
+
+  // Window light from outside
+  const winLight = new THREE.PointLight(0xCFE0F8, 0.6, 8);
+  winLight.position.set(-2.5, 2.6, -2);
+  kitchenGroup.add(winLight);
+})();
+
+// Hide kitchen by default
+kitchenGroup.visible = false;
+
 // ─── Camera ───────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500);
 
@@ -1246,10 +1597,70 @@ async function beginIntro() {
   SFX.ready();
   await showSpeech("I'M READY!", 1600);
 
-  // ── Cut to meadow ──
+  // ── Fade to kitchen ──
   showFade(true);
   await sleep(900);
   bedroomGroup.visible = false;
+  kitchenGroup.visible = true;
+  // Move Pico into the kitchen at his chair (front of table)
+  player.position.copy(KITCHEN_ORIGIN);
+  player.position.z += 2.6;       // sitting at the front chair
+  facingY = Math.PI;              // facing the table (and parents)
+  player.rotation.y = Math.PI;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+  // Camera framing: wide shot of the family at the table
+  camState.target.copy(KITCHEN_ORIGIN);
+  camState.target.y = 1.2;
+  camState.target.z += 1.4;
+  camState.distance = 6.0;
+  camState.yaw = 0;               // looking down -Z (toward back wall + parents on either side)
+  camState.pitch = 0.32;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  await sleep(800);
+
+  // Lock Pico into the "Big_Wave_Hello" greeting (closest to "sitting at table" we have)
+  if (actions['Big_Wave_Hello']) {
+    playAction('Big_Wave_Hello', 0.3);
+    manualDance = 'Big_Wave_Hello';
+    manualDanceUntil = performance.now() + 12000;
+  }
+
+  // Make granny/grampa do a gentle bob to look alive
+  const granny = kitchenGroup.userData.granny;
+  const grampa = kitchenGroup.userData.grampa;
+  let parentBobActive = true;
+  const parentBobStart = performance.now();
+  (function bobParents() {
+    if (!parentBobActive) return;
+    const t = (performance.now() - parentBobStart) / 1000;
+    if (granny) granny.position.y = Math.sin(t * 2.5) * 0.04;
+    if (grampa) grampa.position.y = Math.sin(t * 2.5 + 0.5) * 0.04;
+    requestAnimationFrame(bobParents);
+  })();
+
+  // ── Dialogue beats ──
+  await showSpeech('Pancakes! My favourite!', 1800);
+  await sleep(400);
+  await showSpeechFromNPC('granny', '— Sit down, sweetheart. We need to talk.', 2400);
+  await sleep(400);
+  await showSpeechFromNPC('grampa', 'Bad news, son… we\'re moving.', 2400);
+  await sleep(400);
+  await showSpeechFromNPC('grampa', 'Pack up and say your goodbyes.', 2200);
+  await sleep(300);
+
+  // Pico's reaction — big NOOOO speech
+  await showSpeech('NOOOOOOOOOOOO!', 2400);
+
+  parentBobActive = false;
+
+  // ── Fade to meadow (round 4: tears + drive away — coming soon) ──
+  showFade(true);
+  await sleep(900);
+  kitchenGroup.visible = false;
+  manualDance = null;
   player.position.set(0, 0, 0);
   facingY = 0;
   player.rotation.y = 0;
@@ -1267,6 +1678,28 @@ async function beginIntro() {
   // Hand control over to the player
   controlsLocked = false;
   hudEl.classList.add('show');
+}
+
+// Helper: show a speech bubble tagged with an NPC name
+function showSpeechFromNPC(who, text, duration = 2000) {
+  const bubble = document.getElementById('speech-bubble');
+  const span = document.getElementById('speech-text');
+  if (!bubble || !span) return Promise.resolve();
+  const labels = {
+    granny: { name: 'MUM', color: '#D16A6A' },
+    grampa: { name: 'DAD', color: '#5A3A20' }
+  };
+  const label = labels[who] || { name: who.toUpperCase(), color: '#555' };
+  span.innerHTML = `<span style="display:block;font-size:14px;font-weight:900;color:${label.color};letter-spacing:1px;margin-bottom:6px">${label.name}</span>${text}`;
+  bubble.classList.remove('hide');
+  bubble.classList.add('show');
+  return new Promise(resolve => {
+    setTimeout(() => {
+      bubble.classList.remove('show');
+      bubble.classList.add('hide');
+      setTimeout(resolve, 320);
+    }, duration);
+  });
 }
 
 // Allow skipping the cutscene with Escape (handy while we iterate)
