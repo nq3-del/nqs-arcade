@@ -5071,6 +5071,15 @@ async function enterNewBedroom() {
   controlsLocked = true;
   setCheckpoint('newhouse');
   setStillMode(true);   // freeze Pico for the cutscene
+  // Hide other-scene NPCs in case we're loading from a later checkpoint
+  hazel.visible = false;
+  brunk.visible = false;
+  pemberton.visible = false;
+  butcher.visible = false;
+  butcherShopGroup.visible = false;
+  schoolGroup.visible = false;
+  houseMum.visible = false;
+  hazel.userData.following = false;
   // Reset Ch.2 box mini-objective so a fresh run / save-load works
   allBoxesTouched = false;
   if (newBedroomGroup.userData.boxes) {
