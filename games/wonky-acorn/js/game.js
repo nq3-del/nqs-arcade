@@ -819,6 +819,168 @@ function makeParentAcorn(opts) {
 // Hide kitchen by default
 kitchenGroup.visible = false;
 
+// ═══════════════════════════════════════════════════════
+// NEW HOUSE in the meadow — Pico's new home
+// ═══════════════════════════════════════════════════════
+(function buildNewHouse() {
+  const houseGroup = new THREE.Group();
+  // Position the house at one end of the meadow, leaving an open garden in front of it
+  houseGroup.position.set(-12, 0, -12);
+  scene.add(houseGroup);
+
+  const wallMat = new THREE.MeshStandardMaterial({ color: 0xF7E6C7, roughness: 0.85 });
+  const trimMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0x9C3A2A, roughness: 0.75 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x4E2A12, roughness: 0.65 });
+  const winMat  = new THREE.MeshStandardMaterial({ color: 0x9DD9F2, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.75 });
+  const winFrameMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.6 });
+  const fenceMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.8 });
+
+  const W = 6, D = 5, H1 = 3, H2 = 3;
+  const totalH = H1 + H2;
+
+  // Main house body — 2 storeys
+  const body = new THREE.Mesh(new THREE.BoxGeometry(W, totalH, D), wallMat);
+  body.position.y = totalH / 2;
+  body.castShadow = true;
+  body.receiveShadow = true;
+  houseGroup.add(body);
+
+  // Floor divider trim (between 1st and 2nd storey)
+  const trim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.1, 0.15, D + 0.1), trimMat);
+  trim.position.y = H1;
+  trim.castShadow = true;
+  houseGroup.add(trim);
+
+  // Pitched roof — two slanted planes plus end triangles
+  const roofPitchA = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.15, D / 2 + 0.5), roofMat);
+  roofPitchA.position.set(0, totalH + 0.7, -D / 4);
+  roofPitchA.rotation.x = -Math.PI * 0.18;
+  roofPitchA.castShadow = true;
+  houseGroup.add(roofPitchA);
+  const roofPitchB = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.15, D / 2 + 0.5), roofMat);
+  roofPitchB.position.set(0, totalH + 0.7, D / 4);
+  roofPitchB.rotation.x = Math.PI * 0.18;
+  roofPitchB.castShadow = true;
+  houseGroup.add(roofPitchB);
+  // Chimney
+  const chimney = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.0, 0.45), new THREE.MeshStandardMaterial({ color: 0x886666, roughness: 0.9 }));
+  chimney.position.set(W * 0.3, totalH + 1.3, -D * 0.1);
+  chimney.castShadow = true;
+  houseGroup.add(chimney);
+
+  // Front door (centered)
+  const door = new THREE.Mesh(new THREE.BoxGeometry(1.1, 2.0, 0.12), doorMat);
+  door.position.set(0, 1.0, D / 2 + 0.07);
+  door.castShadow = true;
+  houseGroup.add(door);
+  // Door knob
+  const knob = new THREE.Mesh(new THREE.SphereGeometry(0.05, 12, 10), new THREE.MeshStandardMaterial({ color: 0xC8A23A, metalness: 0.8, roughness: 0.3 }));
+  knob.position.set(0.4, 1.0, D / 2 + 0.14);
+  houseGroup.add(knob);
+  // Welcome mat
+  const mat = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.6), new THREE.MeshStandardMaterial({ color: 0x6F4E2E, roughness: 0.95 }));
+  mat.rotation.x = -Math.PI / 2;
+  mat.position.set(0, 0.005, D / 2 + 0.45);
+  houseGroup.add(mat);
+
+  // Windows — 2 ground floor (either side of door), 2 upper floor
+  function addWindow(x, y) {
+    const frame = new THREE.Mesh(new THREE.BoxGeometry(1.1, 1.0, 0.08), winFrameMat);
+    frame.position.set(x, y, D / 2 + 0.05);
+    houseGroup.add(frame);
+    const glass = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 0.78), winMat);
+    glass.position.set(x, y, D / 2 + 0.1);
+    houseGroup.add(glass);
+    // Cross
+    const cv = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.78, 0.04), winFrameMat);
+    cv.position.set(x, y, D / 2 + 0.11);
+    houseGroup.add(cv);
+    const ch = new THREE.Mesh(new THREE.BoxGeometry(0.85, 0.04, 0.04), winFrameMat);
+    ch.position.set(x, y, D / 2 + 0.11);
+    houseGroup.add(ch);
+  }
+  addWindow(-2.0, 1.4);   // ground left
+  addWindow( 2.0, 1.4);   // ground right
+  addWindow(-1.6, 4.4);   // upper left
+  addWindow( 1.6, 4.4);   // upper right
+
+  // Small porch step
+  const step = new THREE.Mesh(new THREE.BoxGeometry(2.0, 0.2, 0.5), new THREE.MeshStandardMaterial({ color: 0xB0A48B, roughness: 0.85 }));
+  step.position.set(0, 0.1, D / 2 + 0.25);
+  step.receiveShadow = true;
+  houseGroup.add(step);
+
+  // ── Picket fence around a small garden plot in front of the house ──
+  // Garden = the meadow area visible from the path
+  const fenceY = 0.5;
+  const POST_SPACING = 1.0;
+  function addFenceSegment(x1, z1, x2, z2) {
+    const len = Math.hypot(x2 - x1, z2 - z1);
+    const segments = Math.floor(len / POST_SPACING);
+    const angle = Math.atan2(z2 - z1, x2 - x1);
+    for (let i = 0; i <= segments; i++) {
+      const t = i / segments;
+      const px = x1 + (x2 - x1) * t;
+      const pz = z1 + (z2 - z1) * t;
+      // Picket
+      const picket = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.7, 0.08), fenceMat);
+      picket.position.set(px, fenceY, pz);
+      picket.castShadow = true;
+      houseGroup.add(picket);
+      // Pointy tip
+      const tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.15, 4), fenceMat);
+      tip.position.set(px, fenceY + 0.4, pz);
+      tip.rotation.y = Math.PI / 4;
+      houseGroup.add(tip);
+    }
+    // Horizontal rails (top and bottom)
+    for (const railY of [fenceY - 0.15, fenceY + 0.2]) {
+      const rail = new THREE.Mesh(new THREE.BoxGeometry(len, 0.06, 0.06), fenceMat);
+      rail.position.set((x1 + x2) / 2, railY, (z1 + z2) / 2);
+      rail.rotation.y = -angle;
+      houseGroup.add(rail);
+    }
+  }
+  // 3-sided fence (front + 2 sides), leaving the back open
+  addFenceSegment(-4.5, D / 2 + 4, 4.5, D / 2 + 4);     // front
+  addFenceSegment(-4.5, D / 2 + 4, -4.5, D / 2 + 0.5);  // left side
+  addFenceSegment( 4.5, D / 2 + 4,  4.5, D / 2 + 0.5);  // right side
+
+  // Mailbox by the gate
+  const mailPost = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.0, 8), new THREE.MeshStandardMaterial({ color: 0x4E2A12, roughness: 0.7 }));
+  mailPost.position.set(-3.8, 0.5, D / 2 + 3.8);
+  mailPost.castShadow = true;
+  houseGroup.add(mailPost);
+  const mailbox = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.25, 0.5), new THREE.MeshStandardMaterial({ color: 0x3F6FB5, roughness: 0.5 }));
+  mailbox.position.set(-3.8, 1.1, D / 2 + 3.8);
+  mailbox.castShadow = true;
+  houseGroup.add(mailbox);
+  const mailFlag = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.18, 0.18), new THREE.MeshStandardMaterial({ color: 0xCC2222 }));
+  mailFlag.position.set(-3.6, 1.18, D / 2 + 3.8);
+  houseGroup.add(mailFlag);
+
+  // Stone path from gate to door
+  const pathMat = new THREE.MeshStandardMaterial({ color: 0xB0A48B, roughness: 0.95 });
+  for (let i = 0; i < 6; i++) {
+    const slab = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.06, 0.6), pathMat);
+    slab.position.set(0, 0.03, D / 2 + 3.6 - i * 0.5);
+    slab.receiveShadow = true;
+    houseGroup.add(slab);
+  }
+
+  // Save reference so the cutscene can spawn the player on the welcome mat
+  scene.userData.newHouseGroup = houseGroup;
+  scene.userData.newHouseSpawn = new THREE.Vector3(-12, 0, -12 + D / 2 + 3.5);  // just inside the front gate
+  // AABB collider for the house body (Pico can't walk through walls)
+  scene.userData.houseCollider = {
+    minX: -12 - W / 2 - 0.2,
+    maxX: -12 + W / 2 + 0.2,
+    minZ: -12 - D / 2 - 0.2,
+    maxZ: -12 + D / 2 + 0.2
+  };
+})();
+
 // ─── Camera ───────────────────────────────────────────
 const camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 500);
 
@@ -1258,6 +1420,26 @@ function tick() {
       player.position.y = 0;
       playerVel.y = 0;
       grounded = true;
+    }
+
+    // House collision (AABB) — Pico can't walk through walls
+    const house = scene.userData.houseCollider;
+    if (house) {
+      const px = player.position.x;
+      const pz = player.position.z;
+      const r = 0.4;
+      if (px > house.minX - r && px < house.maxX + r && pz > house.minZ - r && pz < house.maxZ + r) {
+        // Find shortest push-out distance on each axis
+        const overlapL = (px + r) - house.minX;  // push left
+        const overlapR = house.maxX - (px - r);  // push right
+        const overlapF = (pz + r) - house.minZ;  // push forward (-z)
+        const overlapB = house.maxZ - (pz - r);  // push back (+z)
+        const minOverlap = Math.min(overlapL, overlapR, overlapF, overlapB);
+        if (minOverlap === overlapL)       { player.position.x = house.minX - r; if (playerVel.x > 0) playerVel.x = 0; }
+        else if (minOverlap === overlapR)  { player.position.x = house.maxX + r; if (playerVel.x < 0) playerVel.x = 0; }
+        else if (minOverlap === overlapF)  { player.position.z = house.minZ - r; if (playerVel.z > 0) playerVel.z = 0; }
+        else                               { player.position.z = house.maxZ + r; if (playerVel.z < 0) playerVel.z = 0; }
+      }
     }
 
     // Tree collision — push player out of any tree trunk they walk into
@@ -1741,18 +1923,25 @@ async function beginIntro() {
     tearWater.position.y = -0.05;
   }
   manualDance = null;
-  player.position.set(0, 0, 0);
-  facingY = 0;
-  player.rotation.y = 0;
+  // Spawn just inside the front gate of the new house, facing the house
+  const spawn = scene.userData.newHouseSpawn || new THREE.Vector3(0, 0, 0);
+  player.position.copy(spawn);
+  facingY = Math.PI;            // face the house (which is in the -Z direction from spawn)
+  player.rotation.y = Math.PI;
   playerVel.set(0, 0, 0);
   grounded = true;
-  camState.target.set(0, 1, 0);
-  camState.distance = 5;
-  camState.yaw = 0;
+  camState.target.copy(spawn);
+  camState.target.y = 1;
+  camState.distance = 8;        // pull back to show Pico + the house behind him in frame
+  camState.yaw = 0;             // camera behind player (player faces -Z toward house)
   camState.pitch = 0.35;
   updateCamera();
   await sleep(200);
   showFade(false);
+  await sleep(800);
+
+  // Brief "welcome" caption
+  await showSpeechFromNPC('granny', 'Go on in and unpack, sweetheart. We\'ll be in in a minute.', 3200);
   await sleep(400);
 
   // Hand control over to the player
