@@ -4750,6 +4750,17 @@ async function beginChapter5() {
   if (objEl) {
     objEl.querySelector('.objective-text').textContent = 'RUN to the door!';
   }
+  // Re-orient camera + Pico so W=forward=south=toward the door (the exit).
+  // yaw=PI puts the camera NORTH of Pico, looking south; facingY=PI turns
+  // Pico to face +Z (south) so pressing W moves him toward the door.
+  camState.target.copy(player.position);
+  camState.target.y = 1;
+  camState.distance = 6;
+  camState.yaw = Math.PI;
+  camState.pitch = 0.18;
+  facingY = Math.PI;
+  player.rotation.y = Math.PI;
+  updateCamera();
   controlsLocked = false;
 }
 
