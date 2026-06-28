@@ -2631,13 +2631,6 @@ async function beginIntro() {
   playerVel.set(0, 0, 0);
   grounded = true;
 
-  // Pico starts the kitchen happy (pancakes!) but turns sad after the bad news.
-  // Lock to Big_Wave_Hello for the opening "Pancakes!" beat instead of full dance.
-  if (actions['Big_Wave_Hello']) {
-    manualDance = 'Big_Wave_Hello';
-    manualDanceUntil = performance.now() + 10000;
-    playAction('Big_Wave_Hello', 0.3);
-  }
   // Camera framing: wide shot of the family at the table
   camState.target.copy(KITCHEN_ORIGIN);
   camState.target.y = 1.2;
@@ -2673,13 +2666,6 @@ async function beginIntro() {
   await sleep(400);
   await showSpeechFromNPC('grampa', 'Pack up and say your goodbyes.', 2200);
   await sleep(300);
-
-  // The bad news lands — switch Pico from happy to weary/sad pose
-  if (actions['Catching_Breath']) {
-    manualDance = 'Catching_Breath';
-    manualDanceUntil = performance.now() + 30000;
-    playAction('Catching_Breath', 0.4);
-  }
 
   // Pico's reaction — big NOOOO speech
   await showSpeech('NOOOOOOOOOOOO!', 2400);
@@ -2726,12 +2712,6 @@ async function beginIntro() {
   await sleep(400);
 
   // ── Soggy pancake joke ──
-  // Pico eats a pancake (use Catching_Breath as a "sigh + chew" mime)
-  if (actions['Catching_Breath']) {
-    playAction('Catching_Breath', 0.3);
-    manualDance = 'Catching_Breath';
-    manualDanceUntil = performance.now() + 4000;
-  }
   await sleep(900);
   await showSpeech('Could do with a little less salt.', 2600);
   await sleep(500);
@@ -2755,11 +2735,6 @@ async function beginIntro() {
     tearWater.visible = false;
     tearWater.scale.y = 0.1;
     tearWater.position.y = -0.05;
-  }
-  // Keep Pico in the weary sad pose through the arrival — he's not happy here
-  if (actions['Catching_Breath']) {
-    manualDance = 'Catching_Breath';
-    manualDanceUntil = performance.now() + 20000;
   }
   // Spawn just inside the front gate of the new house, facing the house
   const spawn = scene.userData.newHouseSpawn || new THREE.Vector3(0, 0, 0);
@@ -3455,12 +3430,6 @@ async function enterNewBedroom() {
   await sleep(200);
   showFade(false);
   await sleep(700);
-
-  // Pico is sad — keep the weary pose
-  if (actions['Catching_Breath']) {
-    manualDance = 'Catching_Breath';
-    manualDanceUntil = performance.now() + 60000;
-  }
 
   // Update HUD label to show new zone + new objective
   lastZoneLabel = '';  // force a re-render next frame
