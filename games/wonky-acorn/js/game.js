@@ -931,14 +931,16 @@ function getHouseFloorY(localX, localZ, currentY) {
 
 (function buildNewHouse() {
   // ───────── Materials ─────────
-  const wallMat   = new THREE.MeshStandardMaterial({ color: 0xE8E4DA, roughness: 0.92 });
-  const wallWarmMat = new THREE.MeshStandardMaterial({ color: 0xE6CDA8, roughness: 0.9 });  // downstairs (warmer)
+  // DoubleSide on the walls so the camera (which can sit just outside the
+  // wall in tight rooms) still sees opaque wall instead of the sky beyond.
+  const wallMat   = new THREE.MeshStandardMaterial({ color: 0xE8E4DA, roughness: 0.92, side: THREE.DoubleSide });
+  const wallWarmMat = new THREE.MeshStandardMaterial({ color: 0xE6CDA8, roughness: 0.9, side: THREE.DoubleSide });  // downstairs (warmer)
   const floorWood = new THREE.MeshStandardMaterial({ color: 0xC9A77C, roughness: 0.65 });
   const floorPlank = new THREE.MeshStandardMaterial({ color: 0xA47B4A, roughness: 0.75 });  // downstairs darker plank
   const trimMat   = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 });
   const boxMat    = new THREE.MeshStandardMaterial({ color: 0xB48A60, roughness: 0.85 });
   const boxTapeMat = new THREE.MeshStandardMaterial({ color: 0xC8A878, roughness: 0.6 });
-  const windowMat = new THREE.MeshStandardMaterial({ color: 0xCFEFFC, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.75 });
+  const windowMat = new THREE.MeshStandardMaterial({ color: 0xE8F4FC, roughness: 0.05, metalness: 0.5, transparent: true, opacity: 0.95, emissive: 0xFFE5B8, emissiveIntensity: 0.15 });
   const stairTreadMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.7 });
   const stairRiserMat = new THREE.MeshStandardMaterial({ color: 0x5A3A1E, roughness: 0.7 });
   const sofaMat = new THREE.MeshStandardMaterial({ color: 0x6FA8B0, roughness: 0.85 });
@@ -975,23 +977,25 @@ function getHouseFloorY(localX, localZ, currentY) {
   upFloor.receiveShadow = true;
   newBedroomGroup.add(upFloor);
 
-  // North (back) wall — full height upstairs
-  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(H_HW * 2, UPSTAIRS_CEIL - UPSTAIRS_Y), wallMat);
-  wallBack.position.set(0, (UPSTAIRS_Y + UPSTAIRS_CEIL) / 2, UP_BACK);
+  // North (back) wall — FULL height (downstairs + upstairs in one piece)
+  const wallBack = new THREE.Mesh(new THREE.PlaneGeometry(H_HW * 2, UPSTAIRS_CEIL), wallMat);
+  wallBack.position.set(0, UPSTAIRS_CEIL / 2, UP_BACK);
   wallBack.receiveShadow = true;
   newBedroomGroup.add(wallBack);
 
-  // Upstairs east + west walls (run the length of the upstairs region)
+  // East + West walls — FULL house length AND FULL height, so the kitchen
+  // (downstairs, z<-1) has the same enclosure as the upstairs bedroom.
   const upWallLen = UP_FRONT - UP_BACK;
-  const upWallW = new THREE.Mesh(new THREE.PlaneGeometry(upWallLen, UPSTAIRS_CEIL - UPSTAIRS_Y), wallMat);
-  upWallW.position.set(-H_HW, (UPSTAIRS_Y + UPSTAIRS_CEIL) / 2, (UP_BACK + UP_FRONT) / 2);
-  upWallW.rotation.y = Math.PI / 2;
-  upWallW.receiveShadow = true;
-  newBedroomGroup.add(upWallW);
-  const upWallE = upWallW.clone();
-  upWallE.position.x = H_HW;
-  upWallE.rotation.y = -Math.PI / 2;
-  newBedroomGroup.add(upWallE);
+  const fullHouseLen = DOWN_FRONT - UP_BACK;
+  const sideWallW = new THREE.Mesh(new THREE.PlaneGeometry(fullHouseLen, UPSTAIRS_CEIL), wallMat);
+  sideWallW.position.set(-H_HW, UPSTAIRS_CEIL / 2, (UP_BACK + DOWN_FRONT) / 2);
+  sideWallW.rotation.y = Math.PI / 2;
+  sideWallW.receiveShadow = true;
+  newBedroomGroup.add(sideWallW);
+  const sideWallE = sideWallW.clone();
+  sideWallE.position.x = H_HW;
+  sideWallE.rotation.y = -Math.PI / 2;
+  newBedroomGroup.add(sideWallE);
 
   // South wall of upstairs has a doorway in the middle (Pico's bedroom door
   // opens onto the landing). Build two wall segments either side of the door.
@@ -1150,16 +1154,8 @@ function getHouseFloorY(localX, localZ, currentY) {
   downCeil.position.set(0, DOWNSTAIRS_CEIL, (STAIR_BOT_LZ + DOWN_FRONT) / 2);
   newBedroomGroup.add(downCeil);
 
-  // Downstairs side walls (full house length)
-  const downWallW = new THREE.Mesh(new THREE.PlaneGeometry(downLen, DOWNSTAIRS_CEIL), wallWarmMat);
-  downWallW.position.set(-H_HW, DOWNSTAIRS_CEIL / 2, (DOWN_BACK + DOWN_FRONT) / 2);
-  downWallW.rotation.y = Math.PI / 2;
-  downWallW.receiveShadow = true;
-  newBedroomGroup.add(downWallW);
-  const downWallE = downWallW.clone();
-  downWallE.position.x = H_HW;
-  downWallE.rotation.y = -Math.PI / 2;
-  newBedroomGroup.add(downWallE);
+  // (downstairs east/west walls are now part of the unified full-height
+  //  sideWallW / sideWallE above — no separate downstairs side walls needed)
 
   // South wall (FRONT of the house) has a door in the middle
   const FRONT_DOOR_W = 1.8, FRONT_DOOR_H = 2.5;
@@ -1502,6 +1498,126 @@ houseMum.position.set(NEW_BEDROOM_ORIGIN.x + 1.0, 0, NEW_BEDROOM_ORIGIN.z + 6.0)
 houseMum.rotation.y = 0;
 houseMum.visible = false;
 scene.add(houseMum);
+
+// ═══════════════════════════════════════════════════════
+// CONKER HEIGHTS HIGH SCHOOL — visible exterior in the meadow.
+// Pico walks up to it for the start of Ch.3 (his first day).
+// ═══════════════════════════════════════════════════════
+const SCHOOL_STOREFRONT_POS = new THREE.Vector3(-26, 0, -8);
+const schoolStorefront = new THREE.Group();
+schoolStorefront.position.copy(SCHOOL_STOREFRONT_POS);
+scene.add(schoolStorefront);
+(function buildSchoolStorefront() {
+  const brickMat = new THREE.MeshStandardMaterial({ color: 0x9B5A3E, roughness: 0.85 });
+  const trimMat  = new THREE.MeshStandardMaterial({ color: 0xE8DDC8, roughness: 0.7 });
+  const windowMat = new THREE.MeshStandardMaterial({ color: 0xDDF5FF, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.6 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x3A2818, roughness: 0.6 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: 0x3A3A38, roughness: 0.85 });
+  const flagPoleMat = new THREE.MeshStandardMaterial({ color: 0xC8CCD2, roughness: 0.3, metalness: 0.5 });
+  const flagMat = new THREE.MeshStandardMaterial({ color: 0xE54B4B, roughness: 0.7 });
+  const W = 10, D = 6, H = 7;
+
+  // Main building body (two storey, taller than butcher)
+  const body = new THREE.Mesh(new THREE.BoxGeometry(W, H, D), brickMat);
+  body.position.set(0, H / 2, 0);
+  body.castShadow = true;
+  body.receiveShadow = true;
+  schoolStorefront.add(body);
+  // Trim band at first-floor level
+  const trim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.3, 0.25, D + 0.3), trimMat);
+  trim.position.set(0, 3.4, 0);
+  schoolStorefront.add(trim);
+  // Roof trim
+  const topTrim = new THREE.Mesh(new THREE.BoxGeometry(W + 0.4, 0.3, D + 0.4), trimMat);
+  topTrim.position.set(0, H - 0.15, 0);
+  schoolStorefront.add(topTrim);
+  // Flat roof
+  const roof = new THREE.Mesh(new THREE.BoxGeometry(W + 0.2, 0.2, D + 0.2), roofMat);
+  roof.position.set(0, H, 0);
+  schoolStorefront.add(roof);
+
+  // Windows — grid of 6 (2 rows × 3) on the front face
+  for (let row = 0; row < 2; row++) {
+    for (let col = 0; col < 3; col++) {
+      const wx = -3 + col * 3;
+      const wy = 2 + row * 2.5;
+      const winFrame = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.1, 0.15), trimMat);
+      winFrame.position.set(wx, wy, D / 2 + 0.05);
+      schoolStorefront.add(winFrame);
+      const winGlass = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 0.95), windowMat);
+      winGlass.position.set(wx, wy, D / 2 + 0.13);
+      schoolStorefront.add(winGlass);
+      // Cross
+      const cross = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.95, 0.04), trimMat);
+      cross.position.set(wx, wy, D / 2 + 0.15);
+      schoolStorefront.add(cross);
+    }
+  }
+
+  // Big double doors (centre front)
+  const doorL = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.6, 0.2), doorMat);
+  doorL.position.set(-0.55, 1.3, D / 2 + 0.06);
+  doorL.castShadow = true;
+  schoolStorefront.add(doorL);
+  const doorR = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.6, 0.2), doorMat);
+  doorR.position.set(0.55, 1.3, D / 2 + 0.06);
+  doorR.castShadow = true;
+  schoolStorefront.add(doorR);
+  // Brass handles
+  const handleMat = new THREE.MeshStandardMaterial({ color: 0xDDB347, roughness: 0.3, metalness: 0.85 });
+  const handleL = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.4, 0.06), handleMat);
+  handleL.position.set(-0.15, 1.3, D / 2 + 0.18);
+  schoolStorefront.add(handleL);
+  const handleR = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.4, 0.06), handleMat);
+  handleR.position.set(0.15, 1.3, D / 2 + 0.18);
+  schoolStorefront.add(handleR);
+
+  // Big steps leading up to the door
+  for (let i = 0; i < 3; i++) {
+    const step = new THREE.Mesh(new THREE.BoxGeometry(3, 0.18, 0.6 - i * 0.1), trimMat);
+    step.position.set(0, 0.09 + i * 0.18, D / 2 + 1.2 - i * 0.55);
+    step.castShadow = true;
+    schoolStorefront.add(step);
+  }
+
+  // BIG SIGN above the door — "CONKER HEIGHTS HIGH"
+  const signBack = new THREE.Mesh(new THREE.BoxGeometry(7.5, 1.2, 0.25), trimMat);
+  signBack.position.set(0, 5.5, D / 2 + 0.15);
+  schoolStorefront.add(signBack);
+  const signCanvas = document.createElement('canvas');
+  signCanvas.width = 1024; signCanvas.height = 200;
+  const sctx = signCanvas.getContext('2d');
+  sctx.fillStyle = '#E8DDC8';
+  sctx.fillRect(0, 0, 1024, 200);
+  sctx.fillStyle = '#1a1a2e';
+  sctx.font = 'bold 78px Nunito, sans-serif';
+  sctx.textAlign = 'center'; sctx.textBaseline = 'middle';
+  sctx.fillText('CONKER HEIGHTS', 512, 80);
+  sctx.font = 'bold 56px Nunito, sans-serif';
+  sctx.fillStyle = '#7A3E2A';
+  sctx.fillText('HIGH SCHOOL', 512, 150);
+  const signTex = new THREE.CanvasTexture(signCanvas);
+  signTex.colorSpace = THREE.SRGBColorSpace;
+  const signPanel = new THREE.Mesh(new THREE.PlaneGeometry(7.4, 1.15), new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.8 }));
+  signPanel.position.set(0, 5.5, D / 2 + 0.28);
+  schoolStorefront.add(signPanel);
+
+  // Flagpole + flag on the roof
+  const flagPole = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.5, 8), flagPoleMat);
+  flagPole.position.set(-4, H + 1.25, 0);
+  schoolStorefront.add(flagPole);
+  const flag = new THREE.Mesh(new THREE.PlaneGeometry(0.8, 0.5), flagMat);
+  flag.position.set(-3.55, H + 2, 0);
+  schoolStorefront.add(flag);
+
+  // Paving in front
+  const paving = new THREE.Mesh(new THREE.PlaneGeometry(W + 2, 3.5), new THREE.MeshStandardMaterial({ color: 0xA09890, roughness: 0.85 }));
+  paving.rotation.x = -Math.PI / 2;
+  paving.position.set(0, 0.02, D / 2 + 1.75);
+  schoolStorefront.add(paving);
+
+  schoolStorefront.userData.doorWorldPos = new THREE.Vector3(SCHOOL_STOREFRONT_POS.x, 0, SCHOOL_STOREFRONT_POS.z + D / 2 + 1.5);
+})();
 
 // ═══════════════════════════════════════════════════════
 // BUTCHER STOREFRONT — visible exterior in the meadow.
@@ -3029,6 +3145,23 @@ function tick() {
         else               { player.position.z = sf.z + halfD + r; if (playerVel.z < 0) playerVel.z = 0; }
       }
     }
+    // School storefront collision
+    {
+      const sf = SCHOOL_STOREFRONT_POS;
+      const r = 0.4, halfW = 5.2, halfD = 3.2;
+      const px = player.position.x, pz = player.position.z;
+      if (px > sf.x - halfW - r && px < sf.x + halfW + r && pz > sf.z - halfD - r && pz < sf.z + halfD + r) {
+        const oL = (px + r) - (sf.x - halfW);
+        const oR = (sf.x + halfW) - (px - r);
+        const oF = (pz + r) - (sf.z - halfD);
+        const oB = (sf.z + halfD) - (pz - r);
+        const m = Math.min(oL, oR, oF, oB);
+        if (m === oL)      { player.position.x = sf.x - halfW - r; if (playerVel.x > 0) playerVel.x = 0; }
+        else if (m === oR) { player.position.x = sf.x + halfW + r; if (playerVel.x < 0) playerVel.x = 0; }
+        else if (m === oF) { player.position.z = sf.z - halfD - r; if (playerVel.z > 0) playerVel.z = 0; }
+        else               { player.position.z = sf.z + halfD + r; if (playerVel.z < 0) playerVel.z = 0; }
+      }
+    }
 
     // House collision (AABB) — Pico can't walk through walls
     const house = scene.userData.houseCollider;
@@ -3259,6 +3392,8 @@ function tick() {
     checkSchoolTriggers();
     // Hazel follows Pico once she's joined the party
     updateHazelFollow(dt);
+    // Walk-to-school trigger (Ch.2 → Ch.3 bridge)
+    checkWalkToSchoolTrigger();
     // Ch.4 errand triggers (talk to Mum, walk to storefront)
     checkChapter4Triggers();
     // Ch.5 butcher chase
@@ -4359,10 +4494,78 @@ async function onAllBoxesTouched() {
     if (continueBtn) continueBtn.addEventListener('click', () => {
       card.classList.add('fade-out');
       setTimeout(() => { card.style.display = 'none'; }, 1000);
-      beginChapter3();
+      beginWalkToSchool();
     });
     const restartBtn = document.getElementById('end-restart');
     if (restartBtn) restartBtn.addEventListener('click', () => location.reload());
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// WALK TO SCHOOL — bridge between Ch.2 bedtime and Ch.3 first day
+// ═══════════════════════════════════════════════════════
+let walkingToSchool = false;
+async function beginWalkToSchool() {
+  controlsLocked = true;
+  cutsceneCancelled = false;
+  setStillMode(true);
+  showFade(true);
+  await sleep(1100);
+
+  // Hide all interior scenes
+  bedroomGroup.visible = false;
+  kitchenGroup.visible = false;
+  newBedroomGroup.visible = false;
+  schoolGroup.visible = false;
+  butcherShopGroup.visible = false;
+  houseMum.visible = false;
+  hazel.visible = false;
+  brunk.visible = false;
+  pemberton.visible = false;
+
+  // Spawn Pico outside the new house, facing the school
+  player.position.set(-12, 0, -6);
+  player.position.y = 0;
+  facingY = -Math.PI / 2;  // facing west toward the school
+  player.rotation.y = -Math.PI / 2;
+  playerVel.set(0, 0, 0);
+  grounded = true;
+
+  // Camera behind Pico (east of him, since he faces west)
+  camState.target.set(player.position.x, 1.1, player.position.z);
+  camState.distance = 6;
+  camState.yaw = Math.PI / 2;
+  camState.pitch = 0.22;
+  updateCamera();
+
+  await sleep(200);
+  showOverlayCard('Next morning.', 1800);
+  await sleep(500);
+  showFade(false);
+  await sleep(1200);
+
+  // Update HUD
+  lastZoneLabel = '';
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) {
+    objEl.classList.remove('hide');
+    objEl.querySelector('.objective-text').textContent = 'Walk to Conker Heights High';
+  }
+
+  walkingToSchool = true;
+  setStillMode(false);
+  controlsLocked = false;
+}
+
+function checkWalkToSchoolTrigger() {
+  if (!walkingToSchool) return;
+  // Don't fire while another interior is visible (loaded mid-flow)
+  if (newBedroomGroup.visible || schoolGroup.visible || butcherShopGroup.visible) return;
+  const dx = player.position.x - schoolStorefront.userData.doorWorldPos.x;
+  const dz = player.position.z - schoolStorefront.userData.doorWorldPos.z;
+  if (Math.hypot(dx, dz) < 2.2) {
+    walkingToSchool = false;
+    beginChapter3();
   }
 }
 
