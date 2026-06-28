@@ -8,6 +8,11 @@
 
 # Godot editor cache (build artifacts, regenerated on open)
 games/worlds-collide-godot/.godot/
+games/wonky-acorn-godot/.godot/
+
+# Node / Vite
+node_modules/
+dist/
 
 # Logs / temp
 *.log
