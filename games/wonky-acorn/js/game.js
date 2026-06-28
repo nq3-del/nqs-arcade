@@ -4548,6 +4548,34 @@ function applyPendingLoadIfAny() {
     }
   });
 
+  // REPLAY CHAPTERS panel — wire each replay row to jump to that chapter
+  document.querySelectorAll('.replay-row').forEach(row => {
+    row.addEventListener('click', () => {
+      const target = row.dataset.replay;
+      // Close the pause menu first so the replay cutscene plays cleanly
+      setPaused(false);
+      // Reset state common to chapter starts
+      freePlayMode = false;
+      butcherEscaped = false;
+      walkingToSchool = false;
+      ch4Phase = 'idle';
+      ch5Phase = 'idle';
+      ch3Phase = 'idle';
+      jailGroup.visible = false;
+      freeplaySignPost.visible = false;
+      butcherInJail.visible = false;
+      // Dispatch to the chapter starter
+      switch (target) {
+        case 'intro':    beginIntro(); break;
+        case 'newhouse': enterNewBedroom(); break;
+        case 'school':   beginChapter3(); break;
+        case 'errand':   beginChapter4(); break;
+        case 'butcher':  beginChapter5(); break;
+        case 'ending':   beginChapter6(); break;
+      }
+    });
+  });
+
   // SAVE panel — wire per-slot buttons via delegation
   document.querySelectorAll('.save-slot').forEach(slotEl => {
     const n = +slotEl.dataset.slot;
@@ -5571,19 +5599,16 @@ async function beginChapter6() {
 
   // ── Congratulations / Unlock card ──
   const endHTML = `
-    <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px;max-width:640px">
+    <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px;max-width:680px">
       <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">🌰 CONGRATULATIONS 🌰</div>
-      <h2 style="font-size:32px;font-weight:900;margin-bottom:14px;line-height:1.25">You solved the mystery of the missing acorns!</h2>
-      <p style="font-size:14px;color:rgba(255,255,255,0.85);max-width:540px;margin:0 auto 18px;line-height:1.7">
-        You've finished the game. <b>Free Play</b> is now unlocked!<br><br>
-        You can enter <b>your house</b>, <b>Conker Heights High</b>, and
-        <b>Sawbones &amp; Sons</b> at your own will. The Butcher has been
-        locked up in <b>the JAIL</b> across the meadow — wander over and
-        tease him through the bars if you want.
-      </p>
-      <p style="font-size:13px;color:rgba(255,140,140,0.9);max-width:540px;margin:0 auto 24px;line-height:1.5;font-style:italic">
-        ⚠ Just don't be too rude — if you keep pestering him, he might<br>
-        find a way out and come after you…
+      <h2 style="font-size:30px;font-weight:900;margin-bottom:18px;line-height:1.3">You have solved the mystery of the missing acorns<br>and finished the game!</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,0.9);max-width:580px;margin:0 auto 22px;line-height:1.7">
+        You have unlocked <b>free-play</b>. You can now enter <b>the house</b>,
+        <b>the school</b>, and <b>the butcher's</b> at your own will, and there
+        is a <b>jail</b> for if you want to tease the butcher.<br><br>
+        Just don't do anything rude or he might come after you.<br><br>
+        You can also <b>replay chapters</b> by going to <b>Replay Chapters</b>
+        in the pause menu.
       </p>
       <button id="end-freeplay" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
         Enter Free Play

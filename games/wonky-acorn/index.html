@@ -78,6 +78,7 @@
         <h2>PAUSED</h2>
         <div class="pause-tabs">
           <button type="button" class="pause-tab active" data-tab="game">GAME</button>
+          <button type="button" class="pause-tab" data-tab="replay">REPLAY CHAPTERS</button>
           <button type="button" class="pause-tab" data-tab="save">SAVE FILES</button>
           <button type="button" class="pause-tab" data-tab="controls">CONTROLS</button>
           <button type="button" class="pause-tab" data-tab="connect">CONNECT CONTROLLER</button>
@@ -88,6 +89,43 @@
           <button type="button" id="pause-resume" class="pause-action big">Resume</button>
           <button type="button" id="pause-mute" class="pause-action">Mute Sound</button>
           <button type="button" id="pause-reset" class="pause-action danger">Reset All Saves</button>
+        </div>
+
+        <!-- REPLAY CHAPTERS tab -->
+        <div class="pause-panel hide" data-panel="replay">
+          <p class="panel-intro">Jump to the start of any chapter you've reached.</p>
+          <div class="replay-list">
+            <button type="button" class="replay-row" data-replay="intro">
+              <span class="replay-num">CH. 1</span>
+              <span class="replay-name">The Move</span>
+              <span class="replay-go">Replay →</span>
+            </button>
+            <button type="button" class="replay-row" data-replay="newhouse">
+              <span class="replay-num">CH. 2</span>
+              <span class="replay-name">The Big City — new bedroom</span>
+              <span class="replay-go">Replay →</span>
+            </button>
+            <button type="button" class="replay-row" data-replay="school">
+              <span class="replay-num">CH. 3</span>
+              <span class="replay-name">First day at Conker Heights High</span>
+              <span class="replay-go">Replay →</span>
+            </button>
+            <button type="button" class="replay-row" data-replay="errand">
+              <span class="replay-num">CH. 4</span>
+              <span class="replay-name">The Errand — talk to Mum</span>
+              <span class="replay-go">Replay →</span>
+            </button>
+            <button type="button" class="replay-row" data-replay="butcher">
+              <span class="replay-num">CH. 5</span>
+              <span class="replay-name">Sawbones &amp; Sons — the chase</span>
+              <span class="replay-go">Replay →</span>
+            </button>
+            <button type="button" class="replay-row" data-replay="ending">
+              <span class="replay-num">CH. 6</span>
+              <span class="replay-name">The Investigation &amp; Ending</span>
+              <span class="replay-go">Replay →</span>
+            </button>
+          </div>
         </div>
 
         <!-- SAVE FILES tab -->

@@ -525,6 +525,36 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0b1224; }
 .slot-actions .slot-load { background: rgba(111, 168, 200, 0.15); color: #B0DFFF; border-color: rgba(111, 168, 200, 0.4); }
 .slot-actions .slot-delete { background: rgba(229, 75, 75, 0.1); color: #FFB0B0; border-color: rgba(229, 75, 75, 0.3); }
 
+/* REPLAY CHAPTERS panel */
+.replay-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; text-align: left; }
+.replay-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  font-family: 'Nunito', sans-serif;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1.5px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.85);
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+}
+.replay-row:hover { background: rgba(255, 215, 64, 0.15); border-color: rgba(255, 215, 64, 0.5); color: #fff; }
+.replay-row:active { transform: scale(0.98); }
+.replay-num {
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  font-size: 12px;
+  color: #FFD740;
+  flex-shrink: 0;
+  min-width: 50px;
+}
+.replay-name { flex: 1; font-weight: 700; font-size: 14px; }
+.replay-go { font-weight: 900; font-size: 12px; letter-spacing: 1px; color: rgba(255, 215, 64, 0.7); flex-shrink: 0; }
+.replay-row:hover .replay-go { color: #FFE99C; }
+
 /* CONTROLS panel */
 .controls-grid {
   display: grid;
