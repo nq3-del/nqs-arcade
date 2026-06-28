@@ -960,29 +960,12 @@ scene.add(newBedroomGroup);
     return tex;
   }
 
-  // Corner stack — 3 boxes stacked on top of each other
-  const corner = { x: -2.5, z: -2.5 };
-  const stack1 = makeBox(corner.x, corner.z, 1.2, 0.8, 1.0, 0.1, 'CLOTHES');
-  stack1.position.y = 0.4;
-  newBedroomGroup.add(stack1);
-  const stack2 = makeBox(corner.x, corner.z, 1.0, 0.7, 0.9, -0.05);
-  stack2.position.y = 0.8 + 0.35;
-  newBedroomGroup.add(stack2);
-  const stack3 = makeBox(corner.x + 0.05, corner.z + 0.05, 0.85, 0.55, 0.75, 0.15, 'TOYS');
-  stack3.position.y = 0.8 + 0.7 + 0.275;
-  newBedroomGroup.add(stack3);
-
-  // Single big box in the centre
-  const bigBox = makeBox(0, 1.5, 1.6, 1.0, 1.2, 0.3, 'BOOKS');
-  newBedroomGroup.add(bigBox);
-
-  // A smaller box near the door
-  const smallBox = makeBox(2.0, 2.8, 0.9, 0.6, 0.7, -0.2, 'STUFF');
-  newBedroomGroup.add(smallBox);
-
-  // Suitcase-style box on its side
-  const suitcase = makeBox(2.5, -1.5, 1.0, 0.4, 0.6, 0.6);
-  newBedroomGroup.add(suitcase);
+  // Per the script (Ch.2.2): exactly 4 labelled boxes — CLOTHES, TOYS, BOOKS, STUFF.
+  // Spread around the room so Pico has to wander to touch each one.
+  newBedroomGroup.add(makeBox(-2.4, -2.6, 1.2, 0.9, 1.0, 0.12, 'CLOTHES'));
+  newBedroomGroup.add(makeBox(-2.3,  1.8, 1.0, 0.7, 0.9, -0.2,  'TOYS'));
+  newBedroomGroup.add(makeBox( 0.0,  1.5, 1.4, 1.0, 1.1, 0.3,   'BOOKS'));
+  newBedroomGroup.add(makeBox( 2.4,  2.6, 0.9, 0.7, 0.8, -0.15, 'STUFF'));
 
   // Empty bed frame (no mattress yet — Pico has to unpack it!)
   const bareFrameMat = new THREE.MeshStandardMaterial({ color: 0x6B4632, roughness: 0.75 });
@@ -2241,6 +2224,9 @@ async function beginIntro() {
 
   // Pico's reaction — big NOOOO speech
   await showSpeech('NOOOOOOOOOOOO!', 2400);
+  await sleep(300);
+  await showSpeechFromNPC('granny', 'It\'s a lovely flat, sweetheart. Right in the heart of the city.', 2800);
+  await showSpeech('...the city?', 1700);
 
   // ── Tear flood ──
   // Water rises from the floor until it's just below the table top
@@ -2642,20 +2628,62 @@ async function onAllBoxesTouched() {
   const objEl = document.getElementById('hud-objective');
   if (objEl) objEl.classList.add('hide');
   await sleep(500);
-  SFX.ready();
-  await showSpeech('All unpacked! …well, not really.', 2400);
-  await showSpeechFromNPC('granny', 'Pico! Dinner!', 2200);
-  await sleep(400);
-  // End of demo screen
+
+  // ── Ch.2.3 — City Night (bedtime) ──
   showFade(true);
-  await sleep(1000);
+  await sleep(900);
+
+  // Dim the bedroom for night: cool blue ambient + replace warm window light with moonlight
+  // Find the existing window light and modify it
+  let nightLight = null;
+  newBedroomGroup.traverse(o => {
+    if (o.isPointLight && !o.userData.isMoon) {
+      o.userData.originalIntensity = o.intensity;
+      o.userData.originalColor = o.color.getHex();
+      o.intensity = 0.4;
+      o.color.setHex(0x6688CC);  // cool moonlit blue
+      nightLight = o;
+    }
+  });
+  // Camera angle for the bedtime shot — lower, more intimate
+  camState.target.copy(NEW_BEDROOM_ORIGIN);
+  camState.target.y = 1.0;
+  camState.distance = 5;
+  camState.pitch = 0.22;
+  camState.yaw = 0;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  await sleep(600);
+
+  // Pico says he can't sleep
+  await showSpeech('It\'s too loud. I can\'t hear the trees.', 2600);
+  await showSpeechFromNPC('granny', 'I know, sweetheart. New places are loud until they\'re home.', 3000);
+  await showSpeech('When does it stop being new?', 2200);
+  await showSpeechFromNPC('granny', 'When you\'ve got a reason to look forward to tomorrow.', 3000);
+
+  // Soft "kiss on cap" beat — tiny chime
+  playTone({ freq: 1320, dur: 0.25, type: 'sine', volume: 0.12, attack: 0.02, release: 0.2 });
+  await sleep(600);
+
+  // "Lights out" — full fade to black
+  showFade(true);
+  if (nightLight) nightLight.intensity = 0;
+  await sleep(1400);
+
+  // The brave whisper in the dark
+  await showSpeech('...High school tomorrow.', 2400);
+
+  // End-of-demo card (acknowledges that Ch.3 is next)
+  await sleep(800);
   const endHTML = `
     <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
-      <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">END OF DEMO</div>
-      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">More chapters soon!</h2>
-      <p style="font-size:15px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 24px">
-        Dinner, bedtime, and Pico's first day at his new high school are coming up.
-        Hazel the secret acorn awaits…
+      <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">END OF CHAPTER 2</div>
+      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">The Big City</h2>
+      <p style="font-size:15px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 24px;line-height:1.6">
+        Tomorrow Pico starts at Conker Heights High.<br>
+        He'll meet a fast-talking acorn called Hazel,<br>
+        a bully called Brunk… and a corkboard of missing kids.
       </p>
       <button id="end-restart" type="button" style="margin-top:14px;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
         Play again
