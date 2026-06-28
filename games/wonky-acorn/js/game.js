@@ -919,6 +919,7 @@ scene.add(newBedroomGroup);
     const grp = new THREE.Group();
     grp.position.set(x, h / 2, z);
     grp.rotation.y = rotY;
+    grp.userData.label = label;     // used by the box-touch dialogue lookup
     const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), boxMat);
     body.castShadow = true;
     body.receiveShadow = true;
@@ -927,13 +928,36 @@ scene.add(newBedroomGroup);
     const tape = new THREE.Mesh(new THREE.BoxGeometry(w + 0.01, 0.04, d * 0.25), boxTapeMat);
     tape.position.y = h / 2 + 0.005;
     grp.add(tape);
-    // Label (just a contrasting square — could be text later)
+    // Label (white panel + text via canvas texture)
     if (label) {
-      const labelEl = new THREE.Mesh(new THREE.PlaneGeometry(w * 0.45, h * 0.35), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.6 }));
+      const labelW = w * 0.55, labelH = h * 0.4;
+      const tex = makeLabelTexture(label);
+      const labelEl = new THREE.Mesh(new THREE.PlaneGeometry(labelW, labelH), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.7 }));
       labelEl.position.set(0, 0, d / 2 + 0.005);
       grp.add(labelEl);
     }
     return grp;
+  }
+
+  // Canvas-based label texture so the boxes actually have legible text
+  function makeLabelTexture(text) {
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 128;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#FFFFFF';
+    ctx.fillRect(0, 0, 256, 128);
+    ctx.fillStyle = '#1a1a2e';
+    ctx.font = 'bold 36px Nunito, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 128, 64);
+    // Slight border to look like a sticker
+    ctx.strokeStyle = '#1a1a2e';
+    ctx.lineWidth = 4;
+    ctx.strokeRect(4, 4, 248, 120);
+    const tex = new THREE.CanvasTexture(c);
+    tex.colorSpace = THREE.SRGBColorSpace;
+    return tex;
   }
 
   // Corner stack — 3 boxes stacked on top of each other
@@ -2341,7 +2365,14 @@ function updateZoneLabel() {
 // ═══════════════════════════════════════════════════════
 // NEW BEDROOM — touch-the-boxes mini-objective
 // ═══════════════════════════════════════════════════════
+const BOX_MEMORIES = {
+  CLOTHES: 'My favourite jumper… still smells like home.',
+  TOYS:    'My old toys! I should\'ve packed these better.',
+  BOOKS:   '“Treasure Island”… I read this every night in Acornville.',
+  STUFF:   'I don\'t even remember what\'s in this one.'
+};
 let allBoxesTouched = false;
+let pendingBoxLine = null;
 function checkBoxTouches() {
   if (!newBedroomGroup.visible || allBoxesTouched) return;
   const boxes = newBedroomGroup.userData.boxes;
@@ -2370,7 +2401,19 @@ function checkBoxTouches() {
       // Sound
       playTone({ freq: 660, dur: 0.12, type: 'triangle', volume: 0.18 });
       setTimeout(() => playTone({ freq: 880, dur: 0.12, type: 'triangle', volume: 0.15 }), 80);
+      // Pico says something specific to this box (only one line per "burst")
+      const memory = BOX_MEMORIES[box.parent.userData.label];
+      if (memory && !pendingBoxLine) {
+        pendingBoxLine = memory;
+      }
     }
+  }
+
+  // Flush at most one box-memory line per frame to avoid overlapping bubbles
+  if (pendingBoxLine) {
+    const line = pendingBoxLine;
+    pendingBoxLine = null;
+    showSpeech(line, 2400);
   }
 
   // Update objective text
