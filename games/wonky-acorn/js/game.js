@@ -1019,6 +1019,17 @@ function getHouseFloorY(localX, localZ) {
   upCeil.position.set(0, UPSTAIRS_CEIL, (UP_BACK + UP_FRONT) / 2);
   newBedroomGroup.add(upCeil);
 
+  // FULL ROOF — covers the whole house footprint at UPSTAIRS_CEIL so the player
+  // never sees sky through any ceiling gap (especially over the stairwell).
+  // BackSide so it renders from below (looking up from inside).
+  const fullRoof = new THREE.Mesh(
+    new THREE.PlaneGeometry(H_HW * 2 + 0.2, DOWN_FRONT - UP_BACK + 0.2),
+    new THREE.MeshStandardMaterial({ color: 0xF5EFDD, roughness: 0.92, side: THREE.DoubleSide })
+  );
+  fullRoof.rotation.x = Math.PI / 2;
+  fullRoof.position.set(0, UPSTAIRS_CEIL + 0.05, (UP_BACK + DOWN_FRONT) / 2);
+  newBedroomGroup.add(fullRoof);
+
   // Window on back wall (sun streams in)
   const winFrame = new THREE.Mesh(new THREE.BoxGeometry(2.8, 2.0, 0.15), new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.7 }));
   winFrame.position.set(0, UPSTAIRS_Y + 1.4, UP_BACK + 0.08);
@@ -2727,18 +2738,34 @@ function playAction(name, fadeTime = 0.25, opts = {}) {
   currentActionName = name;
 }
 
+// Track when the player became idle so Pico only dances after 10s of no input.
+// Idle (< 10s) → static Pico standing pose. Idle (≥ 10s) → Bubble_Dance.
+let idleStartTime = 0;
+const IDLE_BEFORE_DANCE_MS = 10000;
+
 // Decide which animation should be playing based on the current player state
 function chooseAnimationState({ moving, grounded, sprinting, speed }) {
-  // Manual override (e.g. user pressed T to dance) — let it play until time expires
+  // Manual override (T to dance, cutscene wave, etc.) — let it play until time expires
   if (manualDance && performance.now() < manualDanceUntil) {
     return manualDance;
   }
   manualDance = null;
 
-  if (!grounded) return 'Basic_Jump';
-  if (moving && sprinting && actions['Running']) return 'Running';
-  if (moving && actions['Walking']) return 'Walking';
-  return 'Bubble_Dance';  // goofy "alive" idle
+  if (!grounded) {
+    idleStartTime = 0;
+    return 'Basic_Jump';
+  }
+  if (moving) {
+    idleStartTime = 0;
+    if (sprinting && actions['Running']) return 'Running';
+    if (actions['Walking']) return 'Walking';
+  }
+  // Player is idle (standing still). Track how long they've been idle.
+  if (idleStartTime === 0) idleStartTime = performance.now();
+  const idleMs = performance.now() - idleStartTime;
+  if (idleMs >= IDLE_BEFORE_DANCE_MS) return 'Bubble_Dance';
+  // Brief idle — return special key meaning "freeze pose / static Pico"
+  return '__idle_still__';
 }
 
 function tick() {
@@ -2800,7 +2827,9 @@ function tick() {
         floorY = getHouseFloorY(lx, lz);
       }
     }
+    const STEP_SNAP_DOWN = 0.8;   // up to ~1.5 stair-rises — walking down feels smooth, big falls still fall
     if (player.position.y <= floorY) {
+      // Below or at floor — push up to floor (handles walking UP stairs too)
       if (!grounded && playerVel.y < -3) {
         addShake(Math.min(0.25, Math.abs(playerVel.y) * 0.025));
         emitDust(player.position.x, player.position.z);
@@ -2810,6 +2839,14 @@ function tick() {
       player.position.y = floorY;
       playerVel.y = 0;
       grounded = true;
+    } else if (grounded && playerVel.y <= 0 && (player.position.y - floorY) <= STEP_SNAP_DOWN) {
+      // Walking onto a slightly lower step — snap down instead of becoming airborne
+      player.position.y = floorY;
+      playerVel.y = 0;
+      grounded = true;
+    } else {
+      // Above the floor and out of step-snap range — actually airborne
+      grounded = false;
     }
 
     // House collision (AABB) — Pico can't walk through walls
@@ -2987,7 +3024,17 @@ function tick() {
       speed: horizontalSpeed
     };
     const wantAction = chooseAnimationState(state);
-    if (wantAction) playAction(wantAction);
+    // Special key means "stop animating, swap to the static-pose Pico"
+    // (used for the first 10s of idle so Pico doesn't dance by default).
+    // We only auto-toggle still mode during free roam — cutscenes manage their own.
+    if (!controlsLocked) {
+      if (wantAction === '__idle_still__') {
+        if (pico && pico.visible) setStillMode(true);
+      } else if (wantAction) {
+        if (picoStill && picoStill.visible) setStillMode(false);
+        playAction(wantAction);
+      }
+    }
 
     // Sync walk/run animation speed to actual movement speed (reduces foot sliding)
     if (actions['Walking'] && currentActionName === 'Walking') {
