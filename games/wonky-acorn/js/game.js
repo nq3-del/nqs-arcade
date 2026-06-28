@@ -1857,6 +1857,7 @@ player.name = 'player';
 scene.add(player);
 
 let pico = null;
+let picoStill = null;        // static-pose Pico used during cutscenes
 let mixer = null;
 // animation state machine
 const actions = {};         // name -> AnimationAction
@@ -1920,6 +1921,34 @@ loader.load(
     // Add to the player Group (not the scene directly).
     // Player.position now represents feet-on-ground.
     player.add(pico);
+
+    // Also load the still-pose Pico for cutscenes (no skeleton, no animation)
+    loader.load(
+      'assets/models/pico_still.glb',
+      (stillGltf) => {
+        picoStill = stillGltf.scene;
+        // Match the scale + ground offset of the animated Pico so swap is seamless
+        const sBox = new THREE.Box3().setFromObject(picoStill);
+        const sSize = new THREE.Vector3();
+        sBox.getSize(sSize);
+        if (sSize.y > 0 && isFinite(sSize.y)) {
+          const sScale = TARGET_HEIGHT / sSize.y;
+          picoStill.scale.setScalar(sScale);
+          const sNewBox = new THREE.Box3().setFromObject(picoStill);
+          picoStill.position.y -= sNewBox.min.y;
+        }
+        picoStill.traverse(o => {
+          if (o.isMesh) {
+            o.castShadow = true;
+            o.receiveShadow = false;
+          }
+        });
+        picoStill.visible = false;   // animated Pico is the default
+        player.add(picoStill);
+      },
+      undefined,
+      (err) => { console.warn('Still Pico failed to load — fallback to animated:', err); }
+    );
 
     // pico.glb's built-in is just T-pose (1 frame). Real animations live in pico_anims.glb (20+ clips).
     mixer = new THREE.AnimationMixer(pico);
@@ -2002,6 +2031,19 @@ let rafHandle = null;
 
 // Frame-rate-independent exponential smoothing factor
 function smooth(rate, dt) { return 1 - Math.exp(-rate * dt); }
+
+// Cutscene mode: swap to the still-pose Pico (no skeleton/animation)
+// so he doesn't dance / sigh / wave during dialogue.
+function setStillMode(on) {
+  if (on) {
+    if (picoStill) picoStill.visible = true;
+    if (pico) pico.visible = false;
+  } else {
+    if (picoStill) picoStill.visible = false;
+    if (pico) pico.visible = true;
+    currentActionName = null;  // let the state machine re-pick a clip
+  }
+}
 
 // Crossfade to a named animation. Safe to call every frame — it ignores no-op transitions.
 function playAction(name, fadeTime = 0.25, opts = {}) {
@@ -2552,6 +2594,9 @@ async function beginIntro() {
   // User just tapped "Tap to begin" — wake the audio context (browsers require user gesture)
   ensureAudio();
 
+  // Switch to still-pose Pico for the cutscene — no dancing/waving/sad sighs
+  setStillMode(true);
+
   // ── Move Pico into the bedroom and frame the camera for an interior shot ──
   bedroomGroup.visible = true;
   player.position.copy(BEDROOM_ORIGIN);
@@ -2606,6 +2651,8 @@ async function beginIntro() {
   if (stopAlarm) { stopAlarm(); stopAlarm = null; }
 
   // ── Pico jumps out of bed and yells "I'M READY!" ──
+  // Swap to animated Pico so the jump clip actually plays
+  setStillMode(false);
   if (actions['Basic_Jump']) {
     playAction('Basic_Jump', 0.15, { once: true });
     if (grounded) {
@@ -2617,6 +2664,8 @@ async function beginIntro() {
   await sleep(180);
   SFX.ready();
   await showSpeech("I'M READY!", 1600);
+  // Back to still pose for the rest of the cutscene
+  setStillMode(true);
 
   // ── Fade to kitchen ──
   showFade(true);
@@ -2757,8 +2806,9 @@ async function beginIntro() {
   await showSpeechFromNPC('granny', 'Go on in and unpack, sweetheart. We\'ll be in in a minute.', 3200);
   await sleep(400);
 
-  // Hand control over to the player — clear locked pose so he walks normally
+  // Hand control over to the player — swap back to animated Pico so he walks
   manualDance = null;
+  setStillMode(false);
   controlsLocked = false;
   hudEl.classList.add('show');
   try { localStorage.setItem('wonkyAcornIntroSeen', '1'); } catch (e) {}
@@ -3158,6 +3208,7 @@ async function onAllBoxesTouched() {
 // ═══════════════════════════════════════════════════════
 async function beginChapter3() {
   controlsLocked = true;
+  setStillMode(true);
   showFade(true);
   await sleep(1100);
 
@@ -3195,6 +3246,7 @@ async function beginChapter3() {
   await showSpeech('Conker Heights High. Just stay invisible.', 2600);
 
   ch3Phase = 'walking';
+  setStillMode(false);  // back to animated so the player can walk
   controlsLocked = false;
 }
 
@@ -3205,6 +3257,7 @@ async function ch3Trigger_brunk() {
   if (ch3Phase !== 'walking') return;
   ch3Phase = 'brunk';
   controlsLocked = true;
+  setStillMode(true);   // Pico freezes — Brunk does all the moving
 
   // Brunk barrels in from the back of the hallway
   brunk.visible = true;
@@ -3283,12 +3336,18 @@ async function ch3Trigger_hazel() {
   await showSpeech('I\'m— Pico.', 1800);
   await showSpeechFromNPC('hazel', 'Pico. Good name. Short. Efficient. Okay, we\'re friends now, that\'s decided, keep up —', 4200);
   SFX.ready();
+
+  // Pico waves at Hazel — switch to animated for the wave only
+  setStillMode(false);
+  if (actions['Big_Wave_Hello']) {
+    playAction('Big_Wave_Hello', 0.25);
+  }
   await showSpeech('(a real smile, his first in the city) …Okay.', 2800);
 
   // Hazel falls in behind Pico — she'll follow him via the followLoop
   hazel.userData.following = true;
 
-  // Free roam toward the corkboard
+  // Free roam toward the corkboard — keep Pico animated so he can walk
   ch3Phase = 'freeRoam';
   const objEl = document.getElementById('hud-objective');
   if (objEl) {
@@ -3301,6 +3360,7 @@ async function ch3Trigger_corkboard() {
   if (ch3Phase !== 'freeRoam') return;
   ch3Phase = 'corkboard';
   controlsLocked = true;
+  setStillMode(true);   // dialogue beat — Pico stands still
 
   // Frame camera to face the corkboard
   camState.distance = 4.5;
@@ -3408,6 +3468,7 @@ async function endChapter3() {
 
 async function enterNewBedroom() {
   controlsLocked = true;
+  setStillMode(true);   // freeze Pico for the cutscene
   showFade(true);
   await sleep(900);
   // Hide outdoor stuff (we leave it visible since fog will hide it from indoors,
@@ -3442,7 +3503,8 @@ async function enterNewBedroom() {
   await showSpeechFromNPC('granny', 'Welcome to your new room, sweetheart!', 2800);
   await showSpeech('It\'s… so empty.', 2400);
 
-  // Clear the locked-pose override so Pico walks normally when player takes control
+  // Hand control back — animated Pico so he walks around to touch boxes
   manualDance = null;
+  setStillMode(false);
   controlsLocked = false;
 }
