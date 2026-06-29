@@ -4358,14 +4358,18 @@ function tick() {
                             !schoolGroup.visible &&
                             !butcherShopGroup.visible;
     if (inOutdoorMeadow) {
+      // Boundary is relative to the CURRENT world's centre, so Acornville
+      // (centred at z≈2000) isn't yanked back toward the meadow.
+      const cx = (currentWorld === 'acornville') ? ACORNVILLE_ORIGIN.x : 0;
+      const cz = (currentWorld === 'acornville') ? ACORNVILLE_ORIGIN.z : 0;
       const WORLD_RADIUS = 45;
-      const distFromCenter = Math.hypot(player.position.x, player.position.z);
+      const dxC = player.position.x - cx, dzC = player.position.z - cz;
+      const distFromCenter = Math.hypot(dxC, dzC);
       if (distFromCenter > WORLD_RADIUS) {
         const scale = WORLD_RADIUS / distFromCenter;
-        player.position.x *= scale;
-        player.position.z *= scale;
-        const outwardX = player.position.x / WORLD_RADIUS;
-        const outwardZ = player.position.z / WORLD_RADIUS;
+        player.position.x = cx + dxC * scale;
+        player.position.z = cz + dzC * scale;
+        const outwardX = dxC / distFromCenter, outwardZ = dzC / distFromCenter;
         const outwardVel = playerVel.x * outwardX + playerVel.z * outwardZ;
         if (outwardVel > 0) {
           playerVel.x -= outwardX * outwardVel;
@@ -6991,6 +6995,7 @@ async function beginBonus4() {
 // Pico's alone; when Pico goes somewhere, Hazel follows.
 // ═══════════════════════════════════════════════════════
 let twoPlayer = false;
+let hazelVelY = 0, hazelGrounded = true, hazelFloor = 0;
 function is2PUnlocked() { try { return localStorage.getItem('wonkyAcorn_2pUnlocked') === '1'; } catch (e) { return false; } }
 function connectedPadCount() {
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
@@ -7038,8 +7043,9 @@ function updateP2(dt) {
   // Hazel follows when Pico teleports far (into a building, through a portal, a chapter)
   if (Math.hypot(hazel.position.x - player.position.x, hazel.position.z - player.position.z) > 14) {
     hazel.position.set(player.position.x + 1.2, player.position.y, player.position.z);
+    hazelVelY = 0; hazelGrounded = true;
   }
-  hazel.position.y = player.position.y;
+  if (grounded) hazelFloor = player.position.y;   // share Pico's ground level (0 outdoors, upstairs indoors)
   if (controlsLocked) return;
   const pads = navigator.getGamepads ? navigator.getGamepads() : [];
   const pad = pads[1];
@@ -7053,7 +7059,13 @@ function updateP2(dt) {
       hazel.position.z += wz * sp * dt;
       hazel.rotation.y = Math.atan2(wx, wz);
     }
+    // Hazel's OWN jump — pad 2 Cross/A (button 0)
+    if (pad.buttons[0] && pad.buttons[0].pressed && hazelGrounded) { hazelVelY = JUMP_FORCE; hazelGrounded = false; }
   }
+  // gravity so Hazel falls and lands on the shared ground (independent of Pico's jump)
+  hazelVelY -= GRAVITY * dt;
+  hazel.position.y += hazelVelY * dt;
+  if (hazel.position.y <= hazelFloor) { hazel.position.y = hazelFloor; hazelVelY = 0; hazelGrounded = true; }
 }
 
 function updateBonusChase(dt) {
