@@ -4453,6 +4453,7 @@ function tick() {
     updateSquirrelChase(dt);
     updateTownExtras(dt);
     updateBonusChase(dt);
+    updateP2(dt);
   }
 
   updateCamera();
@@ -5134,6 +5135,7 @@ function setPaused(v) {
   }
   // Refresh the Replay Chapters lock state every time the menu opens
   if (v && typeof refreshReplayLock === 'function') refreshReplayLock();
+  if (v && typeof update2PLabel === 'function') update2PLabel();
   // Sync the mute button label to current state
   const muteBtn = document.getElementById('pause-mute');
   if (muteBtn) muteBtn.textContent = muted ? 'Unmute Sound' : 'Mute Sound';
@@ -5368,6 +5370,8 @@ function refreshReplayLock() {
     const replayTab = document.querySelector('.pause-tab[data-tab="replay"]');
     if (replayTab) replayTab.click();
   });
+  const twoPBtn = document.getElementById('pause-2p');
+  if (twoPBtn) twoPBtn.addEventListener('click', toggle2Player);
   const resetBtn = document.getElementById('pause-reset');
   if (resetBtn) resetBtn.addEventListener('click', () => {
     if (confirm('Delete ALL save files and reload?')) {
@@ -6451,7 +6455,7 @@ async function beginChapter6() {
   await sleep(800);
 
   // ── FREE PLAY UNLOCK ──
-  try { localStorage.setItem('wonkyAcorn_freeplayUnlocked', '1'); } catch (e) {}
+  try { localStorage.setItem('wonkyAcorn_freeplayUnlocked', '1'); localStorage.setItem('wonkyAcorn_2pUnlocked', '1'); } catch (e) {}
 
   // ── Congratulations / Unlock card ──
   const endHTML = `
@@ -6465,7 +6469,10 @@ async function beginChapter6() {
         Walk up to his cell and <b>taunt</b> him if you dare — but push your luck
         too many times and he'll burst out and chase you all over the meadow!<br><br>
         You can also <b>replay chapters</b> by going to <b>Replay Chapters</b>
-        in the pause menu.
+        in the pause menu.<br><br>
+        🎮 <b>You've unlocked 2-PLAYER!</b> With two controllers connected, open the
+        pause menu and hit <b>Change to 2 Player</b> — a friend can slide <b>Hazel</b>
+        around as you play <b>Pico</b>.
       </p>
       <button id="end-freeplay" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
         Enter Free Play
@@ -6976,6 +6983,77 @@ async function beginBonus4() {
   await showSpeech('Not this time, Scratchett — snow won\'t save you!', 3000);
   setObjective('Catch Scratchett one last time before winter!');
   bonusPhase = 'chase'; controlsLocked = false;
+}
+
+// ═══════════════════════════════════════════════════════
+// TWO-PLAYER (unlocks after beating the game). P1 = Pico (keyboard / pad 1),
+// P2 = Hazel sliding on pad 2. Hazel can't taunt/deal/portal/enter — those are
+// Pico's alone; when Pico goes somewhere, Hazel follows.
+// ═══════════════════════════════════════════════════════
+let twoPlayer = false;
+function is2PUnlocked() { try { return localStorage.getItem('wonkyAcorn_2pUnlocked') === '1'; } catch (e) { return false; } }
+function connectedPadCount() {
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  let n = 0; for (const p of pads) if (p && p.id) n++;
+  return n;
+}
+function update2PLabel() {
+  const btn = document.getElementById('pause-2p');
+  if (!btn) return;
+  btn.style.display = is2PUnlocked() ? '' : 'none';
+  btn.textContent = twoPlayer ? '🎮 Change to 1 Player' : '🎮 Change to 2 Player';
+}
+function show2PMessage(msg) {
+  let el = document.getElementById('twop-msg');
+  if (!el) { el = document.createElement('div'); el.id = 'twop-msg'; document.querySelector('.game-wrapper').appendChild(el); }
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 4200);
+}
+function toggle2Player() {
+  if (twoPlayer) { twoPlayer = false; hazel.visible = false; update2PLabel(); return; }
+  if (connectedPadCount() < 2) { show2PMessage('Not available — 2-Player needs TWO controllers connected. Connect two, then try again.'); return; }
+  open2PSelect();
+}
+function open2PSelect() {
+  let el = document.getElementById('twop-select');
+  if (!el) { el = document.createElement('div'); el.id = 'twop-select'; document.querySelector('.game-wrapper').appendChild(el); }
+  el.innerHTML = '<div class="twop-title">2-PLAYER</div>'
+    + '<div class="twop-cards"><div class="twop-card">🌰<div class="twop-pl">PLAYER 1</div><b>Pico</b><small>keyboard / pad 1</small></div>'
+    + '<div class="twop-card">👓<div class="twop-pl">PLAYER 2</div><b>Hazel</b><small>pad 2 — slide</small></div></div>'
+    + '<button class="twop-play" id="twop-play">PLAY ▶</button><button class="twop-cancel" id="twop-cancel">Cancel</button>';
+  el.classList.add('show');
+  document.getElementById('twop-play').onclick = () => {
+    if (connectedPadCount() < 2) { show2PMessage('Lost a controller — connect two and try again.'); return; }
+    el.classList.remove('show'); setPaused(false);
+    twoPlayer = true; hazel.userData.following = false; hazel.visible = true;
+    hazel.position.set(player.position.x + 1.4, player.position.y, player.position.z);
+    update2PLabel();
+    setTimeout(() => showSpeech('2-Player! Player 2 slides Hazel with pad 2.', 3200), 400);
+  };
+  document.getElementById('twop-cancel').onclick = () => el.classList.remove('show');
+}
+function updateP2(dt) {
+  if (!twoPlayer) return;
+  hazel.visible = true;
+  // Hazel follows when Pico teleports far (into a building, through a portal, a chapter)
+  if (Math.hypot(hazel.position.x - player.position.x, hazel.position.z - player.position.z) > 14) {
+    hazel.position.set(player.position.x + 1.2, player.position.y, player.position.z);
+  }
+  hazel.position.y = player.position.y;
+  if (controlsLocked) return;
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  const pad = pads[1];
+  if (pad) {
+    const lx = pad.axes[0] || 0, ly = pad.axes[1] || 0;
+    if (Math.abs(lx) > 0.18 || Math.abs(ly) > 0.18) {
+      const sp = 5.5, yaw = camState.yaw;
+      const wx = lx * Math.cos(yaw) + ly * Math.sin(yaw);
+      const wz = -lx * Math.sin(yaw) + ly * Math.cos(yaw);
+      hazel.position.x += wx * sp * dt;
+      hazel.position.z += wz * sp * dt;
+      hazel.rotation.y = Math.atan2(wx, wz);
+    }
+  }
 }
 
 function updateBonusChase(dt) {
