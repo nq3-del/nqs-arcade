@@ -5192,8 +5192,10 @@ const CHECKPOINT_LABELS = {
   intro:    'Ch. 1 — The Move',
   newhouse: 'Ch. 2 — Big City (new house)',
   school:   'Ch. 3 — First day at Conker Heights High',
+  errand:   'Ch. 4 — The Errand',
   butcher:  'Ch. 5 — Scratchett & Sons',
-  ending:   'Ch. 6 — Investigation'
+  ending:   'Ch. 6 — Investigation',
+  freeplay: 'Free Play'
 };
 
 function readSlot(n) {
@@ -5281,8 +5283,10 @@ function applyPendingLoadIfAny() {
     switch (pending.checkpoint) {
       case 'newhouse': enterNewBedroom(); break;
       case 'school':   beginChapter3(); break;
+      case 'errand':   beginChapter4(); break;
       case 'butcher':  beginChapter5(); break;
       case 'ending':   beginChapter6(); break;
+      case 'freeplay': enterFreePlay(); break;
       case 'intro':
       default:         beginIntro(); break;
     }
@@ -6693,7 +6697,7 @@ function checkFreePlayTriggers() {
   }
 
   // ── Taunt / make-a-deal prompt at Scratchett's bars ──
-  if (jailGroup.visible && squirrelInJail.visible && !squirrelEscaped && !quest.dealAccepted) {
+  if (jailGroup.visible && squirrelInJail.visible && !squirrelEscaped && !(quest.dealAccepted && !quest.portalOpen)) {
     const bp = jailGroup.userData.barsWorldPos;
     const near = Math.hypot(px - bp.x, pz - bp.z) < 1.9;
     setTauntPrompt(near);

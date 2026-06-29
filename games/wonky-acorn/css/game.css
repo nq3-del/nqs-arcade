@@ -120,7 +120,8 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0b1224; }
   display: none;  /* Hidden by default; shown on touch devices */
   z-index: 10;
   pointer-events: none;
-  padding: 20px 24px 28px;
+  padding: 20px 24px 64px;  /* lifted up so the stick/buttons aren't cut off at the bottom */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
   justify-content: space-between;
   align-items: flex-end;
 }
