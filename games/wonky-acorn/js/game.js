@@ -3037,7 +3037,7 @@ const acornvilleWorld = new THREE.Group();
 acornvilleWorld.position.copy(ACORNVILLE_ORIGIN);
 scene.add(acornvilleWorld);
 (function buildAcornville() {
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0x8FB94E, roughness: 0.95 }));
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0xC9A24A, roughness: 0.95 }));
   ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; acornvilleWorld.add(ground);
   // rolling golden-green hills around the edges
   const hillMat = new THREE.MeshStandardMaterial({ color: 0x9FC85E, roughness: 0.95 });
@@ -3120,8 +3120,23 @@ for (let i = 0; i < 8; i++) {
   acornvilleWorld.add(g);
   villagers.push({ g, tx: (Math.random() - 0.5) * 50, tz: (Math.random() - 0.5) * 50, speed: 1.6 + (i % 3) * 1.4, phase: i });
 }
+// Autumn: warm drifting leaves over Acornville
+const leafGroup = new THREE.Group(); acornvilleWorld.add(leafGroup);
+const LEAF_COLS = [0xCC6B2A, 0xD89A3A, 0xB5482A, 0xE0B84A];
+for (let i = 0; i < 36; i++) {
+  const leaf = new THREE.Mesh(new THREE.CircleGeometry(0.16, 5), new THREE.MeshStandardMaterial({ color: LEAF_COLS[i % 4], side: THREE.DoubleSide, roughness: 0.9 }));
+  leaf.position.set((Math.random() - 0.5) * 60, Math.random() * 12, (Math.random() - 0.5) * 60);
+  leaf.userData = { sp: 0.8 + Math.random() * 1.2, sway: Math.random() * 6, rot: (Math.random() - 0.5) * 2 };
+  leafGroup.add(leaf);
+}
 function updateVillagers(dt) {
   const now = performance.now();
+  for (const lf of leafGroup.children) {
+    lf.position.y -= lf.userData.sp * dt;
+    lf.position.x += Math.sin(now * 0.001 + lf.userData.sway) * 0.4 * dt;
+    lf.rotation.z += lf.userData.rot * dt; lf.rotation.x += dt;
+    if (lf.position.y < 0.1) { lf.position.y = 12; lf.position.x = (Math.random() - 0.5) * 60; lf.position.z = (Math.random() - 0.5) * 60; }
+  }
   for (const v of villagers) {
     const dx = v.tx - v.g.position.x, dz = v.tz - v.g.position.z;
     const d = Math.hypot(dx, dz);
@@ -3160,9 +3175,9 @@ async function travelTo(key) {
   await sleep(200);
   showFade(false);
   controlsLocked = false;
-  if (key === 'meadow' && quest.bonus1Ready && !bonus1Active) {
+  if (key === 'meadow' && quest.bonusReady && !bonusActive && bonusBeaten() < BONUS_NAMES.length) {
     setObjective('Something\'s wrong in the city…');
-    setTimeout(() => beginBonus1(), 1200);
+    setTimeout(() => triggerNextBonus(), 1200);
     return;
   }
   setTimeout(() => showSpeech(`Welcome to ${w.name}!`, 2600), 400);
@@ -3342,7 +3357,7 @@ function updateAcornvilleMissions(px, pz) {
       setObjective(`Acornville quests: ${c}/${acornvilleMissions.length}`);
       if (c >= acornvilleMissions.length && !quest.acornvilleAllDone) {
         quest.acornvilleAllDone = true;
-        quest.bonus1Ready = true;
+        quest.bonusReady = true;
         setTimeout(() => showSpeech('You\'ve helped all of Acornville! …but something feels wrong back in the city. Hurry home!', 4800), 1500);
       }
     }
@@ -4437,7 +4452,7 @@ function tick() {
     checkFreePlayTriggers();
     updateSquirrelChase(dt);
     updateTownExtras(dt);
-    updateBonus1(dt);
+    updateBonusChase(dt);
   }
 
   updateCamera();
@@ -5303,10 +5318,11 @@ function refreshReplayLock() {
     r.classList.toggle('locked', !unlocked);
   });
   // Bonus chapters: hidden in the list until you've beaten them
-  let bonus1Beaten = false;
-  try { bonus1Beaten = localStorage.getItem('wonkyAcorn_bonus1Beaten') === '1'; } catch (e) {}
-  const bonus1Row = document.querySelector('.replay-row[data-replay="bonus1"]');
-  if (bonus1Row) bonus1Row.style.display = bonus1Beaten ? '' : 'none';
+  const beatenN = bonusBeaten();
+  for (let i = 1; i <= 4; i++) {
+    const row = document.querySelector(`.replay-row[data-replay="bonus${i}"]`);
+    if (row) row.style.display = (beatenN >= i) ? '' : 'none';
+  }
 }
 
 // Wire pause menu — tabs + game actions + save slots
@@ -5413,7 +5429,10 @@ function refreshReplayLock() {
         case 'errand':   beginChapter4(); break;
         case 'butcher':  beginChapter5(); break;
         case 'ending':   beginChapter6(); break;
-        case 'bonus1':   bonus1Active = false; bonus1Phase = 'idle'; beginBonus1(); break;
+        case 'bonus1':   bonusReplay = true; bonusActive = false; beginBonus1(); break;
+        case 'bonus2':   bonusReplay = true; bonusActive = false; beginBonus2(); break;
+        case 'bonus3':   bonusReplay = true; bonusActive = false; beginBonus3(); break;
+        case 'bonus4':   bonusReplay = true; bonusActive = false; beginBonus4(); break;
       }
     });
   });
@@ -6870,67 +6889,142 @@ function updateTownExtras(dt) {
 }
 
 // ═══════════════════════════════════════════════════════
-// BONUS CHAPTER 1 — "The Great Acorn Heist"
-// Unlocks once every Acornville side quest is done: the freed Scratchett
-// can't resist his greed and pinches the whole town's acorns, so Pico has
-// to chase him down and lock him back in jail.
+// BONUS CHAPTERS — unlock in sequence after all Acornville side quests;
+// each stays hidden in Replay until beaten.
+//   1 The Great Acorn Heist · 2 The Copycat Collector
+//   3 Hazel's Turn          · 4 Winter's Hoard
 // ═══════════════════════════════════════════════════════
-let bonus1Active = false;
-let bonus1Phase = 'idle';
-async function beginBonus1() {
-  if (bonus1Active) return;
-  bonus1Active = true;
-  freePlayMode = false;
-  controlsLocked = true;
-  currentWorld = 'meadow';
+const BONUS_NAMES = ['The Great Acorn Heist', 'The Copycat Collector', 'Hazel\'s Turn', 'Winter\'s Hoard'];
+function bonusBeaten() { try { return parseInt(localStorage.getItem('wonkyAcorn_bonusProgress') || '0', 10) || 0; } catch (e) { return 0; } }
+function setBonusBeaten(n) { try { localStorage.setItem('wonkyAcorn_bonusProgress', String(Math.max(n, bonusBeaten()))); } catch (e) {} }
+
+// A rival "copycat" squirrel + a snow flurry, built once
+const copycat = makeSquirrel(); copycat.scale.setScalar(1.12); copycat.visible = false; scene.add(copycat);
+const snowGroup = new THREE.Group(); snowGroup.visible = false; scene.add(snowGroup);
+for (let i = 0; i < 50; i++) {
+  const f = new THREE.Mesh(new THREE.SphereGeometry(0.08, 6, 5), new THREE.MeshBasicMaterial({ color: 0xFFFFFF }));
+  f.position.set((Math.random() - 0.5) * 52, Math.random() * 16, (Math.random() - 0.5) * 52);
+  f.userData.sp = 2 + Math.random() * 3; snowGroup.add(f);
+}
+
+let bonusActive = false, bonusPhase = 'idle', bonusIdx = -1, bonusHazelMode = false, bonusFleeSpeed = 5.2, bonusReplay = false;
+let bonusFoe = null;
+
+function bonusEnterMeadow() {
+  freePlayMode = false; controlsLocked = true; currentWorld = 'meadow';
   newBedroomGroup.visible = false; schoolGroup.visible = false; butcherShopGroup.visible = false;
-  setTauntPrompt(false);
-  jailGroup.visible = true; freeplaySignPost.visible = true;
-  showFade(true); await sleep(700);
-  squirrelInJail.visible = false; squirrelEscaped = false;
-  squirrel.visible = true; squirrel.position.set(4, 0, 0); squirrel.rotation.y = 0;
+  setTauntPrompt(false); jailGroup.visible = true; freeplaySignPost.visible = true;
+}
+function bonusPlacePlayer() {
   player.position.set(0, 0, 8); facingY = Math.PI; player.rotation.y = Math.PI; playerVel.set(0, 0, 0); grounded = true;
   camState.target.set(2, 1.4, 4); camState.distance = 8; camState.yaw = Math.PI; camState.pitch = 0.25; updateCamera();
-  await sleep(200); showFade(false);
+}
+function triggerNextBonus() {
+  if (bonusActive) return;
+  const n = bonusBeaten();
+  if (n === 0) beginBonus1();
+  else if (n === 1) beginBonus2();
+  else if (n === 2) beginBonus3();
+  else if (n === 3) beginBonus4();
+}
+
+async function beginBonus1() {
+  if (bonusActive) return; bonusActive = true; bonusIdx = 0; bonusHazelMode = false; bonusFleeSpeed = 5.2;
+  bonusEnterMeadow(); showFade(true); await sleep(700);
+  squirrelInJail.visible = false; squirrelEscaped = false;
+  squirrel.visible = true; squirrel.position.set(4, 0, 0); squirrel.rotation.y = 0; bonusFoe = squirrel;
+  bonusPlacePlayer(); await sleep(200); showFade(false);
   showOverlayCard('BONUS CHAPTER 1', 2200); await sleep(2400);
   await showSpeechFromNPC('squirrel', 'Free at last — and SO many lovely acorns to pinch! Hee-hee-HEE!', 4200);
-  await showSpeech('Scratchett?! You promised you\'d behave!', 2800);
-  await showSpeechFromNPC('squirrel', 'A squirrel can\'t fight his nature, little one. Catch me if you CAN!', 4000);
+  await showSpeech('Scratchett?! You promised you\'d behave!', 2600);
+  await showSpeechFromNPC('squirrel', 'A squirrel can\'t fight his nature! Catch me if you CAN!', 3800);
   setObjective('Chase Scratchett down and put him back in jail!');
-  bonus1Phase = 'chase';
-  controlsLocked = false;
+  bonusPhase = 'chase'; controlsLocked = false;
 }
-function updateBonus1(dt) {
-  if (bonus1Phase !== 'chase' || controlsLocked) return;
-  const dx = squirrel.position.x - player.position.x, dz = squirrel.position.z - player.position.z;
+async function beginBonus2() {
+  if (bonusActive) return; bonusActive = true; bonusIdx = 1; bonusHazelMode = false; bonusFleeSpeed = 5.6;
+  bonusEnterMeadow(); showFade(true); await sleep(700);
+  squirrelInJail.position.set(JAIL_POS.x - 1.3, 0, JAIL_POS.z - 2.5); squirrelInJail.rotation.y = Math.PI; squirrelInJail.visible = true;
+  copycat.visible = true; copycat.position.set(-4, 0, 0); copycat.rotation.y = 0; bonusFoe = copycat;
+  bonusPlacePlayer(); await sleep(200); showFade(false);
+  showOverlayCard('BONUS CHAPTER 2', 2200); await sleep(2400);
+  await showSpeechFromNPC('squirrel', '(from the cell) Pico! That\'s the COPYCAT I once answered to — and now HE\'S after your acorns!', 4800);
+  await showSpeechFromNPC('squirrel', 'Catch him and I\'ll behave forever, I promise!', 3200);
+  setObjective('Catch the bigger, greedier Copycat Collector!');
+  bonusPhase = 'chase'; controlsLocked = false;
+}
+async function beginBonus3() {
+  if (bonusActive) return; bonusActive = true; bonusIdx = 2; bonusHazelMode = true; bonusFleeSpeed = 5.4;
+  bonusEnterMeadow(); showFade(true); await sleep(700);
+  squirrelInJail.visible = false; squirrel.visible = true; squirrel.position.set(5, 0, 0); squirrel.rotation.y = 0; bonusFoe = squirrel;
+  player.visible = false; hazel.userData.following = false; hazel.visible = true;
+  bonusPlacePlayer(); hazel.position.copy(player.position); await sleep(200); showFade(false);
+  showOverlayCard('BONUS CHAPTER 3 · Hazel\'s Turn', 2400); await sleep(2600);
+  await showSpeechFromNPC('hazel', 'My turn! Scratchett wriggled loose again — but he can\'t out-run ME.', 4000);
+  await showSpeechFromNPC('squirrel', 'A girl on the rooftops?! No fair!', 2800);
+  setObjective('You\'re Hazel! Chase Scratchett down and corner him!');
+  bonusPhase = 'chase'; controlsLocked = false;
+}
+async function beginBonus4() {
+  if (bonusActive) return; bonusActive = true; bonusIdx = 3; bonusHazelMode = false; bonusFleeSpeed = 5.8;
+  bonusEnterMeadow(); snowGroup.visible = true; showFade(true); await sleep(700);
+  squirrelInJail.visible = false; squirrelEscaped = false;
+  squirrel.visible = true; squirrel.position.set(4, 0, -2); squirrel.rotation.y = 0; bonusFoe = squirrel;
+  bonusPlacePlayer(); await sleep(200); showFade(false);
+  showOverlayCard('BONUS CHAPTER 4 · Winter\'s Hoard', 2400); await sleep(2600);
+  await showSpeechFromNPC('squirrel', 'Brrr! Winter\'s coming — I need ONE more hoard. Every acorn in town is MINE!', 4800);
+  await showSpeech('Not this time, Scratchett — snow won\'t save you!', 3000);
+  setObjective('Catch Scratchett one last time before winter!');
+  bonusPhase = 'chase'; controlsLocked = false;
+}
+
+function updateBonusChase(dt) {
+  if (snowGroup.visible) {
+    for (const f of snowGroup.children) { f.position.y -= f.userData.sp * dt; if (f.position.y < 0) f.position.y = 16; }
+  }
+  if (bonusPhase !== 'chase' || controlsLocked || !bonusFoe) return;
+  if (bonusHazelMode) { hazel.position.copy(player.position); hazel.rotation.y = player.rotation.y + Math.PI; }
+  const dx = bonusFoe.position.x - player.position.x, dz = bonusFoe.position.z - player.position.z;
   const d = Math.hypot(dx, dz);
   if (d > 0.001) {
     const fx = dx / d, fz = dz / d;
-    squirrel.position.x = clamp(squirrel.position.x + fx * 5.2 * dt, -24, 24);
-    squirrel.position.z = clamp(squirrel.position.z + fz * 5.2 * dt, -24, 24);
-    squirrel.rotation.y = Math.atan2(fx, fz);
-    squirrel.position.y = Math.abs(Math.sin(performance.now() * 0.018)) * 0.14;
+    bonusFoe.position.x = clamp(bonusFoe.position.x + fx * bonusFleeSpeed * dt, -26, 26);
+    bonusFoe.position.z = clamp(bonusFoe.position.z + fz * bonusFleeSpeed * dt, -26, 26);
+    bonusFoe.rotation.y = Math.atan2(fx, fz);
+    bonusFoe.position.y = Math.abs(Math.sin(performance.now() * 0.018)) * 0.14;
   }
-  if (d < 1.6) { bonus1Phase = 'caught'; bonus1Catch(); }
+  if (d < 1.7) { bonusPhase = 'caught'; bonusCatch(); }
 }
-async function bonus1Catch() {
-  controlsLocked = true;
-  addShake(0.4);
+async function bonusCatch() {
+  controlsLocked = true; addShake(0.4);
   playTone({ freq: 90, dur: 0.4, type: 'sawtooth', volume: 0.25 });
-  await showSpeechFromNPC('squirrel', 'Argh — got me! Not the jail AGAIN…', 2600);
+  const isCopycat = bonusFoe === copycat;
+  await showSpeechFromNPC(bonusHazelMode ? 'hazel' : 'squirrel', isCopycat ? 'Gotcha, you big copycat!' : 'Got him!', 2400);
   showFade(true); await sleep(900);
-  squirrel.visible = false;
+  squirrel.visible = false; copycat.visible = false; snowGroup.visible = false;
   squirrelInJail.position.set(JAIL_POS.x - 1.3, 0, JAIL_POS.z - 2.5); squirrelInJail.rotation.y = Math.PI; squirrelInJail.visible = true;
+  if (bonusHazelMode) { player.visible = true; hazel.visible = false; }
   player.position.set(0, 0, 0); facingY = 0; player.rotation.y = 0; playerVel.set(0, 0, 0); grounded = true;
   camState.target.set(0, 1.2, 0); camState.distance = 7; camState.yaw = 0; camState.pitch = 0.28; updateCamera();
   showFade(false);
-  bonus1Phase = 'idle'; bonus1Active = false; quest.bonus1Ready = false;
-  freePlayMode = true;
-  try { localStorage.setItem('wonkyAcorn_bonus1Beaten', '1'); } catch (e) {}
-  if (typeof refreshReplayLock === 'function') refreshReplayLock();
-  showOverlayCard('BONUS CHAPTER 1 COMPLETE', 2600); await sleep(2800);
-  await showSpeech('Back where you belong, Scratchett. Phew!', 2800);
-  setObjective('Free play — explore, or visit Acornville again.');
+  const idx = bonusIdx;
+  bonusPhase = 'idle'; bonusActive = false; bonusFoe = null; bonusHazelMode = false; freePlayMode = true;
+  showOverlayCard(`BONUS CHAPTER ${idx + 1} COMPLETE`, 2600); await sleep(2800);
+  if (!bonusReplay) {
+    setBonusBeaten(idx + 1);
+    if (typeof refreshReplayLock === 'function') refreshReplayLock();
+    if (bonusBeaten() < BONUS_NAMES.length) {
+      quest.bonusReady = true;
+      setObjective('Another bonus chapter is brewing — stay in the meadow!');
+      setTimeout(() => triggerNextBonus(), 1600);
+      controlsLocked = false; return;
+    }
+    setObjective('Free play — every bonus chapter beaten! 🌰');
+  } else {
+    bonusReplay = false;
+    setObjective('Free play — explore the meadow.');
+  }
+  quest.bonusReady = false;
   controlsLocked = false;
 }
 
