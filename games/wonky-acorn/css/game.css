@@ -555,6 +555,111 @@ html, body { width: 100%; height: 100%; overflow: hidden; background: #0b1224; }
 .replay-go { font-weight: 900; font-size: 12px; letter-spacing: 1px; color: rgba(255, 215, 64, 0.7); flex-shrink: 0; }
 .replay-row:hover .replay-go { color: #FFE99C; }
 
+/* Locked state — Replay Chapters stays locked until the game is beaten */
+.pause-tab:disabled, .pause-tab.locked { opacity: 0.4; cursor: not-allowed; }
+.pause-tab:disabled:hover { background: transparent; color: rgba(255, 255, 255, 0.55); }
+.pause-action:disabled, .pause-action.locked { opacity: 0.5; cursor: not-allowed; }
+.pause-action:disabled:hover { background: rgba(255, 255, 255, 0.06); }
+.replay-row:disabled, .replay-row.locked { opacity: 0.4; cursor: not-allowed; }
+.replay-row:disabled:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.85); transform: none; }
+.replay-row:disabled:hover .replay-go { color: rgba(255, 215, 64, 0.7); }
+
+/* Taunt prompt — appears near Scratchett's jail cell in free-play */
+#taunt-prompt {
+  position: absolute;
+  left: 50%;
+  bottom: 18%;
+  transform: translateX(-50%) translateY(10px);
+  padding: 10px 20px;
+  background: rgba(11, 18, 36, 0.82);
+  border: 2px solid rgba(255, 215, 64, 0.6);
+  border-radius: 999px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 800;
+  font-size: 16px;
+  color: #fff;
+  letter-spacing: 0.5px;
+  z-index: 24;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s, transform 0.18s;
+  white-space: nowrap;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#taunt-prompt.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; cursor: pointer; }
+#taunt-prompt .taunt-key {
+  display: inline-block;
+  min-width: 22px;
+  padding: 2px 8px;
+  margin: 0 2px;
+  background: #FFD740;
+  color: #1a1a2e;
+  border-radius: 7px;
+  font-weight: 900;
+  text-align: center;
+}
+#taunt-prompt .taunt-tap {
+  display: inline-block;
+  padding: 4px 14px;
+  background: linear-gradient(135deg, #FFD740, #FFC107);
+  color: #1a1a2e;
+  border-radius: 999px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+
+/* Collected-acorns counter (free-play) */
+#acorn-hud {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 8px 16px;
+  background: rgba(11, 18, 36, 0.78);
+  border: 2px solid rgba(255, 215, 64, 0.55);
+  border-radius: 999px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 900;
+  font-size: 17px;
+  color: #FFE99C;
+  z-index: 22;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+#acorn-hud.show { opacity: 1; }
+
+/* Fast-travel button + menu (free-play, once the portal is unlocked) */
+#travel-btn {
+  position: absolute; top: 16px; left: 16px;
+  padding: 8px 16px;
+  background: rgba(11, 18, 36, 0.82); border: 2px solid rgba(155, 107, 255, 0.7);
+  border-radius: 999px; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 15px;
+  color: #D9C7FF; z-index: 23; cursor: pointer; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  -webkit-user-select: none; user-select: none;
+}
+#travel-btn.show { opacity: 1; pointer-events: auto; }
+#travel-btn:hover { background: rgba(155, 107, 255, 0.25); }
+#travel-menu {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 14px; background: rgba(8, 10, 24, 0.82); z-index: 55; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+  font-family: 'Nunito', sans-serif;
+}
+#travel-menu.show { opacity: 1; pointer-events: auto; }
+#travel-menu .travel-title { font-size: 28px; font-weight: 900; color: #D9C7FF; letter-spacing: 4px; margin-bottom: 8px; }
+#travel-menu .travel-opt {
+  min-width: 280px; padding: 16px 28px; font-family: 'Nunito', sans-serif; font-weight: 900; font-size: 18px;
+  background: linear-gradient(135deg, #9B6BFF, #7A3AFF); color: #fff; border: none; border-radius: 16px; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(122, 58, 255, 0.4); transition: transform 0.12s;
+}
+#travel-menu .travel-opt:hover { transform: translateY(-2px); }
+#travel-menu .travel-close {
+  margin-top: 8px; padding: 12px 24px; font-family: 'Nunito', sans-serif; font-weight: 700; font-size: 15px;
+  background: transparent; color: rgba(255, 255, 255, 0.7); border: 1.5px solid rgba(255, 255, 255, 0.3); border-radius: 999px; cursor: pointer;
+}
+
 /* CONTROLS panel */
 .controls-grid {
   display: grid;

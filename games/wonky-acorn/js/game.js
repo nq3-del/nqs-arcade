@@ -1630,10 +1630,10 @@ scene.add(butcherStorefront);
 (function buildButcherStorefront() {
   // 2-storey corner building with a striped awning + signage. Tall and a bit
   // looming so it stands out in the meadow.
-  const brickMat = new THREE.MeshStandardMaterial({ color: 0xB04032, roughness: 0.85 });
+  const brickMat = new THREE.MeshStandardMaterial({ color: 0xA9763F, roughness: 0.85 });  // warm nutty amber (was butcher red)
   const trimMat  = new THREE.MeshStandardMaterial({ color: 0xF1F1EE, roughness: 0.6 });
   const windowMat = new THREE.MeshStandardMaterial({ color: 0xDDF5FF, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.6 });
-  const awningMat = new THREE.MeshStandardMaterial({ color: 0xC53B2F, roughness: 0.75 });
+  const awningMat = new THREE.MeshStandardMaterial({ color: 0x4C6B3A, roughness: 0.75 });  // cosy green awning
   const awningStripe = new THREE.MeshStandardMaterial({ color: 0xF1F1EE, roughness: 0.75 });
   const doorMat = new THREE.MeshStandardMaterial({ color: 0x4A2818, roughness: 0.6 });
   const roofMat = new THREE.MeshStandardMaterial({ color: 0x2A2A28, roughness: 0.85 });
@@ -1696,7 +1696,7 @@ scene.add(butcherStorefront);
   step.position.set(2.2, 0.09, D / 2 + 0.45);
   butcherStorefront.add(step);
 
-  // BIG SIGN above the awning — "SAWBONES & SONS"
+  // BIG SIGN above the awning — "SCRATCHETT & SONS"
   const signBack = new THREE.Mesh(new THREE.BoxGeometry(6.5, 1.0, 0.2), trimMat);
   signBack.position.set(0, 5.0, D / 2 + 0.15);
   butcherStorefront.add(signBack);
@@ -1707,24 +1707,24 @@ scene.add(butcherStorefront);
   sctx.fillStyle = '#F1F1EE';
   sctx.fillRect(0, 0, 1024, 160);
   sctx.fillStyle = '#1a1a2e';
-  sctx.font = 'bold 90px Nunito, sans-serif';
+  sctx.font = 'bold 76px Nunito, sans-serif';
   sctx.textAlign = 'center';
   sctx.textBaseline = 'middle';
-  sctx.fillText('SAWBONES & SONS', 512, 70);
-  sctx.font = 'bold 32px Nunito, sans-serif';
-  sctx.fillStyle = '#C53B2F';
-  sctx.fillText('FAMILY BUTCHER', 512, 130);
+  sctx.fillText('SCRATCHETT & SONS', 512, 84);
   const signTex = new THREE.CanvasTexture(signCanvas);
   signTex.colorSpace = THREE.SRGBColorSpace;
   const signPanel = new THREE.Mesh(new THREE.PlaneGeometry(6.4, 0.95), new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.8 }));
   signPanel.position.set(0, 5.0, D / 2 + 0.26);
   butcherStorefront.add(signPanel);
 
-  // Cleaver icon hanging from the sign
-  const cleaver = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.5, 0.7), new THREE.MeshStandardMaterial({ color: 0xDDE2E8, roughness: 0.15, metalness: 0.9 }));
-  cleaver.position.set(-3.5, 5.7, D / 2 + 0.3);
-  cleaver.rotation.z = 0.3;
-  butcherStorefront.add(cleaver);
+  // Acorn emblem hanging by the sign (Scratchett's nut-shop badge — no cleaver)
+  const emblemNut = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 14), new THREE.MeshStandardMaterial({ color: 0xC98A4B, roughness: 0.7 }));
+  emblemNut.scale.set(1, 1.25, 1);
+  emblemNut.position.set(-3.5, 5.55, D / 2 + 0.3);
+  butcherStorefront.add(emblemNut);
+  const emblemCap = new THREE.Mesh(new THREE.SphereGeometry(0.28, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x6B4226, roughness: 0.8 }));
+  emblemCap.position.set(-3.5, 5.78, D / 2 + 0.3);
+  butcherStorefront.add(emblemCap);
 
   // Sidewalk / paving in front
   const paving = new THREE.Mesh(new THREE.PlaneGeometry(W + 2, 3), new THREE.MeshStandardMaterial({ color: 0xA09890, roughness: 0.85 }));
@@ -2125,10 +2125,7 @@ scene.add(butcherShopGroup);
   const counterMat = new THREE.MeshStandardMaterial({ color: 0xCFD3D8, roughness: 0.25, metalness: 0.6 });
   const counterBaseMat = new THREE.MeshStandardMaterial({ color: 0x646A70, roughness: 0.4, metalness: 0.3 });
   const woodMat = new THREE.MeshStandardMaterial({ color: 0x5A3A1E, roughness: 0.7 });
-  const hamMat = new THREE.MeshStandardMaterial({ color: 0xB94E3F, roughness: 0.55 });
-  const sausageMat = new THREE.MeshStandardMaterial({ color: 0xD06A4E, roughness: 0.6 });
   const hookMat = new THREE.MeshStandardMaterial({ color: 0xC8CCD2, roughness: 0.3, metalness: 0.85 });
-  const choppingBoardMat = new THREE.MeshStandardMaterial({ color: 0x8B5A2B, roughness: 0.85 });
   const doorMat = new THREE.MeshStandardMaterial({ color: 0x3A2818, roughness: 0.6 });
 
   const SHOP_W = 12, SHOP_D = 14, SHOP_H = 4;
@@ -2207,20 +2204,39 @@ scene.add(butcherShopGroup);
   const displayGlass = new THREE.Mesh(new THREE.PlaneGeometry(SHOP_W - 2, 0.85), new THREE.MeshStandardMaterial({ color: 0xDDF5FF, roughness: 0.1, metalness: 0.3, transparent: true, opacity: 0.35 }));
   displayGlass.position.set(0, 0.55, -2.5 + 0.71);
   butcherShopGroup.add(displayGlass);
-  // Meat cuts in the display
+  // Baskets of acorns in the display (Scratchett hoards the plumpest ones)
+  const dispNutMat = new THREE.MeshStandardMaterial({ color: 0xC98A4B, roughness: 0.7 });
+  const dispCapMat = new THREE.MeshStandardMaterial({ color: 0x6B4226, roughness: 0.8 });
   for (let i = -3; i <= 3; i++) {
-    const meat = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.3, 0.5), new THREE.MeshStandardMaterial({ color: 0xB94E3F, roughness: 0.6 }));
-    meat.position.set(i * 1.3, 0.32, -2.6);
-    meat.castShadow = true;
-    butcherShopGroup.add(meat);
+    const basket = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.38, 0.32, 14), new THREE.MeshStandardMaterial({ color: 0x9C7849, roughness: 0.85 }));
+    basket.position.set(i * 1.3, 0.34, -2.6);
+    basket.castShadow = true;
+    butcherShopGroup.add(basket);
+    for (let n = 0; n < 5; n++) {
+      const ox = (Math.random() - 0.5) * 0.5, oz = (Math.random() - 0.5) * 0.4;
+      const nut = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), dispNutMat);
+      nut.scale.set(1, 1.25, 1);
+      nut.position.set(i * 1.3 + ox, 0.52, -2.6 + oz);
+      butcherShopGroup.add(nut);
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), dispCapMat);
+      cap.position.set(i * 1.3 + ox, 0.6, -2.6 + oz);
+      butcherShopGroup.add(cap);
+    }
   }
-  // Chopping block
-  const chopBlock = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.25, 0.8), choppingBoardMat);
-  chopBlock.position.set(2.5, 1.27, -2.5);
-  chopBlock.castShadow = true;
-  butcherShopGroup.add(chopBlock);
+  // A fat collecting sack of acorns on the counter (no chopping block, no blade)
+  const sack = new THREE.Mesh(new THREE.SphereGeometry(0.45, 14, 12), new THREE.MeshStandardMaterial({ color: 0xB39B6E, roughness: 0.95 }));
+  sack.scale.set(1, 1.2, 1);
+  sack.position.set(2.5, 1.68, -2.5);   // sits on the counter top (~1.14), not sunk into it
+  sack.castShadow = true;
+  butcherShopGroup.add(sack);
+  const sackTie = new THREE.Mesh(new THREE.TorusGeometry(0.16, 0.05, 8, 14), new THREE.MeshStandardMaterial({ color: 0x6B4226, roughness: 0.8 }));
+  sackTie.position.set(2.5, 2.05, -2.5);
+  sackTie.rotation.x = Math.PI / 2;
+  butcherShopGroup.add(sackTie);
 
-  // Hanging hooks with hams + sausage chains
+  // Hanging tied bundles of dried acorns + strings of little nuts (cosy dressing)
+  const bundleMat = new THREE.MeshStandardMaterial({ color: 0xA9742F, roughness: 0.8 });
+  const stringNutMat = new THREE.MeshStandardMaterial({ color: 0xC98A4B, roughness: 0.7 });
   for (let i = 0; i < 6; i++) {
     const hx = -4.5 + (i * 1.8);
     const hz = -5.5 - (i % 2) * 1.5;
@@ -2228,17 +2244,18 @@ scene.add(butcherShopGroup);
     chain.position.set(hx, SHOP_H - 0.85, hz);
     butcherShopGroup.add(chain);
     if (i % 2 === 0) {
-      const ham = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 12), hamMat);
-      ham.position.set(hx, SHOP_H - 1.45, hz);
-      ham.scale.set(1, 1.4, 0.85);
-      ham.castShadow = true;
-      butcherShopGroup.add(ham);
+      const bundle = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 12), bundleMat);
+      bundle.position.set(hx, SHOP_H - 1.45, hz);
+      bundle.scale.set(0.9, 1.4, 0.9);
+      bundle.castShadow = true;
+      butcherShopGroup.add(bundle);
     } else {
       for (let s = 0; s < 6; s++) {
-        const link = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), sausageMat);
-        link.position.set(hx, SHOP_H - 1.2 - s * 0.18, hz);
-        link.castShadow = true;
-        butcherShopGroup.add(link);
+        const nut = new THREE.Mesh(new THREE.SphereGeometry(0.1, 10, 8), stringNutMat);
+        nut.scale.set(1, 1.2, 1);
+        nut.position.set(hx, SHOP_H - 1.2 - s * 0.18, hz);
+        nut.castShadow = true;
+        butcherShopGroup.add(nut);
       }
     }
   }
@@ -2360,9 +2377,154 @@ function makeButcher() {
   return grp;
 }
 
-const butcher = makeButcher();
+const butcher = makeSquirrel();   // Scratchett also stars in the Ch.5 story chase (no cleaver)
 butcher.visible = false;
 scene.add(butcher);
+
+// ═══════════════════════════════════════════════════════
+// SCRATCHETT THE SQUIRREL — free-play antagonist (comedic, non-violent)
+// A humanoid, funny-weird squirrel nut-hoarder. Holds an acorn for the
+// "caught" close-up. No weapons — pure cartoon menace, gentle for under-11s.
+// ═══════════════════════════════════════════════════════
+function makeSquirrel() {
+  const grp = new THREE.Group();
+  const furMat   = new THREE.MeshStandardMaterial({ color: 0x9B5A2B, roughness: 0.8 });
+  const furDark  = new THREE.MeshStandardMaterial({ color: 0x7A4420, roughness: 0.85 });
+  const bellyMat = new THREE.MeshStandardMaterial({ color: 0xF0DCC0, roughness: 0.8 });
+  const vestMat  = new THREE.MeshStandardMaterial({ color: 0x4C6B3A, roughness: 0.7 });
+  const eyeWhite = new THREE.MeshStandardMaterial({ color: 0xFFFFFF });
+  const pupilMat = new THREE.MeshBasicMaterial({ color: 0x120D08 });
+  const toothMat = new THREE.MeshStandardMaterial({ color: 0xFFF6E0, roughness: 0.5 });
+  const acornCapM = new THREE.MeshStandardMaterial({ color: 0x6B4226, roughness: 0.8 });
+  const acornNutM = new THREE.MeshStandardMaterial({ color: 0xC98A4B, roughness: 0.7 });
+
+  // Legs + feet
+  for (const side of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 1.0, 12), furMat);
+    leg.position.set(side * 0.3, 0.5, 0);
+    leg.castShadow = true; grp.add(leg);
+    const foot = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.18, 0.6), furDark);
+    foot.position.set(side * 0.3, 0.09, 0.12);
+    foot.castShadow = true; grp.add(foot);
+  }
+  // Pear-shaped torso + cream belly + little waistcoat
+  const torso = new THREE.Mesh(new THREE.SphereGeometry(0.62, 18, 16), furMat);
+  torso.scale.set(1, 1.25, 0.95); torso.position.y = 1.55; torso.castShadow = true; grp.add(torso);
+  const belly = new THREE.Mesh(new THREE.SphereGeometry(0.42, 16, 14), bellyMat);
+  belly.scale.set(1, 1.2, 0.6); belly.position.set(0, 1.5, 0.42); grp.add(belly);
+  const vest = new THREE.Mesh(new THREE.SphereGeometry(0.64, 18, 16), vestMat);
+  vest.scale.set(1.02, 0.7, 0.98); vest.position.set(0, 1.85, 0); grp.add(vest);
+
+  // Big bushy tail — stacked spheres curving up behind
+  const tail = new THREE.Group();
+  for (const [tx, ty, tz, tr] of [
+    [0, 0.4, -0.7, 0.42], [0, 0.95, -0.95, 0.5], [0, 1.6, -1.0, 0.56],
+    [0, 2.25, -0.85, 0.54], [0, 2.7, -0.45, 0.46], [0, 2.85, 0.05, 0.34]
+  ]) {
+    const seg = new THREE.Mesh(new THREE.SphereGeometry(tr, 14, 12), furDark);
+    seg.position.set(tx, ty, tz); seg.castShadow = true; tail.add(seg);
+  }
+  grp.add(tail); grp.userData.tail = tail;
+
+  // Arms + paws clasped front (greedy collector)
+  for (const side of [-1, 1]) {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.8, 10), furMat);
+    arm.position.set(side * 0.6, 1.65, 0.2);
+    arm.rotation.x = -0.5; arm.rotation.z = side * 0.25;
+    arm.castShadow = true; grp.add(arm);
+    const paw = new THREE.Mesh(new THREE.SphereGeometry(0.16, 12, 10), furDark);
+    paw.position.set(side * 0.42, 1.32, 0.5); paw.castShadow = true; grp.add(paw);
+  }
+
+  // Head + chubby hoarder cheeks + muzzle + nose + buck teeth
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.5, 20, 16), furMat);
+  head.position.y = 2.65; head.castShadow = true; grp.add(head);
+  for (const cx of [-1, 1]) {
+    const cheek = new THREE.Mesh(new THREE.SphereGeometry(0.26, 12, 10), furMat);
+    cheek.position.set(cx * 0.3, 2.5, 0.28); grp.add(cheek);
+  }
+  const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.22, 14, 12), bellyMat);
+  muzzle.scale.set(1, 0.8, 1); muzzle.position.set(0, 2.5, 0.42); grp.add(muzzle);
+  const nose = new THREE.Mesh(new THREE.SphereGeometry(0.07, 10, 8), pupilMat);
+  nose.position.set(0, 2.56, 0.62); grp.add(nose);
+  const teeth = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.16, 0.04), toothMat);
+  teeth.position.set(0, 2.38, 0.6); grp.add(teeth);
+  // Tufted ears
+  for (const ex of [-1, 1]) {
+    const ear = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.4, 10), furMat);
+    ear.position.set(ex * 0.28, 3.05, -0.05); ear.rotation.z = ex * -0.2;
+    ear.castShadow = true; grp.add(ear);
+    const tuft = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.18, 8), furDark);
+    tuft.position.set(ex * 0.28, 3.32, -0.05); tuft.rotation.z = ex * -0.2; grp.add(tuft);
+  }
+  // Big eyes (a touch oversized = a hint of creepy, but cartoon)
+  for (const ex of [-0.2, 0.2]) {
+    const w = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 12), eyeWhite);
+    w.position.set(ex, 2.72, 0.36); grp.add(w);
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.07, 12, 10), pupilMat);
+    p.position.set(ex, 2.72, 0.46); grp.add(p);
+    const glint = new THREE.Mesh(new THREE.SphereGeometry(0.022, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    glint.position.set(ex + 0.03, 2.76, 0.51); grp.add(glint);
+  }
+
+  // The acorn he covets — used in the catch close-up
+  const acorn = new THREE.Group();
+  const nut = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 12), acornNutM);
+  nut.scale.set(1, 1.25, 1); acorn.add(nut);
+  const acap = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), acornCapM);
+  acap.position.y = 0.13; acorn.add(acap);
+  const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.02, 0.1, 6), acornCapM);
+  stalk.position.y = 0.22; acorn.add(stalk);
+  acorn.position.set(0.42, 1.32, 0.6); grp.add(acorn);
+  grp.userData.acorn = acorn; grp.userData.head = head;
+  return grp;
+}
+
+const squirrel = makeSquirrel();
+squirrel.visible = false;
+scene.add(squirrel);
+const squirrelInJail = makeSquirrel();
+squirrelInJail.scale.setScalar(0.92);
+squirrelInJail.visible = false;
+scene.add(squirrelInJail);
+
+// Post-game tidy bedroom: a neat stack of empty, flattened boxes piled in the
+// back-left corner — shown only in free-play (replaces the scattered moving boxes).
+const tidyBoxPile = new THREE.Group();
+{
+  const flatMat = new THREE.MeshStandardMaterial({ color: 0xB48A60, roughness: 0.88 });
+  const tapeMat = new THREE.MeshStandardMaterial({ color: 0xC8A878, roughness: 0.6 });
+  const stack = [
+    [-4.0,  -7.0,  1.4, 0.22, 1.0,  0.05, true],
+    [-3.7,  -7.05, 1.3, 0.20, 0.95, -0.10, true],
+    [-3.95, -7.0,  1.2, 0.20, 0.9,  0.18, false],
+    [-3.75, -6.35, 1.35, 0.22, 1.0, 0.30, false],
+  ];
+  let layer = 0;
+  stack.forEach(([x, z, w, h, d, rot, onFloor]) => {
+    const y = onFloor ? UPSTAIRS_Y + h / 2 : UPSTAIRS_Y + h / 2 + (++layer) * 0.24;
+    const box = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), flatMat);
+    box.position.set(x, y, z); box.rotation.y = rot;
+    box.castShadow = true; box.receiveShadow = true; tidyBoxPile.add(box);
+    const tape = new THREE.Mesh(new THREE.BoxGeometry(w + 0.01, 0.03, d * 0.3), tapeMat);
+    tape.position.set(x, y + h / 2 + 0.01, z); tape.rotation.y = rot; tidyBoxPile.add(tape);
+  });
+}
+tidyBoxPile.visible = false;
+newBedroomGroup.add(tidyBoxPile);
+
+// Swap the bedroom between "mid-move" (scattered labelled boxes) and
+// "post-game" (tidy, empty boxes piled in the corner).
+function setRoomPostGame(on) {
+  const LABELS = ['CLOTHES', 'TOYS', 'BOOKS', 'STUFF'];
+  if (!newBedroomGroup.userData.movingBoxGroups) {
+    newBedroomGroup.userData.movingBoxGroups = newBedroomGroup.children.filter(
+      c => c.isGroup && c.userData && LABELS.includes(c.userData.label)
+    );
+  }
+  for (const g of newBedroomGroup.userData.movingBoxGroups) g.visible = !on;
+  tidyBoxPile.visible = on;
+}
 
 // ═══════════════════════════════════════════════════════
 // THE JAIL (free-play unlock — Butcher is locked up after Ch.6 ending)
@@ -2631,9 +2793,9 @@ scene.add(jailGroup);
   pctx.font = 'italic 22px Nunito, sans-serif';
   pctx.fillText('NO LONGER', 128, 100);
   pctx.font = 'bold 38px Nunito, sans-serif';
-  pctx.fillText('SAWBONES', 128, 250);
-  pctx.font = 'bold 24px Nunito, sans-serif';
-  pctx.fillText('Butcher · Caught', 128, 290);
+  pctx.fillText('SCRATCHETT', 128, 250);
+  pctx.font = 'bold 22px Nunito, sans-serif';
+  pctx.fillText('Acorn Thief · Caught', 128, 290);
   pctx.font = 'italic 18px Nunito, sans-serif';
   pctx.fillText('Reward: 0 acorns', 128, 330);
   pctx.fillStyle = '#C53B2F';
@@ -2699,16 +2861,497 @@ scene.add(freeplaySignPost);
   }
   freeplaySignPost.add(makeArrow('HOUSE',   pointAt(-12, -12),  0xC53B2F, 1.95));
   freeplaySignPost.add(makeArrow('SCHOOL',  pointAt(-26, -8),   0x7A3E2A, 1.6));
-  freeplaySignPost.add(makeArrow('BUTCHER', pointAt(14, -8),    0xC53B2F, 1.25));
+  freeplaySignPost.add(makeArrow('SHOP',    pointAt(14, -8),    0xB5732E, 1.25));
   freeplaySignPost.add(makeArrow('JAIL',    pointAt(20, 14),    0x444444, 0.9));
 })();
 freeplaySignPost.visible = false;
 // Collider on the sign post so nothing walks through it
 treeColliders.push({ x: 2, z: 2, r: 0.35 });
 
+// ═══════════════════════════════════════════════════════
+// MORE TOWN — extra buildings, props & collectible acorns
+// (decor is always visible; collectibles + reactions are free-play only)
+// ═══════════════════════════════════════════════════════
+const townExtras = new THREE.Group();
+scene.add(townExtras);
+
+const townBuildings = [];   // {x, z (approach point), line, said}
+function addTownBuilding(x, z, w, d, h, bodyColor, roofColor, signText, accentColor, approachLine) {
+  const g = new THREE.Group();
+  g.position.set(x, 0, z);
+  townExtras.add(g);
+  const bodyMat = new THREE.MeshStandardMaterial({ color: bodyColor, roughness: 0.85 });
+  const trimMat = new THREE.MeshStandardMaterial({ color: 0xF1F1EE, roughness: 0.6 });
+  const roofMat = new THREE.MeshStandardMaterial({ color: roofColor, roughness: 0.85 });
+  const winMat = new THREE.MeshStandardMaterial({ color: 0xDDF5FF, roughness: 0.1, metalness: 0.4, transparent: true, opacity: 0.6 });
+  const doorMat = new THREE.MeshStandardMaterial({ color: 0x4A2818, roughness: 0.6 });
+  const body = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), bodyMat);
+  body.position.y = h / 2; body.castShadow = true; body.receiveShadow = true; g.add(body);
+  const tt = new THREE.Mesh(new THREE.BoxGeometry(w + 0.3, 0.28, d + 0.3), trimMat);
+  tt.position.y = h - 0.14; g.add(tt);
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.85, 1.4, 4), roofMat);
+  roof.position.y = h + 0.7; roof.rotation.y = Math.PI / 4; roof.castShadow = true; g.add(roof);
+  const door = new THREE.Mesh(new THREE.BoxGeometry(1.3, 2.2, 0.16), doorMat);
+  door.position.set(0, 1.1, d / 2 + 0.05); g.add(door);
+  for (const wx of [-w * 0.28, w * 0.28]) {
+    const win = new THREE.Mesh(new THREE.PlaneGeometry(1.1, 1.2), winMat);
+    win.position.set(wx, 1.7, d / 2 + 0.06); g.add(win);
+  }
+  const awn = new THREE.Mesh(new THREE.BoxGeometry(w, 0.16, 0.8), new THREE.MeshStandardMaterial({ color: accentColor, roughness: 0.75 }));
+  awn.position.set(0, 2.7, d / 2 + 0.45); awn.rotation.x = -0.2; g.add(awn);
+  const sc = document.createElement('canvas'); sc.width = 512; sc.height = 96;
+  const sx = sc.getContext('2d');
+  sx.fillStyle = '#F1F1EE'; sx.fillRect(0, 0, 512, 96);
+  sx.fillStyle = '#1a1a2e'; sx.font = 'bold 50px Nunito, sans-serif';
+  sx.textAlign = 'center'; sx.textBaseline = 'middle'; sx.fillText(signText, 256, 52);
+  const tex = new THREE.CanvasTexture(sc); tex.colorSpace = THREE.SRGBColorSpace;
+  const signBack = new THREE.Mesh(new THREE.BoxGeometry(w * 0.9, 0.9, 0.16), trimMat);
+  signBack.position.set(0, h - 0.6, d / 2 + 0.18); g.add(signBack);
+  const signPanel = new THREE.Mesh(new THREE.PlaneGeometry(w * 0.88, 0.8), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 }));
+  signPanel.position.set(0, h - 0.6, d / 2 + 0.27); g.add(signPanel);
+  treeColliders.push({ x, z, r: Math.max(w, d) / 2 + 0.2 });
+  townBuildings.push({ x, z: z + d / 2 + 1.4, line: approachLine, said: 0 });
+}
+addTownBuilding(-22, 7, 7, 6, 5.5, 0x6E8BB0, 0x33405A, 'LIBRARY', 0x3E5C8A, 'The library! Hazel says it has every book in the city.');
+addTownBuilding(8, 17, 7, 6, 5, 0xE0A85C, 0x8A5A2A, 'BAKERY', 0xC0392B, 'Mmm — fresh acorn-bread. Smells just like home.');
+addTownBuilding(-8, 18, 6.5, 6, 5, 0x7FB069, 0x3E6B2A, 'TOY SHOP', 0xE0C341, 'Whoa! A whole window of toys. Maybe after the mystery…');
+addTownBuilding(25, 3, 7, 6, 7, 0xC98AAB, 0x6B3A5A, 'CLOCK TOWER', 0x8A5A7A, 'The big clock chimes right across the whole meadow!');
+addTownBuilding(27, -13, 6, 5.5, 5, 0x8AB0C9, 0x3A5A6B, 'POST OFFICE', 0x3A6B8A, 'Maybe I\'ll send a letter to my friends in Acornville.');
+
+// One fetch side-mission per new building: find the lost item, bring it back.
+// bi indexes townBuildings in creation order (0 Library … 4 Post Office).
+const buildingMissions = [
+  { name: 'The Library Book', bi: 0, ask: '(Librarian) Oh dear — a book has gone missing! Could you find it for me?', thanks: '(Librarian) My book! Bless you, dear.', ix: 6, iz: 5, color: 0x6E8BB0 },
+  { name: 'The Runaway Bun', bi: 1, ask: '(Baker) A fresh bun rolled right out the door! Fetch it back?', thanks: '(Baker) My bun! You\'re a star.', ix: -3, iz: 9, color: 0xE0A85C },
+  { name: 'The Missing Teddy', bi: 2, ask: '(Toymaker) A teddy went missing from the window. Find it?', thanks: '(Toymaker) Teddy\'s home! Thank you!', ix: 13, iz: 7, color: 0x7FB069 },
+  { name: 'The Fallen Cog', bi: 3, ask: '(Clockkeeper) A cog fell off the great clock! Bring it back?', thanks: '(Clockkeeper) Tick-tock once more! Thank you.', ix: 18, iz: 4, color: 0xC98AAB },
+  { name: 'The Stray Letter', bi: 4, ask: '(Postmaster) A letter blew away in the wind! Could you catch it?', thanks: '(Postmaster) Delivered at last. Thank you!', ix: 15, iz: 13, color: 0x8AB0C9 },
+];
+for (const m of buildingMissions) {
+  const marker = new THREE.Group(); marker.position.set(m.ix, 0, m.iz);
+  const icon = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 12), new THREE.MeshStandardMaterial({ color: m.color, emissive: m.color, emissiveIntensity: 0.5, roughness: 0.5 }));
+  icon.position.y = 0.7; marker.add(icon);
+  const beam = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.5, 4), new THREE.MeshBasicMaterial({ color: 0xFFE36B })); beam.position.y = 1.5; beam.rotation.x = Math.PI; marker.add(beam);
+  marker.visible = false; townExtras.add(marker);
+  m.marker = marker; m.icon = icon; m.state = 'todo';
+}
+
+// ── Central fountain ──
+const fountain = new THREE.Group();
+fountain.position.set(6, 0, 8);
+townExtras.add(fountain);
+(function buildFountain() {
+  const stoneMat = new THREE.MeshStandardMaterial({ color: 0xBFC4C9, roughness: 0.9 });
+  const waterMat = new THREE.MeshStandardMaterial({ color: 0x5BC6E8, roughness: 0.2, metalness: 0.1, transparent: true, opacity: 0.8 });
+  const basin = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 2.0, 0.6, 20), stoneMat);
+  basin.position.y = 0.3; basin.castShadow = true; fountain.add(basin);
+  const water = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 0.1, 20), waterMat);
+  water.position.y = 0.58; fountain.add(water);
+  const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.25, 0.35, 1.2, 12), stoneMat);
+  pillar.position.y = 1.1; fountain.add(pillar);
+  const topBowl = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.5, 0.3, 16), stoneMat);
+  topBowl.position.y = 1.7; fountain.add(topBowl);
+  for (let i = 0; i < 8; i++) {
+    const a = (i / 8) * Math.PI * 2;
+    const drop = new THREE.Mesh(new THREE.SphereGeometry(0.08, 8, 6), waterMat);
+    drop.position.set(Math.cos(a) * 0.9, 1.3 + (i % 3) * 0.15, Math.sin(a) * 0.9);
+    fountain.add(drop);
+  }
+})();
+treeColliders.push({ x: 6, z: 8, r: 2.1 });
+
+// ── Benches + lamp posts ──
+function addBench(x, z, rot) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rot; townExtras.add(g);
+  const woodMat = new THREE.MeshStandardMaterial({ color: 0x8A5A2E, roughness: 0.8 });
+  const seat = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.12, 0.5), woodMat); seat.position.y = 0.5; seat.castShadow = true; g.add(seat);
+  const back = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.5, 0.1), woodMat); back.position.set(0, 0.75, -0.2); g.add(back);
+  for (const lx of [-0.7, 0.7]) { const leg = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.5, 0.5), woodMat); leg.position.set(lx, 0.25, 0); g.add(leg); }
+  treeColliders.push({ x, z, r: 0.85 });
+}
+addBench(4, 5, 0); addBench(-4, 11, 0.6); addBench(12, 6, -0.5);
+
+function addLamp(x, z) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); townExtras.add(g);
+  const poleMat = new THREE.MeshStandardMaterial({ color: 0x2A2A30, roughness: 0.6, metalness: 0.5 });
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.1, 3.2, 10), poleMat); pole.position.y = 1.6; pole.castShadow = true; g.add(pole);
+  const lantern = new THREE.Mesh(new THREE.SphereGeometry(0.28, 12, 10), new THREE.MeshStandardMaterial({ color: 0xFFF1B8, emissive: 0xFFD86B, emissiveIntensity: 0.8 })); lantern.position.y = 3.3; g.add(lantern);
+  treeColliders.push({ x, z, r: 0.3 });
+}
+addLamp(2, 6); addLamp(11, 11); addLamp(-6, 6); addLamp(16, 2);
+
+// ── Bouncy mushroom jump-pads ──
+const bouncePads = [];   // {x, z, g}
+function addMushroom(x, z) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); townExtras.add(g);
+  const stemMat = new THREE.MeshStandardMaterial({ color: 0xF0E6D2, roughness: 0.8 });
+  const capMat = new THREE.MeshStandardMaterial({ color: 0xE05B4B, roughness: 0.7 });
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.36, 0.6, 12), stemMat); stem.position.y = 0.3; stem.castShadow = true; g.add(stem);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.6, 16, 12, 0, Math.PI * 2, 0, Math.PI / 2), capMat); cap.position.y = 0.6; cap.scale.set(1, 0.7, 1); g.add(cap);
+  for (let i = 0; i < 5; i++) { const spot = new THREE.Mesh(new THREE.CircleGeometry(0.1, 8), new THREE.MeshStandardMaterial({ color: 0xFFFFFF })); const a = (i / 5) * Math.PI * 2; spot.position.set(Math.cos(a) * 0.35, 0.79, Math.sin(a) * 0.35); spot.rotation.x = -Math.PI / 2; g.add(spot); }
+  g.userData.cap = cap;
+  bouncePads.push({ x, z, g });
+}
+addMushroom(-2, 13); addMushroom(15, 10); addMushroom(9, -3);
+
+// ── Collectible acorns (free-play) ──
+const collectibles = [];   // {g, x, z, golden, collected}
+let acornsCollected = 0;
+const acornGroup = new THREE.Group();
+acornGroup.visible = false;   // shown only in free-play
+scene.add(acornGroup);
+function addCollectibleAcorn(x, z, golden) {
+  const g = new THREE.Group(); g.position.set(x, 0.7, z); acornGroup.add(g);
+  const nutMat = new THREE.MeshStandardMaterial({ color: golden ? 0xFFD740 : 0xC98A4B, roughness: golden ? 0.3 : 0.7, metalness: golden ? 0.6 : 0, emissive: golden ? 0xFFB300 : 0x000000, emissiveIntensity: golden ? 0.45 : 0 });
+  const capMat = new THREE.MeshStandardMaterial({ color: golden ? 0xB8860B : 0x6B4226, roughness: 0.7 });
+  const nut = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 12), nutMat); nut.scale.set(1, 1.3, 1); nut.castShadow = true; g.add(nut);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.28, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), capMat); cap.position.y = 0.22; g.add(cap);
+  collectibles.push({ g, x, z, golden, collected: false });
+}
+const ACORN_SPOTS = [[-3,4],[5,-3],[10,4],[-9,9],[3,11],[13,8],[-12,3],[0,-6],[18,6],[-15,11],[7,14],[-5,-2]];
+for (const sp of ACORN_SPOTS) addCollectibleAcorn(sp[0], sp[1], false);
+addCollectibleAcorn(JAIL_POS.x - 4, JAIL_POS.z + 4, true);   // golden acorn near the jail → provokes Scratchett
+
+// Little HUD counter for collected acorns
+let acornHudEl = null;
+function setAcornHud(show) {
+  if (!acornHudEl) {
+    acornHudEl = document.createElement('div');
+    acornHudEl.id = 'acorn-hud';
+    const wrap = document.querySelector('.game-wrapper');
+    if (wrap) wrap.appendChild(acornHudEl);
+  }
+  acornHudEl.textContent = `🌰 ${acornsCollected} / ${collectibles.length}`;
+  acornHudEl.classList.toggle('show', !!show);
+}
+
+// ═══════════════════════════════════════════════════════
+// EXTRA WORLDS + FAST TRAVEL (free-play) — placed far apart so each
+// world is naturally out of view of the others (camera far plane = 500).
+// ═══════════════════════════════════════════════════════
+const ACORNVILLE_ORIGIN = new THREE.Vector3(0, 0, 2000);
+const worldSpinners = [];   // {mesh, speed, axis} — rotated each free-play frame
+
+// ── ACORNVILLE WORLD — Pico's cosy golden hometown (fast-travel from the city) ──
+const acornvilleWorld = new THREE.Group();
+acornvilleWorld.position.copy(ACORNVILLE_ORIGIN);
+scene.add(acornvilleWorld);
+(function buildAcornville() {
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 100), new THREE.MeshStandardMaterial({ color: 0x8FB94E, roughness: 0.95 }));
+  ground.rotation.x = -Math.PI / 2; ground.receiveShadow = true; acornvilleWorld.add(ground);
+  // rolling golden-green hills around the edges
+  const hillMat = new THREE.MeshStandardMaterial({ color: 0x9FC85E, roughness: 0.95 });
+  for (const h of [[-30, -34, 14], [28, -38, 18], [-40, 10, 16], [38, 16, 14], [0, -46, 20]]) {
+    const hill = new THREE.Mesh(new THREE.SphereGeometry(h[2], 16, 12), hillMat);
+    hill.position.set(h[0], -h[2] * 0.55, h[1]); hill.scale.set(1, 0.5, 1); acornvilleWorld.add(hill);
+  }
+  // big leafy oak trees
+  function oak(x, z, s) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.scale.setScalar(s); acornvilleWorld.add(g);
+    const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.6, 3, 8), new THREE.MeshStandardMaterial({ color: 0x7A5230, roughness: 0.85 })); trunk.position.y = 1.5; trunk.castShadow = true; g.add(trunk);
+    for (const c of [[0, 3.4, 0, 2], [-1.3, 3, 0.4, 1.4], [1.2, 3.1, -0.3, 1.5], [0.2, 4.1, 0.5, 1.3]]) {
+      const blob = new THREE.Mesh(new THREE.SphereGeometry(c[3], 12, 10), new THREE.MeshStandardMaterial({ color: 0x5A9A3A, roughness: 0.85 })); blob.position.set(c[0], c[1], c[2]); blob.castShadow = true; g.add(blob);
+    }
+    treeColliders.push({ x: ACORNVILLE_ORIGIN.x + x, z: ACORNVILLE_ORIGIN.z + z, r: 0.7 * s });
+  }
+  oak(-14, -6, 1.3); oak(16, 4, 1.1); oak(-8, 12, 1); oak(22, -10, 1.2); oak(6, -16, 1);
+  // cosy acorn-shaped cottages (domed body + acorn-cap roof + little door)
+  function acornHouse(x, z, bodyCol, rot) {
+    const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rot; acornvilleWorld.add(g);
+    const body = new THREE.Mesh(new THREE.SphereGeometry(2, 18, 14, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: bodyCol, roughness: 0.85 }));
+    body.scale.set(1, 1.1, 1); body.castShadow = true; g.add(body);
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(2.1, 18, 10, 0, Math.PI * 2, 0, Math.PI / 2.5), new THREE.MeshStandardMaterial({ color: 0x7A4B26, roughness: 0.9 }));
+    cap.position.y = 1.7; cap.scale.set(1, 0.6, 1); g.add(cap);
+    const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.6, 8), new THREE.MeshStandardMaterial({ color: 0x5A3A1E })); stalk.position.y = 2.7; g.add(stalk);
+    const door = new THREE.Mesh(new THREE.BoxGeometry(0.9, 1.3, 0.12), new THREE.MeshStandardMaterial({ color: 0x4A2818 })); door.position.set(0, 0.65, 2); g.add(door);
+    const win = new THREE.Mesh(new THREE.CircleGeometry(0.32, 16), new THREE.MeshStandardMaterial({ color: 0xFFE9A8, emissive: 0xFFD86B, emissiveIntensity: 0.3 })); win.position.set(1, 1.2, 1.55); g.add(win);
+    treeColliders.push({ x: ACORNVILLE_ORIGIN.x + x, z: ACORNVILLE_ORIGIN.z + z, r: 2.1 });
+  }
+  acornHouse(-18, 2, 0xD98C5A, 0.3); acornHouse(14, -2, 0xCFA06A, -0.4); acornHouse(-4, -14, 0xC98A4B, 0.1); acornHouse(20, 10, 0xE0A85C, -0.2);
+  // windmill with spinning sails
+  const mill = new THREE.Group(); mill.position.set(-24, 0, -16); acornvilleWorld.add(mill);
+  const millBody = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.9, 5, 12), new THREE.MeshStandardMaterial({ color: 0xE8DCC0, roughness: 0.9 })); millBody.position.y = 2.5; millBody.castShadow = true; mill.add(millBody);
+  const millRoof = new THREE.Mesh(new THREE.ConeGeometry(1.7, 1.4, 12), new THREE.MeshStandardMaterial({ color: 0x8A3A2A })); millRoof.position.y = 5.7; mill.add(millRoof);
+  const sails = new THREE.Group(); sails.position.set(0, 4, 2); mill.add(sails);
+  for (let i = 0; i < 4; i++) { const sg = new THREE.Group(); sg.rotation.z = (i / 4) * Math.PI * 2; const sail = new THREE.Mesh(new THREE.BoxGeometry(0.3, 3, 0.1), new THREE.MeshStandardMaterial({ color: 0xC97A3A })); sail.position.y = 1.6; sg.add(sail); sails.add(sg); }
+  worldSpinners.push({ mesh: sails, speed: 0.5, axis: 'z' });
+  treeColliders.push({ x: ACORNVILLE_ORIGIN.x - 24, z: ACORNVILLE_ORIGIN.z - 16, r: 1.9 });
+  // village pond
+  const pond = new THREE.Mesh(new THREE.CircleGeometry(4, 24), new THREE.MeshStandardMaterial({ color: 0x4FA6C4, roughness: 0.3, metalness: 0.1, transparent: true, opacity: 0.9 })); pond.rotation.x = -Math.PI / 2; pond.position.set(10, 0.02, 18); acornvilleWorld.add(pond);
+  // wildflowers dotted about
+  const flowerCols = [0xE8536B, 0xF0C53A, 0xB06BD8, 0xFFFFFF];
+  for (let i = 0; i < 40; i++) {
+    const fx = (Math.random() - 0.5) * 72, fz = (Math.random() - 0.5) * 72;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 5), new THREE.MeshStandardMaterial({ color: 0x4A8A2A })); stem.position.set(fx, 0.2, fz); acornvilleWorld.add(stem);
+    const flower = new THREE.Mesh(new THREE.SphereGeometry(0.12, 8, 6), new THREE.MeshStandardMaterial({ color: flowerCols[i % 4] })); flower.position.set(fx, 0.42, fz); acornvilleWorld.add(flower);
+  }
+  // "ACORNVILLE" welcome sign at the entrance
+  const signCanvas = document.createElement('canvas'); signCanvas.width = 512; signCanvas.height = 128;
+  const sctx = signCanvas.getContext('2d'); sctx.fillStyle = '#F6E7C2'; sctx.fillRect(0, 0, 512, 128);
+  sctx.strokeStyle = '#7A4B26'; sctx.lineWidth = 10; sctx.strokeRect(8, 8, 496, 112);
+  sctx.fillStyle = '#5A3A1E'; sctx.font = 'bold 56px Nunito, sans-serif'; sctx.textAlign = 'center'; sctx.textBaseline = 'middle';
+  sctx.fillText('ACORNVILLE', 256, 66);
+  const signTex = new THREE.CanvasTexture(signCanvas); signTex.colorSpace = THREE.SRGBColorSpace;
+  const signPost = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2.4, 8), new THREE.MeshStandardMaterial({ color: 0x6B4632 })); signPost.position.set(0, 1.2, 15); acornvilleWorld.add(signPost);
+  const signPanel = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 0.85), new THREE.MeshStandardMaterial({ map: signTex, roughness: 0.8 })); signPanel.position.set(0, 2.2, 15); acornvilleWorld.add(signPanel);
+  // warm low sun
+  const sun = new THREE.Mesh(new THREE.SphereGeometry(2.5, 20, 16), new THREE.MeshBasicMaterial({ color: 0xFFE8A0 })); sun.position.set(20, 26, -44); acornvilleWorld.add(sun);
+})();
+
+// ── Acornville villagers — little acorn folk wandering, hopping and playing ──
+function makeVillager(bodyCol) {
+  const g = new THREE.Group();
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 12), new THREE.MeshStandardMaterial({ color: bodyCol, roughness: 0.7 }));
+  body.scale.set(1, 1.3, 1); body.position.y = 0.65; body.castShadow = true; g.add(body);
+  const belly = new THREE.Mesh(new THREE.SphereGeometry(0.34, 12, 10), new THREE.MeshStandardMaterial({ color: 0xF0DCC0, roughness: 0.8 }));
+  belly.scale.set(1, 1.2, 0.5); belly.position.set(0, 0.6, 0.34); g.add(belly);
+  const cap = new THREE.Mesh(new THREE.SphereGeometry(0.52, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2.2), new THREE.MeshStandardMaterial({ color: 0x6B4226, roughness: 0.85 }));
+  cap.position.y = 1.02; cap.scale.set(1, 0.7, 1); g.add(cap);
+  const stalk = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.18, 6), new THREE.MeshStandardMaterial({ color: 0x5A3A1E })); stalk.position.y = 1.3; g.add(stalk);
+  for (const ex of [-0.16, 0.16]) { const e = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 6), new THREE.MeshBasicMaterial({ color: 0x120D08 })); e.position.set(ex, 0.78, 0.44); g.add(e); }
+  for (const fx of [-0.18, 0.18]) { const f = new THREE.Mesh(new THREE.SphereGeometry(0.13, 8, 6), new THREE.MeshStandardMaterial({ color: bodyCol })); f.position.set(fx, 0.13, 0.08); g.add(f); }
+  return g;
+}
+const villagers = [];
+const VILLAGER_COLS = [0xC98A4B, 0xD98C5A, 0xE0A85C, 0xCFA06A, 0xB07A3A, 0xE8C088, 0xC07848];
+for (let i = 0; i < 8; i++) {
+  const g = makeVillager(VILLAGER_COLS[i % VILLAGER_COLS.length]);
+  g.position.set((Math.random() - 0.5) * 50, 0, (Math.random() - 0.5) * 50);
+  acornvilleWorld.add(g);
+  villagers.push({ g, tx: (Math.random() - 0.5) * 50, tz: (Math.random() - 0.5) * 50, speed: 1.6 + (i % 3) * 1.4, phase: i });
+}
+function updateVillagers(dt) {
+  const now = performance.now();
+  for (const v of villagers) {
+    const dx = v.tx - v.g.position.x, dz = v.tz - v.g.position.z;
+    const d = Math.hypot(dx, dz);
+    if (d < 0.6) {
+      v.tx = (Math.random() - 0.5) * 55; v.tz = (Math.random() - 0.5) * 55;
+    } else {
+      v.g.position.x += (dx / d) * v.speed * dt;
+      v.g.position.z += (dz / d) * v.speed * dt;
+      v.g.rotation.y = Math.atan2(dx, dz);
+      v.g.position.y = Math.abs(Math.sin(now * 0.006 * v.speed + v.phase)) * 0.22;   // happy hops
+    }
+  }
+}
+
+// ── Fast travel between worlds ──
+const WORLDS = {
+  meadow: { name: 'The Meadow', spawn: new THREE.Vector3(0, 0, 0) },
+  acornville: { name: 'Acornville', spawn: new THREE.Vector3(ACORNVILLE_ORIGIN.x, 0, ACORNVILLE_ORIGIN.z + 18) },
+};
+let currentWorld = 'meadow';
+let travelMenuOpen = false;
+
+async function travelTo(key) {
+  const w = WORLDS[key]; if (!w || controlsLocked) return;
+  closeTravelMenu();
+  controlsLocked = true;
+  if (!quest.portalOpen) reJailSquirrel();   // cancel any chase, but leave a freed Scratchett be
+  showFade(true);
+  await sleep(700);
+  newBedroomGroup.visible = false; schoolGroup.visible = false; butcherShopGroup.visible = false;
+  currentWorld = key;
+  player.position.copy(w.spawn); player.position.y = 0;
+  facingY = 0; player.rotation.y = 0; playerVel.set(0, 0, 0); grounded = true;
+  camState.target.set(w.spawn.x, 1.2, w.spawn.z); camState.distance = 7; camState.yaw = 0; camState.pitch = 0.28;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  controlsLocked = false;
+  if (key === 'meadow' && quest.bonus1Ready && !bonus1Active) {
+    setObjective('Something\'s wrong in the city…');
+    setTimeout(() => beginBonus1(), 1200);
+    return;
+  }
+  setTimeout(() => showSpeech(`Welcome to ${w.name}!`, 2600), 400);
+  if (key === 'acornville') setObjective('Home at last! Step through the portal by your old house to head back.');
+  else setObjective('Free play — explore the meadow.');
+}
+
+function openTravelMenu() {
+  if (!freePlayMode || controlsLocked || paused || travelMenuOpen || !quest.portalOpen) return;
+  travelMenuOpen = true;
+  let menu = document.getElementById('travel-menu');
+  if (!menu) { menu = document.createElement('div'); menu.id = 'travel-menu'; document.querySelector('.game-wrapper').appendChild(menu); }
+  menu.innerHTML = '<div class="travel-title">🗺️ FAST TRAVEL</div>' +
+    Object.keys(WORLDS).map(k => `<button class="travel-opt" data-world="${k}">${WORLDS[k].name}${k === currentWorld ? ' — here' : ''}</button>`).join('') +
+    '<button class="travel-close" id="travel-close">Cancel</button>';
+  menu.classList.add('show');
+  menu.querySelectorAll('.travel-opt').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.world;
+    if (k !== currentWorld) travelTo(k); else closeTravelMenu();
+  }));
+  const c = document.getElementById('travel-close'); if (c) c.addEventListener('click', closeTravelMenu);
+}
+function closeTravelMenu() {
+  travelMenuOpen = false;
+  const menu = document.getElementById('travel-menu');
+  if (menu) menu.classList.remove('show');
+}
+
+// Persistent on-screen Travel button (free-play)
+let travelBtnEl = null;
+function setTravelButton(show) {
+  if (!travelBtnEl) {
+    travelBtnEl = document.createElement('button');
+    travelBtnEl.id = 'travel-btn';
+    travelBtnEl.type = 'button';
+    travelBtnEl.textContent = '🗺️ Travel';
+    const wrap = document.querySelector('.game-wrapper');
+    if (wrap) wrap.appendChild(travelBtnEl);
+    travelBtnEl.addEventListener('click', () => { travelMenuOpen ? closeTravelMenu() : openTravelMenu(); });
+  }
+  travelBtnEl.classList.toggle('show', !!show);
+}
+
+// ═══════════════════════════════════════════════════════
+// SIDE MISSIONS + THE ACORNVILLE PORTAL QUEST
+// 3 meadow side missions → deal at Scratchett's cell → collect every
+// acorn → he peacefully breaks out and opens a portal home to Acornville.
+// ═══════════════════════════════════════════════════════
+let quest = { missionsDone: 0, sm1: false, sm2: false, sm3: false, shopsVisited: new Set(), padsBounced: new Set(), dealAccepted: false, portalOpen: false, announced3: false };
+function resetQuest() {
+  quest = { missionsDone: 0, dealAccepted: false, portalOpen: false, announced3: false };
+  for (const m of buildingMissions) { m.state = 'todo'; if (m.marker) m.marker.visible = false; }
+  for (const m of acornvilleMissions) { m.state = 'todo'; if (m.marker) m.marker.visible = false; }
+  for (const c of collectibles) { c.collected = false; c.g.visible = true; }
+  acornsCollected = 0;
+  meadowPortal.visible = false;
+  currentWorld = 'meadow';
+  setTravelButton(false);
+}
+function setObjective(text) {
+  const objEl = document.getElementById('hud-objective');
+  if (objEl) { objEl.classList.remove('hide'); objEl.querySelector('.objective-text').textContent = text; }
+}
+function onMissionDone(name) {
+  quest.missionsDone++;
+  playTone({ freq: 1046, dur: 0.18, type: 'sine', volume: 0.18 });
+  showSpeech(`✅ Side mission done: ${name}! (${quest.missionsDone}/${buildingMissions.length})`, 3400);
+  if (quest.missionsDone >= buildingMissions.length && !quest.announced3) {
+    quest.announced3 = true;
+    setTimeout(() => showSpeech('Every shop helped! Now — maybe Scratchett in the jail has a deal for you…', 4000), 1800);
+  }
+}
+
+// North face button glyph (Triangle / X-Switch / Y-Xbox), or keyboard E
+function northButtonLabel() {
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for (const pad of pads) {
+    if (!pad) continue;
+    const id = (pad.id || '').toLowerCase();
+    if (id.includes('dualsense') || id.includes('dualshock') || id.includes('sony') || id.includes('054c') || id.includes('0ce6') || id.includes('09cc') || id.includes('05c4')) return '△ Triangle';
+    if (id.includes('057e') || id.includes('nintendo') || id.includes('switch') || id.includes('joy-con') || id.includes('pro controller')) return 'X';
+    if (id.includes('xbox') || id.includes('xinput') || id.includes('045e') || id.includes('microsoft')) return 'Y';
+    return 'Y';
+  }
+  return 'E';
+}
+function nearJailBars() {
+  if (!jailGroup.userData || !jailGroup.userData.barsWorldPos) return false;
+  const bp = jailGroup.userData.barsWorldPos;
+  return Math.hypot(player.position.x - bp.x, player.position.z - bp.z) < 1.9;
+}
+function canMakeDeal() {
+  return freePlayMode && !controlsLocked && !paused && quest.missionsDone >= buildingMissions.length && !quest.dealAccepted && squirrelInJail.visible && nearJailBars();
+}
+async function tryDeal() {
+  if (!canMakeDeal()) return;
+  quest.dealAccepted = true;
+  setTauntPrompt(false);
+  await showSpeechFromNPC('squirrel', 'Wait — don\'t taunt me, HELP me! Let me out and I\'ll open a magic portal home to Acornville!', 4400);
+  await showSpeech('…A portal? Back to my old home?', 2400);
+  await showSpeechFromNPC('squirrel', 'Bring me every last acorn in the meadow. Every one! Then I\'ll have the magic to open it.', 4400);
+  setObjective(`Collect every acorn for Scratchett (${acornsCollected}/${collectibles.length})`);
+  if (acornsCollected >= collectibles.length) completeDeal();   // already got them all
+}
+function completeDeal() {
+  if (quest.portalOpen) return;
+  quest.portalOpen = true;
+  squirrelInJail.visible = false;
+  squirrelEscaped = false; squirrelEscaping = false;
+  squirrel.visible = true; squirrel.position.set(JAIL_POS.x, 0, JAIL_POS.z + 4); squirrel.rotation.y = Math.PI;
+  meadowPortal.visible = true;
+  setTravelButton(true);   // unlock the fast-travel button + M-menu now both worlds are reachable
+  playTone({ freq: 1320, dur: 0.4, type: 'sine', volume: 0.2 });
+  setTimeout(() => playTone({ freq: 1760, dur: 0.5, type: 'sine', volume: 0.18 }), 200);
+  (async () => {
+    await showSpeechFromNPC('squirrel', 'YES! Free at last — and a deal\'s a deal!', 3000);
+    await showSpeechFromNPC('squirrel', 'There — a portal, right beside your house. It\'ll take you home to Acornville. Off you pop!', 4600);
+    setObjective('Step through the portal beside your house → Acornville');
+  })();
+}
+
+// ── Portals ──
+function makePortal() {
+  const g = new THREE.Group();
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.4, 0.22, 12, 32), new THREE.MeshStandardMaterial({ color: 0x9B6BFF, emissive: 0x7A3AFF, emissiveIntensity: 0.85, metalness: 0.4, roughness: 0.3 }));
+  ring.position.y = 1.7; g.add(ring);
+  const swirl = new THREE.Mesh(new THREE.CircleGeometry(1.25, 24), new THREE.MeshBasicMaterial({ color: 0xC9A8FF, transparent: true, opacity: 0.55, side: THREE.DoubleSide }));
+  swirl.position.y = 1.7; g.add(swirl);
+  g.userData.swirl = swirl;
+  return g;
+}
+const MEADOW_PORTAL_POS = new THREE.Vector3(-6, 0, -9);   // right of Pico's new house
+const meadowPortal = makePortal();
+meadowPortal.position.copy(MEADOW_PORTAL_POS);
+meadowPortal.visible = false;
+scene.add(meadowPortal);
+const acornvillePortal = makePortal();
+acornvillePortal.position.set(5, 0, 16);   // local: right at the entrance/welcome sign, where you arrive — unmissable
+acornvilleWorld.add(acornvillePortal);
+const ACORNVILLE_PORTAL_WORLD = new THREE.Vector3(ACORNVILLE_ORIGIN.x + 5, 0, ACORNVILLE_ORIGIN.z + 16);
+
+// ── Acornville side quests (same fetch pattern, hometown-flavoured) ──
+// Givers are Acornville landmarks; positions are LOCAL to ACORNVILLE_ORIGIN.
+const acornvilleMissions = [
+  { name: 'The Picnic Basket', gx: -18, gz: 2, ix: -10, iz: 11, ask: '(Neighbour) I left my picnic basket out in the fields! Could you fetch it?', thanks: '(Neighbour) My basket! Lovely — thank you, Pico.', color: 0xE0A85C },
+  { name: 'Granny\'s Wool', gx: 14, gz: -2, ix: 6, iz: -11, ask: '(Granny) Oh — my ball of wool rolled clean away! Be a dear?', thanks: '(Granny) Bless you, sweetheart.', color: 0xE8536B },
+  { name: 'The Windmill Sail', gx: -24, gz: -16, ix: -12, iz: -6, ask: '(Miller) A sail-cloth blew off in the wind! Spot it for me?', thanks: '(Miller) Grand! She\'ll turn again now.', color: 0xC97A3A },
+  { name: 'The Toy Boat', gx: 10, gz: 18, ix: 18, iz: 8, ask: '(Child) My little boat drifted right across the pond! Can you get it?', thanks: '(Child) My boat! Yay! Thank you!', color: 0x3AA8D8 },
+];
+for (const m of acornvilleMissions) {
+  const marker = new THREE.Group(); marker.position.set(m.ix, 0, m.iz);
+  const icon = new THREE.Mesh(new THREE.SphereGeometry(0.32, 14, 12), new THREE.MeshStandardMaterial({ color: m.color, emissive: m.color, emissiveIntensity: 0.5, roughness: 0.5 }));
+  icon.position.y = 0.7; marker.add(icon);
+  const beam = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.5, 4), new THREE.MeshBasicMaterial({ color: 0xFFE36B })); beam.position.y = 1.5; beam.rotation.x = Math.PI; marker.add(beam);
+  marker.visible = false; acornvilleWorld.add(marker);
+  m.marker = marker; m.icon = icon; m.state = 'todo';
+}
+function updateAcornvilleMissions(px, pz) {
+  for (const m of acornvilleMissions) {
+    if (m.state === 'done') continue;
+    const gwx = ACORNVILLE_ORIGIN.x + m.gx, gwz = ACORNVILLE_ORIGIN.z + m.gz;
+    const iwx = ACORNVILLE_ORIGIN.x + m.ix, iwz = ACORNVILLE_ORIGIN.z + m.iz;
+    if (m.state === 'todo' && Math.hypot(px - gwx, pz - gwz) < 3) {
+      m.state = 'find'; m.marker.visible = true;
+      showSpeech(m.ask, 3800);
+      setObjective(`${m.name}: follow the glowing marker`);
+    } else if (m.state === 'find' && Math.hypot(px - iwx, pz - iwz) < 1.3) {
+      m.state = 'return'; m.marker.visible = false;
+      playTone({ freq: 880, dur: 0.12, type: 'sine', volume: 0.15 });
+      showSpeech('Got it! Take it back.', 2400);
+      setObjective(`${m.name}: bring it back`);
+    } else if (m.state === 'return' && Math.hypot(px - gwx, pz - gwz) < 3) {
+      m.state = 'done';
+      playTone({ freq: 1046, dur: 0.18, type: 'sine', volume: 0.18 });
+      showSpeech(m.thanks, 3000);
+      const c = acornvilleMissions.filter(x => x.state === 'done').length;
+      setObjective(`Acornville quests: ${c}/${acornvilleMissions.length}`);
+      if (c >= acornvilleMissions.length && !quest.acornvilleAllDone) {
+        quest.acornvilleAllDone = true;
+        quest.bonus1Ready = true;
+        setTimeout(() => showSpeech('You\'ve helped all of Acornville! …but something feels wrong back in the city. Hurry home!', 4800), 1500);
+      }
+    }
+  }
+}
+
 // A second Butcher instance lives inside the jail during free-play
-const butcherInJail = makeButcher();
-butcherInJail.scale.setScalar(0.85);  // a bit smaller, looks defeated
+const butcherInJail = makeSquirrel();  // legacy (free-play now uses squirrelInJail) — kept harmless
+butcherInJail.scale.setScalar(0.85);
 butcherInJail.visible = false;
 scene.add(butcherInJail);
 
@@ -2920,11 +3563,19 @@ function updateCamera() {
     sy = (Math.random() - 0.5) * shake.intensity;
     sz = (Math.random() - 0.5) * shake.intensity;
   }
-  camera.position.set(
-    camState.target.x + x + sx,
-    camState.target.y + y + sy,
-    camState.target.z + z + sz
-  );
+  let cx = camState.target.x + x + sx;
+  let cy = camState.target.y + y + sy;
+  let cz = camState.target.z + z + sz;
+  // Inside the house? Keep the camera within the building shell so it never
+  // slips behind a wall (the rooms are small and there's no camera collision,
+  // so a distance-6 orbit cam would otherwise end up outside, showing wall).
+  if (newBedroomGroup.visible) {
+    const ox = NEW_BEDROOM_ORIGIN.x, oz = NEW_BEDROOM_ORIGIN.z;
+    cx = clamp(cx, ox - 4.5, ox + 4.5);
+    cz = clamp(cz, oz - 7.5, oz + 7.5);
+    cy = clamp(cy, 0.6, 5.5);
+  }
+  camera.position.set(cx, cy, cz);
   camera.lookAt(camState.target);
 }
 
@@ -2983,6 +3634,9 @@ window.addEventListener('keydown', e => {
   keys[e.code] = true;
   if (e.code === 'KeyT') toggleDance();
   if (e.code === 'KeyR') resetPlayer();
+  if (e.code === 'KeyY') tryTaunt();   // taunt Scratchett at the jail (free-play)
+  if (e.code === 'KeyE') tryDeal();    // make the portal deal at the cell (after 5 missions)
+  if (e.code === 'KeyM') openTravelMenu();   // fast-travel menu (once the portal's unlocked)
 });
 
 function resetPlayer() {
@@ -3103,7 +3757,7 @@ if (isTouch) {
   }
 }
 
-const gamepadPrev = { dance: false, start: false };
+const gamepadPrev = { dance: false, start: false, taunt: false };
 function readInput() {
   // During cutscenes the player can't drive Pico
   if (controlsLocked) return { mx: 0, mz: 0, sprint: false, jump: false };
@@ -3140,11 +3794,16 @@ function readInput() {
 
     if (pad.buttons[7] && pad.buttons[7].pressed) sprint = true;  // R2
     if (pad.buttons[0] && pad.buttons[0].pressed) jump = true;    // Cross
-    // Triangle / Y (button 3) — dance, edge-triggered
+    // North face button (Triangle / X-Switch / Y-Xbox) — make a deal at the cell, else dance
     if (pad.buttons[3] && pad.buttons[3].pressed && !gamepadPrev.dance) {
-      toggleDance();
+      if (canMakeDeal()) tryDeal(); else toggleDance();
     }
     gamepadPrev.dance = !!(pad.buttons[3] && pad.buttons[3].pressed);
+    // West face button (Square / X / Y) — taunt Scratchett, edge-triggered
+    if (pad.buttons[2] && pad.buttons[2].pressed && !gamepadPrev.taunt) {
+      tryTaunt();
+    }
+    gamepadPrev.taunt = !!(pad.buttons[2] && pad.buttons[2].pressed);
     // Options / Start (button 9) — toggle pause, edge-triggered
     if (pad.buttons[9] && pad.buttons[9].pressed && !gamepadPrev.start) {
       if (!controlsLocked) setPaused(!paused);
@@ -3751,11 +4410,14 @@ function tick() {
     // Tick mixer last so the chosen action is reflected this frame
     if (mixer) mixer.update(dt);
 
-    // Camera follow — target is roughly Pico's head height (~1m above feet)
-    camState.target.lerp(
-      new THREE.Vector3(player.position.x, player.position.y + 1, player.position.z),
-      smooth(8, dt)
-    );
+    // Camera follow — target is roughly Pico's head height (~1m above feet).
+    // Suppressed during the squirrel close-up so it can hold its own framing.
+    if (!closeUpActive) {
+      camState.target.lerp(
+        new THREE.Vector3(player.position.x, player.position.y + 1, player.position.z),
+        smooth(8, dt)
+      );
+    }
 
     // Dynamic zone label based on Pico's position
     updateZoneLabel();
@@ -3773,7 +4435,9 @@ function tick() {
     checkButcherChase(dt);
     // Free-play triggers (after Ch.6 ending)
     checkFreePlayTriggers();
-    updateButcherFreeplayChase(dt);
+    updateSquirrelChase(dt);
+    updateTownExtras(dt);
+    updateBonus1(dt);
   }
 
   updateCamera();
@@ -4039,6 +4703,7 @@ const VOICE_PRESETS = {
   brunk:     { rate: 0.85, pitch: 0.5, volume: 0.95 },  // big bully chestnut — low + slow
   pemberton: { rate: 0.95, pitch: 0.9, volume: 0.85 },  // teacher — measured
   butcher:   { rate: 0.95, pitch: 0.55,volume: 0.95 },  // menacing + sing-song
+  squirrel:  { rate: 1.5,  pitch: 1.9, volume: 0.9 },   // Scratchett — fast, high, chittery
   narrator:  { rate: 1.0,  pitch: 1.0, volume: 0.8 }    // fallback
 };
 // Try to pick voices preferring a few accents for variety. The browser
@@ -4062,6 +4727,7 @@ function pickVoice(preset, charKey) {
     brunk:     ['Fred', 'Ralph', 'Bruce', 'Albert'],
     pemberton: ['Daniel', 'Oliver', 'Aaron'],
     butcher:   ['Bahh', 'Bad News', 'Fred', 'Ralph', 'Bruce', 'Daniel'],
+    squirrel:  ['Junior', 'Karen', 'Allison', 'Princess', 'Samantha'],
     narrator:  ['Samantha', 'Karen']
   };
   const want = prefs[charKey] || [];
@@ -4076,7 +4742,7 @@ if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = () => { cachedVoices = null; };
 }
 
-let voicesOn = (() => { try { return localStorage.getItem('wonkyAcorn_voicesOn') !== '0'; } catch (e) { return true; } })();
+let voicesOn = (() => { try { return localStorage.getItem('wonkyAcorn_voicesOn') === '1'; } catch (e) { return false; } })();   // default OFF — opt-in
 let _currentUtterance = null;
 function speak(text, charKey = 'pico') {
   if (muted || !voicesOn) return;
@@ -4419,7 +5085,8 @@ function showSpeechFromNPC(who, text, duration = 2000) {
     hazel:     { name: 'HAZEL',        color: '#5BAAEF' },
     brunk:     { name: 'BRUNK',        color: '#7C5B2E' },
     pemberton: { name: 'MR. PEMBERTON', color: '#2C5C3E' },
-    butcher:   { name: 'BUTCHER',      color: '#8B3A2A' }
+    butcher:   { name: 'BUTCHER',      color: '#8B3A2A' },
+    squirrel:  { name: 'SCRATCHETT',   color: '#9B5A2B' }
   };
   const label = labels[who] || { name: who.toUpperCase(), color: '#555' };
   speak(text, who);   // pick the NPC's voice preset
@@ -4450,6 +5117,8 @@ function setPaused(v) {
     if (v) menu.classList.add('show');
     else menu.classList.remove('show');
   }
+  // Refresh the Replay Chapters lock state every time the menu opens
+  if (v && typeof refreshReplayLock === 'function') refreshReplayLock();
   // Sync the mute button label to current state
   const muteBtn = document.getElementById('pause-mute');
   if (muteBtn) muteBtn.textContent = muted ? 'Unmute Sound' : 'Mute Sound';
@@ -4502,7 +5171,7 @@ const CHECKPOINT_LABELS = {
   intro:    'Ch. 1 — The Move',
   newhouse: 'Ch. 2 — Big City (new house)',
   school:   'Ch. 3 — First day at Conker Heights High',
-  butcher:  'Ch. 5 — Sawbones & Sons',
+  butcher:  'Ch. 5 — Scratchett & Sons',
   ending:   'Ch. 6 — Investigation'
 };
 
@@ -4600,12 +5269,54 @@ function applyPendingLoadIfAny() {
   return true;
 }
 
+// Replay Chapters stays LOCKED until the player beats the game (sees the
+// Congratulations card, which sets wonkyAcorn_freeplayUnlocked = '1').
+function isReplayUnlocked() {
+  try { return localStorage.getItem('wonkyAcorn_freeplayUnlocked') === '1'; } catch (e) { return false; }
+}
+// Refresh the locked/unlocked look of the Replay tab, the GAME-tab shortcut,
+// the panel intro, and every chapter row. Called whenever the pause menu opens.
+function refreshReplayLock() {
+  const unlocked = isReplayUnlocked();
+  const tab = document.querySelector('.pause-tab[data-tab="replay"]');
+  const shortcut = document.getElementById('pause-replay-shortcut');
+  const intro = document.querySelector('.pause-panel[data-panel="replay"] .panel-intro');
+  if (tab) {
+    tab.disabled = !unlocked;
+    tab.classList.toggle('locked', !unlocked);
+    tab.textContent = unlocked ? 'REPLAY CHAPTERS' : '🔒 REPLAY CHAPTERS';
+  }
+  if (shortcut) {
+    shortcut.disabled = !unlocked;
+    shortcut.classList.toggle('locked', !unlocked);
+    shortcut.textContent = unlocked
+      ? '📖 Replay Chapters'
+      : '🔒 Replay Chapters — beat the game to unlock';
+  }
+  if (intro) {
+    intro.textContent = unlocked
+      ? 'You beat the game! Jump back to the start of any chapter below.'
+      : 'Locked — finish the story and reach the Congratulations screen to unlock chapter replay.';
+  }
+  document.querySelectorAll('.replay-row').forEach(r => {
+    r.disabled = !unlocked;
+    r.classList.toggle('locked', !unlocked);
+  });
+  // Bonus chapters: hidden in the list until you've beaten them
+  let bonus1Beaten = false;
+  try { bonus1Beaten = localStorage.getItem('wonkyAcorn_bonus1Beaten') === '1'; } catch (e) {}
+  const bonus1Row = document.querySelector('.replay-row[data-replay="bonus1"]');
+  if (bonus1Row) bonus1Row.style.display = bonus1Beaten ? '' : 'none';
+}
+
 // Wire pause menu — tabs + game actions + save slots
 {
   // Tab switching
   document.querySelectorAll('.pause-tab').forEach(btn => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.tab;
+      // Replay Chapters is gated behind beating the game
+      if (tab === 'replay' && !isReplayUnlocked()) return;
       document.querySelectorAll('.pause-tab').forEach(b => b.classList.toggle('active', b === btn));
       document.querySelectorAll('.pause-panel').forEach(p => {
         p.classList.toggle('hide', p.dataset.panel !== tab);
@@ -4634,9 +5345,10 @@ function applyPendingLoadIfAny() {
     syncVoicesLabel();
   });
 
-  // Shortcut on the GAME tab → switches to the REPLAY tab
+  // Shortcut on the GAME tab → switches to the REPLAY tab (locked until beaten)
   const replayShortcut = document.getElementById('pause-replay-shortcut');
   if (replayShortcut) replayShortcut.addEventListener('click', () => {
+    if (!isReplayUnlocked()) return;
     const replayTab = document.querySelector('.pause-tab[data-tab="replay"]');
     if (replayTab) replayTab.click();
   });
@@ -4655,12 +5367,17 @@ function applyPendingLoadIfAny() {
   // REPLAY CHAPTERS panel — wire each replay row to jump to that chapter
   document.querySelectorAll('.replay-row').forEach(row => {
     row.addEventListener('click', () => {
+      if (!isReplayUnlocked()) return;
       const target = row.dataset.replay;
       // Close the pause menu first so the replay cutscene plays cleanly
       setPaused(false);
       // Reset state common to chapter starts
       freePlayMode = false;
-      butcherEscaped = false;
+      squirrelEscaped = false;
+      squirrelEscaping = false;
+      squirrelCatching = false;
+      closeUpActive = false;
+      warnCount = 0;
       walkingToSchool = false;
       ch4Phase = 'idle';
       ch5Phase = 'idle';
@@ -4668,6 +5385,13 @@ function applyPendingLoadIfAny() {
       jailGroup.visible = false;
       freeplaySignPost.visible = false;
       butcherInJail.visible = false;
+      squirrelInJail.visible = false;
+      squirrel.visible = false;
+      setTauntPrompt(false);
+      setRoomPostGame(false);   // story replays show the scattered moving boxes
+      resetQuest();
+      acornGroup.visible = false;   // collectibles are free-play only
+      if (acornHudEl) acornHudEl.classList.remove('show');
       // Clear ALL scene visibility so we don't see ghosts of the previous chapter
       bedroomGroup.visible = false;
       kitchenGroup.visible = false;
@@ -4680,7 +5404,7 @@ function applyPendingLoadIfAny() {
       pemberton.visible = false;
       houseMum.visible = false;
       hazel.userData.following = false;
-      if (jailGroup.userData) jailGroup.userData.lastTease = null;
+      if (jailGroup.userData) jailGroup.userData.lastTaunt = null;
       // Dispatch to the chapter starter
       switch (target) {
         case 'intro':    beginIntro(); break;
@@ -4689,6 +5413,7 @@ function applyPendingLoadIfAny() {
         case 'errand':   beginChapter4(); break;
         case 'butcher':  beginChapter5(); break;
         case 'ending':   beginChapter6(); break;
+        case 'bonus1':   bonus1Active = false; bonus1Phase = 'idle'; beginBonus1(); break;
       }
     });
   });
@@ -4800,11 +5525,11 @@ function updateZoneLabel() {
   const px = player.position.x;
   const pz = player.position.z;
   let zone;
-  // Butcher shop?
+  // Scratchett's shop?
   if (butcherShopGroup.visible &&
       Math.abs(pz - BUTCHER_ORIGIN.z) < 10 &&
       Math.abs(px - BUTCHER_ORIGIN.x) < 8) {
-    zone = 'SAWBONES & SONS';
+    zone = 'SCRATCHETT & SONS';
   } else if (schoolGroup.visible &&
       Math.abs(pz - SCHOOL_ORIGIN.z) < 15 &&
       Math.abs(px - SCHOOL_ORIGIN.x) < 6) {
@@ -4865,7 +5590,8 @@ const BOX_MEMORIES = {
 let allBoxesTouched = false;
 let pendingBoxLine = null;
 function checkBoxTouches() {
-  if (!newBedroomGroup.visible || allBoxesTouched) return;
+  // Free-play tidies the room (boxes hidden) — the touch mini-objective is Ch.2-only
+  if (!newBedroomGroup.visible || allBoxesTouched || freePlayMode) return;
   const boxes = newBedroomGroup.userData.boxes;
   if (!boxes || boxes.length === 0) return;
 
@@ -5359,15 +6085,19 @@ async function ch4_talkToMum() {
   facingY = Math.atan2(dx, dz);
   player.rotation.y = facingY;
 
-  await showSpeechFromNPC('granny', 'Pico, love! Could you pop down to the butcher\'s for me? Sausages for tea.', 4200);
+  await showSpeechFromNPC('granny', 'There he is — my brave boy! Made a whole friend on your very first day.', 3600);
+  await showSpeech('Her name\'s Hazel! She talks like a kettle.', 2600);
+  await showSpeechFromNPC('granny', '(laughing) Then tonight we celebrate — our first proper dinner in the new city!', 3800);
+  await showSpeechFromNPC('granny', 'The pot\'s on… but I\'m short one thing: a big bag of chestnuts for the roast.', 3800);
+  await showSpeechFromNPC('granny', 'The freshest in the city are at Scratchett\'s — the little shop on the corner. Could you pop down for me?', 4600);
   await showSpeech('On my own?', 1800);
-  await showSpeechFromNPC('granny', 'Straight there, straight back. You\'ll be just fine.', 3000);
-  await showSpeech('…Okay, Mum.', 1800);
+  await showSpeechFromNPC('granny', 'You\'re a city acorn now! Straight there, straight back, and you\'ll be just fine.', 3800);
+  await showSpeech('…Okay, Mum. Straight there, straight back!', 2600);
 
   // Update objective and let player roam
   const objEl = document.getElementById('hud-objective');
   if (objEl) {
-    objEl.querySelector('.objective-text').textContent = 'Walk to the butcher\'s shop';
+    objEl.querySelector('.objective-text').textContent = 'Walk to Scratchett\'s shop';
   }
 
   ch4Phase = 'toButcher';
@@ -5383,7 +6113,7 @@ function checkChapter4Triggers() {
     const dz = player.position.z - houseMum.position.z;
     if (Math.hypot(dx, dz) < 1.8) ch4_talkToMum();
   } else if (ch4Phase === 'toButcher') {
-    // Pico needs to walk to the butcher storefront in the meadow
+    // Pico needs to walk to Scratchett's storefront in the meadow
     if (newBedroomGroup.visible || butcherShopGroup.visible) return;
     const dx = player.position.x - butcherStorefront.userData.doorWorldPos.x;
     const dz = player.position.z - butcherStorefront.userData.doorWorldPos.z;
@@ -5426,8 +6156,6 @@ async function beginChapter5() {
   butcher.position.z -= 4.2;   // behind counter
   butcher.rotation.y = 0;       // facing +Z (toward Pico)
   butcher.visible = true;
-  // Stash the cleaver's resting position so we can swing it later
-  butcher.userData.cleaverRestY = butcher.userData.cleaverBlade.position.y;
 
   // Camera framing: side-on 2-shot so we can see Pico AND the Butcher
   // (yaw=0 was pointing the camera straight through the door — bad)
@@ -5445,7 +6173,7 @@ async function beginChapter5() {
   const objEl = document.getElementById('hud-objective');
   if (objEl) {
     objEl.classList.remove('hide');
-    objEl.querySelector('.objective-text').textContent = 'Buy one thing for Mum';
+    objEl.querySelector('.objective-text').textContent = 'Buy chestnuts for Mum';
   }
 
   // ── 5.1: The Counter (per SCRIPT.md) ──
@@ -5467,28 +6195,15 @@ async function beginChapter5() {
   }
   await sleep(900);
 
-  await showSpeechFromNPC('butcher', 'Welcome, welcome! Don\'t be shy. Come closer, little one — let me get a proper look at you.', 4500);
-  await showSpeech('Um — I just need one thing for my mum—', 2800);
-  await showSpeechFromNPC('butcher', 'Oh, you\'re a plump one. Lovely and round. You know… I don\'t get many acorns in here.', 4500);
-  await showSpeech('...Acorns?', 1800);
-
-  // The Butcher raises the cleaver — animate it lifting high
-  const blade = butcher.userData.cleaverBlade;
-  const handle = butcher.userData.cleaverHandle;
-  if (blade && handle) {
-    const t0 = performance.now();
-    const raiseStart = blade.position.y;
-    const raiseEnd = raiseStart + 1.4;
-    (function raiseCleaver() {
-      const t = Math.min(1, (performance.now() - t0) / 600);
-      blade.position.y = raiseStart + (raiseEnd - raiseStart) * t;
-      handle.position.y = (raiseStart - 0.4) + (raiseEnd - raiseStart) * t;
-      if (t < 1) requestAnimationFrame(raiseCleaver);
-    })();
-  }
-  // Sharp metallic shing sound
-  playTone({ freq: 1800, dur: 0.4, type: 'sine', volume: 0.15, attack: 0.005, release: 0.4 });
-  await showSpeechFromNPC('butcher', 'Stay verrry still, dear. This won\'t take a moment.', 3000);
+  await showSpeechFromNPC('squirrel', 'Ooh-hoo! A customer! Come in, come in — mind my lovely acorns, won\'t you?', 4200);
+  await showSpeech('Um — I just need some chestnuts for my mum—', 2800);
+  await showSpeechFromNPC('squirrel', '(gasping) Chestnuts? Never mind chestnuts! Look at YOU — the roundest acorn I\'ve EVER seen!', 4600);
+  await showSpeech('...Me?', 1600);
+  await showSpeechFromNPC('squirrel', 'You\'d be the jewel of my whole collection! Top shelf — pride of place!', 4000);
+  // Scratchett whips out a big collecting sack (no blade — pure cartoon menace)
+  playTone({ freq: 700, dur: 0.25, type: 'square', volume: 0.14 });
+  addShake(0.2);
+  await showSpeechFromNPC('squirrel', 'Come HERE, you perfect little prize — into my sack you go!', 3400);
 
   // Callback gag — the salt joke at peak danger
   addShake(0.35);
@@ -5551,7 +6266,7 @@ async function onButcherCaught() {
   setStillMode(true);
   addShake(0.5);
   playTone({ freq: 80, dur: 0.5, type: 'sawtooth', volume: 0.3 });
-  await showSpeechFromNPC('butcher', 'Gotcha, little one! Sit verrry still now...', 3000);
+  await showSpeechFromNPC('squirrel', 'Tee-hee! Gotcha! Ooh, you\'ll look LOVELY on my shelf—', 3000);
   await sleep(500);
   // Restart the chase
   player.position.copy(BUTCHER_ORIGIN);
@@ -5585,9 +6300,9 @@ async function onButcherEscaped() {
   const endHTML = `
     <div style="text-align:center;font-family:'Nunito',sans-serif;color:#fff;padding:40px">
       <div style="font-size:14px;letter-spacing:8px;color:#FFD740;margin-bottom:14px">END OF CHAPTER 5</div>
-      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">The Butcher</h2>
+      <h2 style="font-size:48px;font-weight:900;margin-bottom:18px">Scratchett's Shop</h2>
       <p style="font-size:15px;color:rgba(255,255,255,0.6);max-width:520px;margin:0 auto 24px;line-height:1.6">
-        Pico made it out. The Butcher is still in there, sing-songing through the door…<br>
+        Pico made it out. Scratchett is still in there, chittering through the door…<br>
         He runs all the way home. Hazel and Brunk are already on the doorstep.
       </p>
       <button id="continue-ch6" type="button" style="margin:14px 8px 0;padding:14px 32px;font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;background:linear-gradient(135deg,#FFD740,#FFC107);color:#1a1a2e;border:none;border-radius:999px;cursor:pointer;box-shadow:0 8px 28px rgba(255,193,7,0.4)">
@@ -5668,7 +6383,7 @@ async function beginChapter6() {
   await showSpeechFromNPC('brunk', '(quietly) …I helped him. The pranks. The acorns.', 3000);
   await showSpeech('You WHAT?!', 1800);
   await showSpeechFromNPC('brunk', 'I didn\'t know what he was DOING with them. I do now. I\'m here.', 3400);
-  await showSpeechFromNPC('hazel', 'They\'re in his cellar. We checked. They\'re scared but they\'re okay.', 3600);
+  await showSpeechFromNPC('hazel', 'They\'re in his store-room. We checked. They\'re scared but they\'re okay.', 3600);
 
   // ── 6.2 The cellar (compressed beat — fade-card "Later that night") ──
   showFade(true);
@@ -5683,14 +6398,14 @@ async function beginChapter6() {
   await showSpeech('Got it!', 1200);
   playTone({ freq: 880, dur: 0.18, type: 'triangle', volume: 0.18 });
   addShake(0.2);
-  await showSpeech('(the cellar door creaks open) Run! All of you, RUN!', 3200);
+  await showSpeech('(the store-room door creaks open) Run! All of you, RUN!', 3200);
   await sleep(500);
 
-  // ── 6.4 The Butcher unmasked ──
-  await showSpeechFromNPC('butcher', '(from above) You little SHELL. You don\'t understand.', 3400);
+  // ── 6.4 Scratchett unmasked ──
+  await showSpeechFromNPC('squirrel', '(chittering) You don\'t understand, you little SHELL!', 3400);
   await showSpeech('Then EXPLAIN.', 1600);
-  await showSpeechFromNPC('butcher', 'I answer to SOMEONE. I had to. They needed the acorns…', 3800);
-  await showSpeechFromNPC('butcher', '…and I have to answer to them again. Soon.', 3000);
+  await showSpeechFromNPC('squirrel', 'I only wanted the FINEST collection in the whole city! Nobody hoards like Scratchett!', 4200);
+  await showSpeechFromNPC('squirrel', '…and I\'m not the only collector out there, oh no. You\'ll SEE.', 3400);
 
   // ── 6.5 The arrest ──
   showFade(true);
@@ -5712,7 +6427,7 @@ async function beginChapter6() {
   await showSpeechFromNPC('hazel', 'You\'ve got a reason to look forward to tomorrow now.', 3000);
   await showSpeech('(small smile) Yeah. I do.', 2400);
   await sleep(400);
-  await showSpeechFromNPC('hazel', 'The butcher\'s in the jail across the meadow. They\'ll keep him there a long time.', 4000);
+  await showSpeechFromNPC('hazel', 'Scratchett\'s in the jail across the meadow. They\'ll keep him there a long time.', 4000);
 
   await sleep(800);
 
@@ -5726,9 +6441,10 @@ async function beginChapter6() {
       <h2 style="font-size:30px;font-weight:900;margin-bottom:18px;line-height:1.3">You have solved the mystery of the missing acorns<br>and finished the game!</h2>
       <p style="font-size:15px;color:rgba(255,255,255,0.9);max-width:580px;margin:0 auto 22px;line-height:1.7">
         You have unlocked <b>free-play</b>. You can now enter <b>the house</b>,
-        <b>the school</b>, and <b>the butcher's</b> at your own will, and there
-        is a <b>jail</b> for if you want to tease the butcher.<br><br>
-        Just don't do anything rude or he might come after you.<br><br>
+        <b>the school</b>, and <b>the shop</b> at your own will, and there is a
+        <b>jail</b> where <b>Scratchett the squirrel</b> is locked up.<br><br>
+        Walk up to his cell and <b>taunt</b> him if you dare — but push your luck
+        too many times and he'll burst out and chase you all over the meadow!<br><br>
         You can also <b>replay chapters</b> by going to <b>Replay Chapters</b>
         in the pause menu.
       </p>
@@ -5761,14 +6477,31 @@ async function beginChapter6() {
 // FREE PLAY MODE — unlocked after beating Ch.6
 // ═══════════════════════════════════════════════════════
 let freePlayMode = false;
-let teaseCount = 0;
-let butcherEscaped = false;
+let tauntCount = 0;            // cycles Pico's taunt lines (persists across the whole loop)
+let warnCount = 0;            // taunts this round → escalating warnings before he breaks out
+let squirrelEscaped = false; // is Scratchett out of his cell, chasing?
+let squirrelEscaping = false; // final warning landed → break-out is queued (blocks extra taunts)
+let squirrelChaseSecs = 0;   // seconds in the current chase (drives the speed-up)
+let squirrelCatching = false; // mid catch-cutscene latch
+let closeUpActive = false;   // the 3s acorn close-up holds the camera (suppresses follow-lerp)
+const MPH_TO_UNITS = 1.0;    // chase speed: mph → world units/sec (Pico walks 4.5, sprints ~8.1)
 
 function enterFreePlay() {
   freePlayMode = true;
-  teaseCount = 0;
-  butcherEscaped = false;
+  tauntCount = 0;
+  warnCount = 0;
+  squirrelEscaped = false;
+  squirrelEscaping = false;
+  squirrelChaseSecs = 0;
+  squirrelCatching = false;
+  closeUpActive = false;
   setCheckpoint('freeplay');
+  // You beat the game → Pico's room is now neat and tidy (empty boxes piled away)
+  setRoomPostGame(true);
+  // Reset the side-mission / portal quest, then show the collectible acorns
+  resetQuest();
+  acornGroup.visible = true;
+  setAcornHud(true);
   // Hide all cutscene state, show the meadow
   bedroomGroup.visible = false;
   kitchenGroup.visible = false;
@@ -5780,12 +6513,15 @@ function enterFreePlay() {
   brunk.visible = false;
   pemberton.visible = false;
   houseMum.visible = false;
-  // Show the jail with the Butcher locked up (sitting on his cot, defeated)
+  // Show the jail with Scratchett the squirrel locked up, sulking by the bars
   jailGroup.visible = true;
   freeplaySignPost.visible = true;
-  butcherInJail.position.set(JAIL_POS.x - 1.3, 0, JAIL_POS.z - 2.5);
-  butcherInJail.rotation.y = Math.PI;   // facing south toward the bars
-  butcherInJail.visible = true;
+  butcher.visible = false;
+  butcherInJail.visible = false;
+  squirrel.visible = false;
+  squirrelInJail.position.set(JAIL_POS.x - 1.3, 0, JAIL_POS.z - 2.5);
+  squirrelInJail.rotation.y = Math.PI;   // facing south toward the bars
+  squirrelInJail.visible = true;
   // Place Pico in the middle of the meadow
   player.position.set(0, 0, 0);
   facingY = 0;
@@ -5817,6 +6553,7 @@ async function enterHouseFree() {
   showFade(true);
   await sleep(700);
   newBedroomGroup.visible = true;
+  setRoomPostGame(true);   // post-game: tidy room, empty boxes piled in the corner
   restoreHouseLights();
   // Spawn at the entrance hall
   player.position.set(NEW_BEDROOM_ORIGIN.x, 0, NEW_BEDROOM_ORIGIN.z + 7.0);
@@ -5825,9 +6562,9 @@ async function enterHouseFree() {
   playerVel.set(0, 0, 0);
   grounded = true;
   camState.target.set(player.position.x, 1.1, player.position.z);
-  camState.distance = 6;
+  camState.distance = 4.5;
   camState.yaw = Math.PI;
-  camState.pitch = 0.22;
+  camState.pitch = 0.3;
   updateCamera();
   await sleep(200);
   showFade(false);
@@ -5875,7 +6612,7 @@ async function enterButcherShopFree() {
   updateCamera();
   await sleep(200);
   showFade(false);
-  setTimeout(() => showSpeech('The shop\'s empty. The Butcher\'s in jail.', 2800), 400);
+  setTimeout(() => showSpeech('The shop\'s quiet. Scratchett\'s locked up in the jail.', 2800), 400);
   controlsLocked = false;
 }
 async function exitToMeadowFree() {
@@ -5925,91 +6662,372 @@ function checkFreePlayTriggers() {
     if (lz >= 6.5) { exitToMeadowFree(); return; }
   }
 
-  // ── Tease the Butcher through the bars ──
-  if (jailGroup.visible && !butcherEscaped) {
+  // ── Taunt / make-a-deal prompt at Scratchett's bars ──
+  if (jailGroup.visible && squirrelInJail.visible && !squirrelEscaped && !quest.dealAccepted) {
     const bp = jailGroup.userData.barsWorldPos;
-    const d = Math.hypot(px - bp.x, pz - bp.z);
-    if (d < 1.5 && jailGroup.userData.lastTease == null) {
-      jailGroup.userData.lastTease = performance.now();
-    }
-    if (jailGroup.userData.lastTease != null && performance.now() - jailGroup.userData.lastTease > 2500) {
-      // A "tease" — Pico stood close to the bars for a moment
-      jailGroup.userData.lastTease = performance.now() + 1500;  // cool-down
-      teaseCount++;
-      const lines = [
-        '(through the bars) Stuck in there, eh?',
-        'Bet you wish you could have a sausage now.',
-        'How\'s the salt in there?',
-        'My MUM was right about you!',
-        '(tap tap on the bars) Hello in there!'
-      ];
-      showSpeech(lines[teaseCount % lines.length], 2400);
-      const replies = [
-        '(grumble) Go away, child.',
-        'I\'ll remember this.',
-        'You\'re asking for trouble.',
-        '(low growl) Last warning.',
-        'RIGHT. THAT\'S IT.'
-      ];
-      setTimeout(() => showSpeechFromNPC('butcher', replies[Math.min(teaseCount - 1, replies.length - 1)], 2600), 1800);
-      if (teaseCount >= 5 && !butcherEscaped) {
-        // Latch the escape flag immediately so the timeout can't be queued
-        // twice by rapid re-teases (the actual move happens after the dialogue)
-        butcherEscaped = true;
-        setTimeout(() => { butcherEscaped = false; triggerButcherEscape(); }, 4800);
+    const near = Math.hypot(px - bp.x, pz - bp.z) < 1.9;
+    setTauntPrompt(near);
+  } else {
+    setTauntPrompt(false);
+  }
+}
+
+// ── Taunt lines: Pico cycles through these, one per press ──
+const PICO_TAUNTS = [
+  'Nah nah na-nah nah!',
+  'Hahaha! Can\'t catch me!',
+  'Having a good time in there?',
+  'Bet you miss your acorns!',
+  '(blows a raspberry) Pppbbbt!'
+];
+// Scratchett gives a bunch of escalating warnings before he finally bursts out
+const SQUIRREL_WARNINGS = [
+  '(chitter) Oi! Stop that, you cheeky little acorn.',
+  'I\'m WARNING you, small fry…',
+  'Push me one more time. Go on. I dare you.',
+  'That is your LAST warning!',
+  '(SPROING!) RIGHT! THAT IS QUITE ENOUGH!'   // final straw → chase
+];
+
+// On-screen "Taunt" prompt near the bars (hidden otherwise)
+let tauntPromptEl = null;
+function setTauntPrompt(show) {
+  if (!tauntPromptEl) {
+    tauntPromptEl = document.createElement('div');
+    tauntPromptEl.id = 'taunt-prompt';
+    const wrap = document.querySelector('.game-wrapper');
+    if (wrap) wrap.appendChild(tauntPromptEl);
+    const fire = (e) => {
+      const act = e && e.target && e.target.dataset ? e.target.dataset.act : null;
+      if (act === 'deal') tryDeal();
+      else if (act === 'taunt') tryTaunt();
+      else if (tauntPromptEl.dataset.mode === 'deal') tryDeal();
+      else tryTaunt();
+    };
+    tauntPromptEl.addEventListener('click', fire);
+    tauntPromptEl.addEventListener('touchstart', e => { e.preventDefault(); fire(e); }, { passive: false });
+  }
+  if (!show) { tauntPromptEl.classList.remove('show'); return; }
+  const dealMode = quest.missionsDone >= buildingMissions.length && !quest.dealAccepted && squirrelInJail.visible;
+  tauntPromptEl.dataset.mode = dealMode ? 'deal' : 'taunt';
+  if (dealMode) {
+    // both options at once
+    tauntPromptEl.innerHTML = isTouch
+      ? '<span class="taunt-tap" data-act="taunt">TAUNT</span> <span class="taunt-tap" data-act="deal">MAKE A DEAL</span>'
+      : `<span class="taunt-key">${tauntButtonLabel()}</span> Taunt &nbsp;·&nbsp; <span class="taunt-key">${northButtonLabel()}</span> Make a deal`;
+  } else {
+    tauntPromptEl.innerHTML = isTouch
+      ? '<span class="taunt-tap" data-act="taunt">TAUNT</span>'
+      : `Press <span class="taunt-key">${tauntButtonLabel()}</span> to Taunt`;
+  }
+  tauntPromptEl.classList.add('show');
+}
+
+// West face button label for the connected pad (Switch Y / PS Square / Xbox X),
+// or the keyboard key when there's no pad.
+function tauntButtonLabel() {
+  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+  for (const pad of pads) {
+    if (!pad) continue;
+    const id = (pad.id || '').toLowerCase();
+    if (id.includes('dualsense') || id.includes('dualshock') || id.includes('sony') ||
+        id.includes('054c') || id.includes('0ce6') || id.includes('09cc') || id.includes('05c4')) return '□ Square';
+    if (id.includes('057e') || id.includes('nintendo') || id.includes('switch') ||
+        id.includes('joy-con') || id.includes('pro controller')) return 'Y';
+    if (id.includes('xbox') || id.includes('xinput') || id.includes('045e') || id.includes('microsoft')) return 'X';
+    return 'X';   // unknown pad → West face button is the X-position
+  }
+  return 'Y';     // keyboard
+}
+
+// A single taunt — cycles Pico's line + an escalating squirrel warning.
+// After a bunch of warnings, Scratchett bursts out and the chase begins.
+function tryTaunt() {
+  if (!freePlayMode || paused || controlsLocked || squirrelEscaped || squirrelEscaping) return;
+  if (!jailGroup.visible || !squirrelInJail.visible) return;
+  const bp = jailGroup.userData.barsWorldPos;
+  if (Math.hypot(player.position.x - bp.x, player.position.z - bp.z) >= 1.8) return;
+  // Cool-down so a held button doesn't fire every frame
+  const now = performance.now();
+  if (jailGroup.userData.lastTaunt && now - jailGroup.userData.lastTaunt < 900) return;
+  jailGroup.userData.lastTaunt = now;
+
+  showSpeech(PICO_TAUNTS[tauntCount % PICO_TAUNTS.length], 1700);
+  tauntCount++;
+  warnCount++;
+  playTone({ freq: 520, dur: 0.1, type: 'square', volume: 0.12 });
+
+  const idx = Math.min(warnCount - 1, SQUIRREL_WARNINGS.length - 1);
+  setTimeout(() => showSpeechFromNPC('squirrel', SQUIRREL_WARNINGS[idx], 2300), 1100);
+
+  if (warnCount >= SQUIRREL_WARNINGS.length) {
+    // Patience gone — latch so extra taunts can't queue a second break-out
+    squirrelEscaping = true;
+    setTimeout(() => triggerSquirrelEscape(), 1700);
+  }
+}
+
+async function triggerSquirrelEscape() {
+  if (squirrelEscaped) return;
+  squirrelEscaped = true;
+  squirrelEscaping = false;
+  squirrelChaseSecs = 0;
+  setTauntPrompt(false);
+  addShake(0.35);
+  playTone({ freq: 150, dur: 0.4, type: 'sawtooth', volume: 0.22 });
+  // Scratchett bursts out of his cell into chase position
+  squirrelInJail.visible = false;
+  squirrel.position.set(JAIL_POS.x, 0, JAIL_POS.z + 3);
+  squirrel.rotation.y = Math.PI;
+  squirrel.visible = true;
+}
+
+function reJailSquirrel() {
+  squirrel.visible = false;
+  squirrelEscaped = false;
+  squirrelEscaping = false;
+  squirrelChaseSecs = 0;
+  warnCount = 0;
+  squirrelInJail.position.set(JAIL_POS.x - 1.3, 0, JAIL_POS.z - 2.5);
+  squirrelInJail.rotation.y = Math.PI;
+  squirrelInJail.visible = true;   // back in the cell, locked
+  if (jailGroup.userData) jailGroup.userData.lastTaunt = null;
+}
+
+// Per-frame free-play extras: ride spins, acorns, portals, bounce, side missions
+function updateTownExtras(dt) {
+  if (!freePlayMode) return;
+  const now = performance.now();
+  for (const s of worldSpinners) s.mesh.rotation[s.axis] += s.speed * dt;
+  for (const c of collectibles) {
+    if (c.collected) continue;
+    c.g.rotation.y += dt * (c.golden ? 3.6 : 2.2);
+    c.g.position.y = 0.7 + Math.sin(now * 0.004 + c.x) * 0.12;
+  }
+  for (const m of bouncePads) { if (m.g.userData.cap) m.g.userData.cap.scale.y = 0.7 + Math.sin(now * 0.006 + m.x) * 0.04; }
+  for (const bm of buildingMissions) { if (bm.marker && bm.marker.visible) { bm.icon.position.y = 0.7 + Math.sin(now * 0.005 + bm.ix) * 0.15; bm.marker.rotation.y += dt * 1.5; } }
+  for (const am of acornvilleMissions) { if (am.marker && am.marker.visible) { am.icon.position.y = 0.7 + Math.sin(now * 0.005 + am.ix) * 0.15; am.marker.rotation.y += dt * 1.5; } }
+  if (meadowPortal.userData.swirl) meadowPortal.userData.swirl.rotation.z += dt * 1.5;
+  if (acornvillePortal.userData.swirl) acornvillePortal.userData.swirl.rotation.z += dt * 1.5;
+  if (currentWorld === 'acornville') updateVillagers(dt);   // acorn folk wander even during chatter
+  if (controlsLocked) return;
+  const px = player.position.x, pz = player.position.z;
+
+  // Portals (walk into one to travel)
+  if (quest.portalOpen && currentWorld === 'meadow' && meadowPortal.visible && Math.hypot(px - MEADOW_PORTAL_POS.x, pz - MEADOW_PORTAL_POS.z) < 1.5) { travelTo('acornville'); return; }
+  if (currentWorld === 'acornville' && Math.hypot(px - ACORNVILLE_PORTAL_WORLD.x, pz - ACORNVILLE_PORTAL_WORLD.z) < 1.5) { travelTo('meadow'); return; }
+
+  // Acornville has its own side quests
+  if (currentWorld === 'acornville') { updateAcornvilleMissions(px, pz); return; }
+  // The collectibles, building missions and mushrooms all live in the meadow
+  if (currentWorld !== 'meadow') return;
+
+  // Collect acorns
+  for (const c of collectibles) {
+    if (c.collected) continue;
+    if (Math.hypot(px - c.x, pz - c.z) < 1.2) {
+      c.collected = true; c.g.visible = false; acornsCollected++; setAcornHud(true);
+      playTone({ freq: c.golden ? 1320 : 880, dur: 0.12, type: 'sine', volume: 0.16 });
+      if (c.golden && !quest.dealAccepted && !squirrelEscaped && !squirrelEscaping && squirrelInJail.visible) {
+        showSpeech('Ooh — a GOLDEN acorn! …uh-oh.', 2600);
+        setTimeout(() => { showSpeechFromNPC('squirrel', '(SHRIEK) MY GOLDEN ACORN! Give it BACK — come HERE!', 3000); triggerSquirrelEscape(); }, 800);
+      }
+      if (quest.dealAccepted && !quest.portalOpen) {
+        setObjective(`Collect every acorn for Scratchett (${acornsCollected}/${collectibles.length})`);
+        if (acornsCollected >= collectibles.length) completeDeal();
       }
     }
   }
+
+  // Bounce pads
+  for (const m of bouncePads) {
+    if (Math.hypot(px - m.x, pz - m.z) < 0.7 && player.position.y < 1.2 && playerVel.y <= 0.5) {
+      playerVel.y = 13; grounded = false;
+      playTone({ freq: 600, dur: 0.14, type: 'square', volume: 0.14 });
+      if (m.g.userData.cap) m.g.userData.cap.scale.y = 0.45;
+    }
+  }
+
+  // Per-building fetch missions: approach to start → grab marker → bring it back
+  for (const bm of buildingMissions) {
+    const b = townBuildings[bm.bi]; if (!b) continue;
+    const atB = Math.hypot(px - b.x, pz - b.z) < 2.4;
+    if (bm.state === 'todo' && atB) {
+      bm.state = 'find'; bm.marker.visible = true;
+      showSpeech(bm.ask, 3800);
+      setObjective(`${bm.name}: follow the glowing marker`);
+    } else if (bm.state === 'find' && Math.hypot(px - bm.ix, pz - bm.iz) < 1.3) {
+      bm.state = 'return'; bm.marker.visible = false;
+      playTone({ freq: 880, dur: 0.12, type: 'sine', volume: 0.15 });
+      showSpeech('Got it! Now take it back to the shop.', 2600);
+      setObjective(`${bm.name}: bring it back to the shop`);
+    } else if (bm.state === 'return' && atB) {
+      bm.state = 'done';
+      showSpeech(bm.thanks, 3000);
+      onMissionDone(bm.name);
+    }
+  }
 }
 
-async function triggerButcherEscape() {
-  if (butcherEscaped) return;
-  butcherEscaped = true;
+// ═══════════════════════════════════════════════════════
+// BONUS CHAPTER 1 — "The Great Acorn Heist"
+// Unlocks once every Acornville side quest is done: the freed Scratchett
+// can't resist his greed and pinches the whole town's acorns, so Pico has
+// to chase him down and lock him back in jail.
+// ═══════════════════════════════════════════════════════
+let bonus1Active = false;
+let bonus1Phase = 'idle';
+async function beginBonus1() {
+  if (bonus1Active) return;
+  bonus1Active = true;
+  freePlayMode = false;
+  controlsLocked = true;
+  currentWorld = 'meadow';
+  newBedroomGroup.visible = false; schoolGroup.visible = false; butcherShopGroup.visible = false;
+  setTauntPrompt(false);
+  jailGroup.visible = true; freeplaySignPost.visible = true;
+  showFade(true); await sleep(700);
+  squirrelInJail.visible = false; squirrelEscaped = false;
+  squirrel.visible = true; squirrel.position.set(4, 0, 0); squirrel.rotation.y = 0;
+  player.position.set(0, 0, 8); facingY = Math.PI; player.rotation.y = Math.PI; playerVel.set(0, 0, 0); grounded = true;
+  camState.target.set(2, 1.4, 4); camState.distance = 8; camState.yaw = Math.PI; camState.pitch = 0.25; updateCamera();
+  await sleep(200); showFade(false);
+  showOverlayCard('BONUS CHAPTER 1', 2200); await sleep(2400);
+  await showSpeechFromNPC('squirrel', 'Free at last — and SO many lovely acorns to pinch! Hee-hee-HEE!', 4200);
+  await showSpeech('Scratchett?! You promised you\'d behave!', 2800);
+  await showSpeechFromNPC('squirrel', 'A squirrel can\'t fight his nature, little one. Catch me if you CAN!', 4000);
+  setObjective('Chase Scratchett down and put him back in jail!');
+  bonus1Phase = 'chase';
+  controlsLocked = false;
+}
+function updateBonus1(dt) {
+  if (bonus1Phase !== 'chase' || controlsLocked) return;
+  const dx = squirrel.position.x - player.position.x, dz = squirrel.position.z - player.position.z;
+  const d = Math.hypot(dx, dz);
+  if (d > 0.001) {
+    const fx = dx / d, fz = dz / d;
+    squirrel.position.x = clamp(squirrel.position.x + fx * 5.2 * dt, -24, 24);
+    squirrel.position.z = clamp(squirrel.position.z + fz * 5.2 * dt, -24, 24);
+    squirrel.rotation.y = Math.atan2(fx, fz);
+    squirrel.position.y = Math.abs(Math.sin(performance.now() * 0.018)) * 0.14;
+  }
+  if (d < 1.6) { bonus1Phase = 'caught'; bonus1Catch(); }
+}
+async function bonus1Catch() {
+  controlsLocked = true;
   addShake(0.4);
-  playTone({ freq: 80, dur: 0.5, type: 'sawtooth', volume: 0.3 });
-  await showSpeechFromNPC('butcher', '(BANG!) I told you. HERE I COME.', 3000);
-  // Move the loose Butcher out of the jail into chase position
-  butcherInJail.visible = false;
-  butcher.position.set(JAIL_POS.x, 0, JAIL_POS.z + 3);
-  butcher.rotation.y = Math.PI;
-  butcher.visible = true;
-  // Continuous chase loop until Pico escapes to a building
+  playTone({ freq: 90, dur: 0.4, type: 'sawtooth', volume: 0.25 });
+  await showSpeechFromNPC('squirrel', 'Argh — got me! Not the jail AGAIN…', 2600);
+  showFade(true); await sleep(900);
+  squirrel.visible = false;
+  squirrelInJail.position.set(JAIL_POS.x - 1.3, 0, JAIL_POS.z - 2.5); squirrelInJail.rotation.y = Math.PI; squirrelInJail.visible = true;
+  player.position.set(0, 0, 0); facingY = 0; player.rotation.y = 0; playerVel.set(0, 0, 0); grounded = true;
+  camState.target.set(0, 1.2, 0); camState.distance = 7; camState.yaw = 0; camState.pitch = 0.28; updateCamera();
+  showFade(false);
+  bonus1Phase = 'idle'; bonus1Active = false; quest.bonus1Ready = false;
+  freePlayMode = true;
+  try { localStorage.setItem('wonkyAcorn_bonus1Beaten', '1'); } catch (e) {}
+  if (typeof refreshReplayLock === 'function') refreshReplayLock();
+  showOverlayCard('BONUS CHAPTER 1 COMPLETE', 2600); await sleep(2800);
+  await showSpeech('Back where you belong, Scratchett. Phew!', 2800);
+  setObjective('Free play — explore, or visit Acornville again.');
+  controlsLocked = false;
 }
 
-function updateButcherFreeplayChase(dt) {
-  if (!freePlayMode || !butcherEscaped || !butcher.visible) return;
-  // Hide butcher if player ducked into a building
+function updateSquirrelChase(dt) {
+  if (!freePlayMode || !squirrelEscaped || !squirrel.visible || squirrelCatching) return;
+  // Ducked into a building? Scratchett gives up and slinks back to his cell.
   if (newBedroomGroup.visible || schoolGroup.visible || butcherShopGroup.visible) {
-    butcher.visible = false;
-    butcherEscaped = false;
-    butcherInJail.visible = true;   // re-spawn in jail
-    teaseCount = 0;
-    if (jailGroup.userData) jailGroup.userData.lastTease = null;
-    setTimeout(() => showSpeech('(safe inside) Phew. He went back to the jail.', 2800), 500);
+    reJailSquirrel();
+    setTimeout(() => showSpeech('(safe inside) Phew! He slunk back to his cell.', 2800), 500);
     return;
   }
-  const dx = player.position.x - butcher.position.x;
-  const dz = player.position.z - butcher.position.z;
+  // He speeds up the longer the chase lasts: 3 mph + 1 mph every second
+  squirrelChaseSecs += dt;
+  const speed = (3 + squirrelChaseSecs) * MPH_TO_UNITS;
+  const dx = player.position.x - squirrel.position.x;
+  const dz = player.position.z - squirrel.position.z;
   const dist = Math.hypot(dx, dz);
   if (dist > 0.001) {
-    const speed = 3.8;
-    butcher.position.x += (dx / dist) * speed * dt;
-    butcher.position.z += (dz / dist) * speed * dt;
-    butcher.rotation.y = Math.atan2(dx, dz);
-    butcher.position.y = Math.abs(Math.sin(performance.now() * 0.014)) * 0.12;
+    squirrel.position.x += (dx / dist) * speed * dt;
+    squirrel.position.z += (dz / dist) * speed * dt;
+    squirrel.rotation.y = Math.atan2(dx, dz);
+    squirrel.position.y = Math.abs(Math.sin(performance.now() * 0.018)) * 0.14;
+    if (squirrel.userData.tail) squirrel.userData.tail.rotation.z = Math.sin(performance.now() * 0.012) * 0.12;
   }
-  if (dist < 1.4) {
-    // Caught — soft penalty: Pico teleports back to meadow centre, butcher returns to jail
-    addShake(0.6);
-    playTone({ freq: 60, dur: 0.6, type: 'sawtooth', volume: 0.35 });
-    showSpeechFromNPC('butcher', 'GOTCHA! …back in I go.', 2200);
-    player.position.set(0, 0, 0);
-    butcher.visible = false;
-    butcherEscaped = false;
-    butcherInJail.visible = true;
-    teaseCount = 0;
-    if (jailGroup.userData) jailGroup.userData.lastTease = null;
-  }
+  if (dist < 1.3) squirrelCatchesPico();
+}
+
+async function squirrelCatchesPico() {
+  if (squirrelCatching) return;
+  squirrelCatching = true;
+  controlsLocked = true;   // freezes follow-cam, chase and triggers
+  setTauntPrompt(false);
+  addShake(0.5);
+  playTone({ freq: 90, dur: 0.4, type: 'sawtooth', volume: 0.28 });
+  // Snap Scratchett onto Pico for the "gotcha"
+  squirrel.position.set(player.position.x, 0, player.position.z + 0.9);
+  squirrel.rotation.y = Math.PI;
+  await showSpeechFromNPC('squirrel', 'GOTCHA, you cheeky acorn! Ooh — what\'s this…', 2000);
+  // ── 3-second CLOSE-UP: Scratchett happily munching an acorn (a NUT, not Pico) ──
+  await playSquirrelEatsAcorn();
+  // …and while he's busy with his snack, Pico slips away home.
+  await respawnPicoInRoom();
+  squirrelCatching = false;
+}
+
+// The 3-second close-up Noah asked for: camera pushes in on Scratchett
+// contentedly nibbling an acorn. Cute/funny — never Pico, who respawns fine.
+async function playSquirrelEatsAcorn() {
+  const headWorld = new THREE.Vector3();
+  squirrel.getWorldPosition(headWorld);
+  closeUpActive = true;   // hold the camera on the squirrel (no follow-lerp tug-of-war)
+  camState.target.set(headWorld.x, 2.1, headWorld.z);   // frames both face (2.65) and acorn (~1.4)
+  camState.distance = 2.8;
+  camState.yaw = squirrel.rotation.y;
+  camState.pitch = 0.12;
+  updateCamera();
+  const acorn = squirrel.userData.acorn;
+  const head = squirrel.userData.head;
+  showOverlayCard('Nom nom nom…', 2700);
+  setTimeout(() => showSpeechFromNPC('squirrel', '(munch munch) Mmm… nothing beats a nice acorn.', 2200), 300);
+  const start = performance.now();
+  await new Promise(resolve => {
+    const id = setInterval(() => {
+      const t = (performance.now() - start) / 1000;
+      if (acorn) acorn.position.y = 1.4 + Math.abs(Math.sin(t * 12)) * 0.12;
+      if (head)  head.position.y  = 2.65 + Math.sin(t * 12) * 0.04;
+      camState.target.set(headWorld.x, 2.1, headWorld.z);   // hold the close-up
+      if (t > 3) { clearInterval(id); resolve(); }
+    }, 16);
+  });
+  if (acorn) acorn.position.y = 1.32;
+  if (head)  head.position.y  = 2.65;
+  closeUpActive = false;
+}
+
+async function respawnPicoInRoom() {
+  showFade(true);
+  await sleep(650);
+  // Show the (now tidy) bedroom, hide everything else
+  schoolGroup.visible = false;
+  butcherShopGroup.visible = false;
+  newBedroomGroup.visible = true;
+  setRoomPostGame(true);
+  restoreHouseLights();
+  // Scratchett goes straight back to his cell, locked in
+  reJailSquirrel();
+  // Pico pops back upstairs in his room
+  player.position.set(NEW_BEDROOM_ORIGIN.x - 1.0, UPSTAIRS_Y, NEW_BEDROOM_ORIGIN.z - 4.0);
+  facingY = 0; player.rotation.y = 0;
+  playerVel.set(0, 0, 0); grounded = true;
+  camState.target.set(player.position.x, UPSTAIRS_Y + 1.1, player.position.z);
+  camState.distance = 4.5; camState.yaw = Math.PI; camState.pitch = 0.32;
+  updateCamera();
+  await sleep(200);
+  showFade(false);
+  controlsLocked = false;
+  setTimeout(() => showSpeech('(panting) Phew — made it home! Maybe stop teasing him, eh?', 3200), 500);
 }
 
 // Helper for Ch.6 — show a centred overlay caption for a few seconds
@@ -6126,6 +7144,7 @@ async function enterNewBedroom() {
   setCheckpoint('newhouse');
   cutsceneCancelled = false;
   setStillMode(true);   // freeze Pico for the cutscene
+  setRoomPostGame(false);   // Ch.2 always shows the scattered moving boxes (not the post-game tidy pile)
   // Hide other-scene NPCs in case we're loading from a later checkpoint
   hazel.visible = false;
   brunk.visible = false;
@@ -6157,11 +7176,11 @@ async function enterNewBedroom() {
   player.rotation.y = 0;
   playerVel.set(0, 0, 0);
   grounded = true;
-  // Frame the bedroom: low pitch, looking from the door toward the window
+  // Frame the bedroom: pulled in + tilted down so the small room stays in view
   camState.target.set(NEW_BEDROOM_ORIGIN.x, UPSTAIRS_Y + 1.1, NEW_BEDROOM_ORIGIN.z - 3);
-  camState.distance = 6;
+  camState.distance = 4.5;
   camState.yaw = Math.PI;     // camera south of Pico, looking north at his back
-  camState.pitch = 0.28;
+  camState.pitch = 0.34;
   updateCamera();
   await sleep(200);
   showFade(false);
