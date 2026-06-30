@@ -3175,13 +3175,13 @@ async function travelTo(key) {
   await sleep(200);
   showFade(false);
   controlsLocked = false;
-  if (key === 'meadow' && quest.bonusReady && !bonusActive && bonusBeaten() < BONUS_NAMES.length) {
+  if (key === 'meadow' && (quest.bonusReady || quest.acornvilleAllDone) && !bonusActive && bonusBeaten() < BONUS_NAMES.length) {
     setObjective('Something\'s wrong in the city…');
     setTimeout(() => triggerNextBonus(), 1200);
     return;
   }
   setTimeout(() => showSpeech(`Welcome to ${w.name}!`, 2600), 400);
-  if (key === 'acornville') setObjective('Home at last! Step through the portal by your old house to head back.');
+  if (key === 'acornville') setObjective('Acornville! Help all 4 folk with their quests, then take the portal back to the city.');
   else setObjective('Free play — explore the meadow.');
 }
 
@@ -3351,14 +3351,17 @@ function updateAcornvilleMissions(px, pz) {
       setObjective(`${m.name}: bring it back`);
     } else if (m.state === 'return' && Math.hypot(px - gwx, pz - gwz) < 3) {
       m.state = 'done';
+      const c = acornvilleMissions.filter(x => x.state === 'done').length;
+      const justFinishedAll = (c >= acornvilleMissions.length && !quest.acornvilleAllDone);
+      // Set the quest flags FIRST so a sound/speech error can never block the bonus unlock
+      if (c >= acornvilleMissions.length) { quest.acornvilleAllDone = true; quest.bonusReady = true; }
       playTone({ freq: 1046, dur: 0.18, type: 'sine', volume: 0.18 });
       showSpeech(m.thanks, 3000);
-      const c = acornvilleMissions.filter(x => x.state === 'done').length;
-      setObjective(`Acornville quests: ${c}/${acornvilleMissions.length}`);
-      if (c >= acornvilleMissions.length && !quest.acornvilleAllDone) {
-        quest.acornvilleAllDone = true;
-        quest.bonusReady = true;
-        setTimeout(() => showSpeech('You\'ve helped all of Acornville! …but something feels wrong back in the city. Hurry home!', 4800), 1500);
+      if (justFinishedAll) {
+        setObjective('All Acornville quests done — head back to the city through the portal!');
+        setTimeout(() => showSpeech('You\'ve helped all of Acornville! Hurry back to the city — something feels wrong!', 4800), 1500);
+      } else {
+        setObjective(`Acornville quests: ${c}/${acornvilleMissions.length}`);
       }
     }
   }
