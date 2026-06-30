@@ -3315,9 +3315,9 @@ meadowPortal.position.copy(MEADOW_PORTAL_POS);
 meadowPortal.visible = false;
 scene.add(meadowPortal);
 const acornvillePortal = makePortal();
-acornvillePortal.position.set(5, 0, 16);   // local: right at the entrance/welcome sign, where you arrive — unmissable
+acornvillePortal.position.set(0, 0, 24);   // local: behind the entrance, clear of the southward quest path so you aren't yanked back early
 acornvilleWorld.add(acornvillePortal);
-const ACORNVILLE_PORTAL_WORLD = new THREE.Vector3(ACORNVILLE_ORIGIN.x + 5, 0, ACORNVILLE_ORIGIN.z + 16);
+const ACORNVILLE_PORTAL_WORLD = new THREE.Vector3(ACORNVILLE_ORIGIN.x + 0, 0, ACORNVILLE_ORIGIN.z + 24);
 
 // ── Acornville side quests (same fetch pattern, hometown-flavoured) ──
 // Givers are Acornville landmarks; positions are LOCAL to ACORNVILLE_ORIGIN.
@@ -3333,7 +3333,12 @@ for (const m of acornvilleMissions) {
   icon.position.y = 0.7; marker.add(icon);
   const beam = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.5, 4), new THREE.MeshBasicMaterial({ color: 0xFFE36B })); beam.position.y = 1.5; beam.rotation.x = Math.PI; marker.add(beam);
   marker.visible = false; acornvilleWorld.add(marker);
-  m.marker = marker; m.icon = icon; m.state = 'todo';
+  // A glowing "!" beacon over the quest-giver landmark so all 4 are easy to find
+  const beacon = new THREE.Group(); beacon.position.set(m.gx, 4.2, m.gz);
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.9, 6), new THREE.MeshStandardMaterial({ color: 0xFFD740, emissive: 0xFFB300, emissiveIntensity: 0.7 })); stem.position.y = 0.4; beacon.add(stem);
+  const dot = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 6), new THREE.MeshStandardMaterial({ color: 0xFFD740, emissive: 0xFFB300, emissiveIntensity: 0.7 })); dot.position.y = -0.35; beacon.add(dot);
+  acornvilleWorld.add(beacon);
+  m.marker = marker; m.icon = icon; m.beacon = beacon; m.state = 'todo';
 }
 function updateAcornvilleMissions(px, pz) {
   for (const m of acornvilleMissions) {
@@ -6843,7 +6848,10 @@ function updateTownExtras(dt) {
   }
   for (const m of bouncePads) { if (m.g.userData.cap) m.g.userData.cap.scale.y = 0.7 + Math.sin(now * 0.006 + m.x) * 0.04; }
   for (const bm of buildingMissions) { if (bm.marker && bm.marker.visible) { bm.icon.position.y = 0.7 + Math.sin(now * 0.005 + bm.ix) * 0.15; bm.marker.rotation.y += dt * 1.5; } }
-  for (const am of acornvilleMissions) { if (am.marker && am.marker.visible) { am.icon.position.y = 0.7 + Math.sin(now * 0.005 + am.ix) * 0.15; am.marker.rotation.y += dt * 1.5; } }
+  for (const am of acornvilleMissions) {
+    if (am.beacon) { am.beacon.visible = (am.state === 'todo'); am.beacon.position.y = 4.2 + Math.abs(Math.sin(now * 0.004 + am.gx)) * 0.4; am.beacon.rotation.y += dt * 1.2; }
+    if (am.marker && am.marker.visible) { am.icon.position.y = 0.7 + Math.sin(now * 0.005 + am.ix) * 0.15; am.marker.rotation.y += dt * 1.5; }
+  }
   if (meadowPortal.userData.swirl) meadowPortal.userData.swirl.rotation.z += dt * 1.5;
   if (acornvillePortal.userData.swirl) acornvillePortal.userData.swirl.rotation.z += dt * 1.5;
   if (currentWorld === 'acornville') updateVillagers(dt);   // acorn folk wander even during chatter
