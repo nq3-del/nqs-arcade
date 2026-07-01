@@ -3175,7 +3175,7 @@ async function travelTo(key) {
   await sleep(200);
   showFade(false);
   controlsLocked = false;
-  if (key === 'meadow' && (quest.bonusReady || quest.acornvilleAllDone) && !bonusActive && bonusBeaten() < BONUS_NAMES.length) {
+  if (key === 'meadow' && (quest.bonusReady || quest.acornvilleAllDone) && !bonusActive && bonusRunIdx < BONUS_NAMES.length) {
     setObjective('Something\'s wrong in the city…');
     setTimeout(() => triggerNextBonus(), 1200);
     return;
@@ -3233,6 +3233,7 @@ function resetQuest() {
   for (const m of acornvilleMissions) { m.state = 'todo'; if (m.marker) m.marker.visible = false; }
   for (const c of collectibles) { c.collected = false; c.g.visible = true; }
   acornsCollected = 0;
+  bonusRunIdx = 0;   // fresh free-play run → bonus sequence re-armed from chapter 1
   meadowPortal.visible = false;
   currentWorld = 'meadow';
   setTravelButton(false);
@@ -3358,8 +3359,11 @@ function updateAcornvilleMissions(px, pz) {
       m.state = 'done';
       const c = acornvilleMissions.filter(x => x.state === 'done').length;
       const justFinishedAll = (c >= acornvilleMissions.length && !quest.acornvilleAllDone);
-      // Set the quest flags FIRST so a sound/speech error can never block the bonus unlock
-      if (c >= acornvilleMissions.length) { quest.acornvilleAllDone = true; quest.bonusReady = true; }
+      // Set the quest flags FIRST so a sound/speech error can never block the bonus unlock.
+      // Re-arm the bonus sequence from chapter 1 for this run, regardless of how many
+      // bonus chapters were beaten in past playthroughs (that lifetime count only gates
+      // the Replay menu — see bonusRunIdx).
+      if (c >= acornvilleMissions.length) { quest.acornvilleAllDone = true; quest.bonusReady = true; bonusRunIdx = 0; }
       playTone({ freq: 1046, dur: 0.18, type: 'sine', volume: 0.18 });
       showSpeech(m.thanks, 3000);
       if (justFinishedAll) {
@@ -5395,6 +5399,7 @@ function refreshReplayLock() {
         for (const k of SAVE_SLOT_KEYS) localStorage.removeItem(k);
         localStorage.removeItem('wonkyAcorn_activeSlot');
         localStorage.removeItem('wonkyAcornIntroSeen');
+        localStorage.removeItem('wonkyAcorn_bonusProgress');
       } catch (e) {}
       location.reload();
     }
@@ -6935,6 +6940,12 @@ for (let i = 0; i < 50; i++) {
 
 let bonusActive = false, bonusPhase = 'idle', bonusIdx = -1, bonusHazelMode = false, bonusFleeSpeed = 5.2, bonusReplay = false;
 let bonusFoe = null;
+// Which bonus chapter to play NEXT in the CURRENT free-play run (0..4). This is
+// per-run session state — the acornville quest chain resets it to 0 so the four
+// bonus chapters replay every playthrough. (bonusBeaten() is the *lifetime*
+// count and only gates the Replay-menu unlock, NOT the auto-trigger — otherwise
+// once you'd beaten all four they could never auto-fire again.)
+let bonusRunIdx = 0;
 
 function bonusEnterMeadow() {
   freePlayMode = false; controlsLocked = true; currentWorld = 'meadow';
@@ -6947,7 +6958,7 @@ function bonusPlacePlayer() {
 }
 function triggerNextBonus() {
   if (bonusActive) return;
-  const n = bonusBeaten();
+  const n = bonusRunIdx;
   if (n === 0) beginBonus1();
   else if (n === 1) beginBonus2();
   else if (n === 2) beginBonus3();
@@ -7116,9 +7127,10 @@ async function bonusCatch() {
   bonusPhase = 'idle'; bonusActive = false; bonusFoe = null; bonusHazelMode = false; freePlayMode = true;
   showOverlayCard(`BONUS CHAPTER ${idx + 1} COMPLETE`, 2600); await sleep(2800);
   if (!bonusReplay) {
-    setBonusBeaten(idx + 1);
+    setBonusBeaten(idx + 1);       // lifetime count → unlocks the Replay-menu row
+    bonusRunIdx = idx + 1;         // advance THIS run's sequence
     if (typeof refreshReplayLock === 'function') refreshReplayLock();
-    if (bonusBeaten() < BONUS_NAMES.length) {
+    if (bonusRunIdx < BONUS_NAMES.length) {
       quest.bonusReady = true;
       setObjective('Another bonus chapter is brewing — stay in the meadow!');
       setTimeout(() => triggerNextBonus(), 1600);
