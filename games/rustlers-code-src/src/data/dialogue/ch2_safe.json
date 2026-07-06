@@ -1,0 +1,14 @@
+{
+  "id": "ch2_safe",
+  "nodes": [
+    { "id": "start", "speaker": "Cole", "text": "Wage crates, stamped COPPERHEAD. All here. And underneath... a strongbox with a big gold V on it. Vane's private stash, riding along for company.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "Take the wages. Only the wages.", "next": "wages_only", "codeDelta": 10, "effects": { "giveItem": "wages" } },
+        { "text": "The wages... and Vane's shiny box too.", "next": "took_gold", "codeDelta": -15, "effects": { "giveItem": "wages", "money": 150, "setFlag": "tookVanesGold" } }
+      ]
+    },
+    { "id": "wages_only", "speaker": "Cole", "text": "Take only what was taken. The V stays. Might leave the box a little disappointed in its owner, though.", "next": "end" },
+    { "id": "took_gold", "speaker": "Cole", "text": "...Rosa's going to give me the look. The one with the eyebrow. Worth it? Ask me tomorrow.", "next": "end" }
+  ]
+}

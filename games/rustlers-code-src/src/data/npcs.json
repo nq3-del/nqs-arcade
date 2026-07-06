@@ -1,0 +1,77 @@
+{
+  "comment": "Town regulars (spawn true) and story characters placed by chapters (spawn false). Colours are hex without 0x. Greetings vary with the Code tier.",
+  "npcs": [
+    {
+      "id": "doc", "name": "Doc Vega", "spawn": true,
+      "x": -10, "z": 10.5, "faceYaw": 0.3,
+      "color": "3a7f7a", "hat": null,
+      "dialogue": "town_doc",
+      "greetLow": "Hm. Try not to lean on anything patented.",
+      "greetMid": "Cole. The workshop's holding together, mostly on spite.",
+      "greetHigh": "Ah, the famous Cole Calloway. Wipe your boots."
+    },
+    {
+      "id": "preacher", "name": "Preacher Boone", "spawn": true,
+      "x": 10, "z": 10.2, "faceYaw": 3.1, "scale": 1.15,
+      "color": "4a4438", "hat": null,
+      "dialogue": "town_preacher",
+      "greetLow": "The book says judge not, so I won't. Out loud.",
+      "greetMid": "Peace on you, brother Cole.",
+      "greetHigh": "There he is. Proof that patience moves mountains, or at least banks."
+    },
+    {
+      "id": "newt", "name": "Newt", "spawn": true,
+      "x": 2, "z": 22, "faceYaw": 3.6, "scale": 0.72,
+      "color": "7a5b33", "hat": "8a6a3a",
+      "dialogue": "town_newt",
+      "greetLow": "I'm not s'posed to talk to outlaws. Lucky I never listen.",
+      "greetMid": "Cole! I've been practising my hawk call. Wanna hear?",
+      "greetHigh": "Cole! Everyone's talking about you. I said I knew you FIRST."
+    },
+    {
+      "id": "bly", "name": "Sheriff Bly", "spawn": true,
+      "x": -8.5, "z": -2.4, "faceYaw": 1.6,
+      "color": "555c66", "hat": "3a2e24",
+      "dialogue": "town_bly",
+      "greetLow": "Don't make me do paperwork, Calloway. We'd both regret it.",
+      "greetMid": "Mm. Warm one today. Crime takes a siesta, I find.",
+      "greetHigh": "Folk hero, they say. Long as heroing stays quiet, we're square."
+    },
+    {
+      "id": "mabel", "name": "Mabel", "spawn": true,
+      "x": -5.6, "z": 5.2, "faceYaw": -1.6,
+      "color": "6b4a6e", "hat": null,
+      "dialogue": "shop_mabel",
+      "greetLow": "Shelves are watched, mister.",
+      "greetMid": "Morning. Apples are fresh, mostly.",
+      "greetHigh": "Well, if it isn't the best customer honesty ever had."
+    },
+    {
+      "id": "kestrel", "name": "The Kestrel", "spawn": false, "nightOwl": true,
+      "x": 0, "z": -10, "faceYaw": 0,
+      "color": "2e3a4a", "hat": "1e2630",
+      "dialogue": null,
+      "greetLow": "Mr Calloway. Still on my list.",
+      "greetMid": "Mr Calloway.",
+      "greetHigh": "Mr Calloway. You make my job very confusing."
+    },
+    {
+      "id": "vane", "name": "Cornelius Vane", "spawn": false, "nightOwl": true,
+      "x": 0, "z": -70, "faceYaw": 0,
+      "color": "5a2d5e", "hat": "2a1c30",
+      "dialogue": null,
+      "greetLow": "Ah, the vandal. Do admire the statues on your way out.",
+      "greetMid": "Do I know you? I know everyone worth knowing.",
+      "greetHigh": "The famous outlaw. My publicist says I shouldn't be seen with you."
+    },
+    {
+      "id": "marshal", "name": "Marshal Reyes", "spawn": false, "nightOwl": true,
+      "x": 12, "z": 22, "faceYaw": 4.7,
+      "color": "4a3b2a", "hat": "2e241a",
+      "dialogue": null,
+      "greetLow": "I've read your file. Twice. It's a strange file.",
+      "greetMid": "Territorial Marshal. Passing through.",
+      "greetHigh": "Calloway. The file didn't do you justice."
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "comment": "Things that can sit in the inventory. basePrice is before the Code-tier price multiplier.",
+  "apple": { "name": "Apple", "basePrice": 5, "description": "Biscuit's one true love." },
+  "horseshoe": { "name": "Lucky horseshoe", "basePrice": 20, "description": "Cold iron. A night prowler will grab this instead of your coins — once." },
+  "deeds": { "name": "Forged deeds", "basePrice": 0, "description": "Proof Vane's signatures are better at farming than he is." },
+  "wages": { "name": "Copperhead wages", "basePrice": 0, "description": "The town's pay, going home where it belongs." },
+  "vane_gold": { "name": "Vane's gold", "basePrice": 0, "description": "Heavy. In several senses." },
+  "ledger": { "name": "Vane's ledger", "basePrice": 0, "description": "Every crooked number in the valley, in one tidy book." }
+}

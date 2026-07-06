@@ -1,0 +1,15 @@
+{
+  "id": "town_bly",
+  "nodes": [
+    { "id": "start", "speaker": "Sheriff Bly", "text": "Calloway. You look like a man about to report a crime. Don't.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "Vane's forging deeds, Sheriff.", "next": "deeds" },
+        { "text": "Just admiring the law at work.", "next": "work" }
+      ]
+    },
+    { "id": "deeds", "speaker": "Sheriff Bly", "text": "Forgery's a big accusation. Big words mean forms. Forms mean ink. You see my difficulty.", "next": "deeds2" },
+    { "id": "deeds2", "speaker": "Cole", "text": "Clear as the badge you're not wearing.", "next": "end" },
+    { "id": "work", "speaker": "Sheriff Bly", "text": "Mm. The law rests so it can be fresh. That's in a book somewhere.", "next": "end" }
+  ]
+}

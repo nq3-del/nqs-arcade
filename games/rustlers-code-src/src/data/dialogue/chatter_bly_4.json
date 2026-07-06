@@ -1,0 +1,14 @@
+{
+  "id": "chatter_bly_4",
+  "nodes": [
+    { "id": "start", "speaker": "Sheriff Bly", "text": "Vane's done. Ledger did him in. And the paperwork, Calloway — the paperwork found ME. Reyes left forty pages of it and a note that says 'try'.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "Going to try?", "next": "try" },
+        { "text": "Forty pages builds character.", "next": "character" }
+      ]
+    },
+    { "id": "try", "speaker": "Sheriff Bly", "text": "...Page one's done. Don't spread it around. A reputation for effort is a dangerous thing in my line of napping.", "next": "end" },
+    { "id": "character", "speaker": "Sheriff Bly", "text": "You've been talking to Preacher. Nobody needs this much character before lunch.", "next": "end" }
+  ]
+}

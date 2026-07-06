@@ -1,0 +1,14 @@
+{
+  "id": "chatter_doc_4",
+  "nodes": [
+    { "id": "start", "speaker": "Doc Vega", "text": "The patent office wrote back. My patents are mine again — every one Vane's lawyers 'borrowed'. I've read the letter eleven times and it improves with each pass.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "What's next for the workshop?", "next": "next" },
+        { "text": "Frame it next to Weatherby's deed.", "next": "frame" }
+      ]
+    },
+    { "id": "next", "speaker": "Doc Vega", "text": "A door-unsqueaker that finally ships, a better windmill for the farms, and — don't laugh — a self-winding version of your watch. The future's loud, Cole. I intend to oil it.", "next": "end" },
+    { "id": "frame", "speaker": "Doc Vega", "text": "Already measured the wall. There's a spot left over. About ledger-sized.", "next": "end" }
+  ]
+}

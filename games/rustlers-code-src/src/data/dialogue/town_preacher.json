@@ -1,0 +1,14 @@
+{
+  "id": "town_preacher",
+  "nodes": [
+    { "id": "start", "speaker": "Preacher Boone", "text": "Brother Cole. Fine morning. Like the good book probably says: the early bird gathers no moss.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "Pretty sure that's two different sayings.", "next": "two" },
+        { "text": "Amen, Preacher.", "next": "amen" }
+      ]
+    },
+    { "id": "two", "speaker": "Preacher Boone", "text": "Scripture works in bundles, brother. Saves paper.", "next": "end" },
+    { "id": "amen", "speaker": "Preacher Boone", "text": "That's the spirit. Whichever spirit it turns out to be.", "next": "end" }
+  ]
+}

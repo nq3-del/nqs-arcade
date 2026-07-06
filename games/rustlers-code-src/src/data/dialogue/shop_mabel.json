@@ -1,0 +1,16 @@
+{
+  "id": "shop_mabel",
+  "nodes": [
+    { "id": "start", "speaker": "Mabel", "text": "General store. We've got what's on the shelves and opinions about everything else.", "next": "c1" },
+    { "id": "c1", "speaker": "Mabel", "text": "Something catch your eye?",
+      "choices": [
+        { "text": "One apple, please.", "next": "apple", "condition": "money>=7", "effects": { "buy": "apple" } },
+        { "text": "The lucky horseshoe.", "next": "horseshoe", "condition": "money>=25 && !hasItem:horseshoe", "effects": { "buy": "horseshoe" } },
+        { "text": "Just looking.", "next": "looking" }
+      ]
+    },
+    { "id": "apple", "speaker": "Mabel", "text": "For the horse, I take it. Tell that bloodthirsty steed of yours Mabel says hello.", "next": "end" },
+    { "id": "horseshoe", "speaker": "Mabel", "text": "Cold iron. Those wind-up things at night HATE the taste of it — it'll spare your pockets exactly once, then you'll be back. They always come back.", "next": "end" },
+    { "id": "looking", "speaker": "Mabel", "text": "Looking's free. It's the only thing that is.", "next": "end" }
+  ]
+}

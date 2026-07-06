@@ -1,0 +1,16 @@
+{
+  "id": "chatter_newt_1",
+  "nodes": [
+    { "id": "start", "speaker": "Newt", "text": "I watched the WHOLE escape from the roof. The water tower! The wagon! You didn't even LOOK at the second shot. I'm telling everyone you didn't look.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "I looked a little.", "next": "looked" },
+        { "text": "Were you signalling?", "next": "signal" }
+      ]
+    },
+    { "id": "looked", "speaker": "Newt", "text": "Too late. The legend is already forming. Legends don't look.", "next": "end" },
+    { "id": "signal", "speaker": "Newt", "text": "The whole time! Three owl hoots, danger-west. You... heard them, right? The hoots?", "next": "signal2" },
+    { "id": "signal2", "speaker": "Cole", "text": "I heard something lose an argument with a harmonica.", "next": "signal3" },
+    { "id": "signal3", "speaker": "Newt", "text": "THAT WAS THE HOOTS.", "next": "end" }
+  ]
+}

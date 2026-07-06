@@ -1,0 +1,23 @@
+{
+  "id": "ch4_briefing",
+  "nodes": [
+    { "id": "start", "speaker": "Doc Vega", "text": "Last job. Vane's throwing himself a gala tonight — champagne for the railway men, speeches about progress, the works. And in his study sits the ledger: every forged deed, every bribe, every crooked number, in his own tidy handwriting.", "next": "plan" },
+    { "id": "plan", "speaker": "Doc Vega", "text": "That book goes to Marshal Reyes at the depot and Vane's finished — properly, legally, in ink. No locks shot off the truth this time. Well. One window latch.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "And the gala crowd?", "next": "crowd" },
+        { "text": "What's the distraction?", "next": "distraction" }
+      ]
+    },
+    { "id": "crowd", "speaker": "Doc Vega", "text": "All eyes will be wherever the noise is. Which brings me to the noise.", "next": "distraction" },
+    { "id": "distraction", "speaker": "Doc Vega", "text": "That golden statue of himself out front. Lasso it into the begonias, and I promise you every soul at that party — Vane loudest of all — will be busy grieving it for an hour.", "next": "c2" },
+    { "id": "c2", "speaker": "Cole",
+      "choices": [
+        { "text": "The plaque says 'eternal'.", "next": "plaque" },
+        { "text": "Statue. Latch. Ledger. Marshal.", "next": "recap" }
+      ]
+    },
+    { "id": "plaque", "speaker": "Doc Vega", "text": "Then the begonias are getting something eternal. Everybody wins. Go — and Cole? Leave the place better than you found it. Minus one statue.", "next": "end" },
+    { "id": "recap", "speaker": "Doc Vega", "text": "Four words. See, THIS is why plans should be simple. Go make history boring again.", "next": "end" }
+  ]
+}

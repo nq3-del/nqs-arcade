@@ -1,0 +1,15 @@
+{
+  "id": "town_newt",
+  "nodes": [
+    { "id": "start", "speaker": "Newt", "text": "Cole! Cole. Listen. I've been working on my signals. This one means 'danger from the north'.", "next": "call" },
+    { "id": "call", "speaker": "Newt", "text": "HONK-a-hoo. HONK-a-hoo.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "That was a goose with a question.", "next": "goose" },
+        { "text": "Very convincing hawk.", "next": "hawk" }
+      ]
+    },
+    { "id": "goose", "speaker": "Newt", "text": "It was a HAWK. Geese don't even— okay it might've drifted goose-ward at the end.", "next": "end" },
+    { "id": "hawk", "speaker": "Newt", "text": "THANK you. Nobody in this town knows birds.", "next": "end" }
+  ]
+}

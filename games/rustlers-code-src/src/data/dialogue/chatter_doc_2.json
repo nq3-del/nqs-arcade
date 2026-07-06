@@ -1,0 +1,16 @@
+{
+  "id": "chatter_doc_2",
+  "nodes": [
+    { "id": "start", "speaker": "Doc Vega", "text": "Payday happened. ACTUAL payday. Mabel restocked, the farmers are seeding, and somebody left a pie on my workbench, which is a safety hazard I've decided to allow.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "About Vane's gold...", "next": "gold", "condition": "flag:tookVanesGold" },
+        { "text": "Good pie?", "next": "pie" }
+      ]
+    },
+    { "id": "gold", "speaker": "Doc Vega", "text": "Mm. Heavy saddlebags on the ride home, I heard.", "next": "gold2" },
+    { "id": "gold2", "speaker": "Cole", "text": "There it is. The eyebrow.", "next": "gold3" },
+    { "id": "gold3", "speaker": "Doc Vega", "text": "The eyebrow says what the Code says, only quieter. You'll square it. You always do — eventually.", "next": "end" },
+    { "id": "pie", "speaker": "Doc Vega", "text": "Structurally sound. Rhubarb. Whoever built it understood load-bearing crusts.", "next": "end" }
+  ]
+}

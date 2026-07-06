@@ -1,0 +1,14 @@
+{
+  "id": "chatter_newt_4",
+  "nodes": [
+    { "id": "start", "speaker": "Newt", "text": "Marshal Reyes said — and I memorised it — 'the boy's signals are the strangest code I have never once broken'. UNBREAKABLE, Cole. My calls are officially UNBREAKABLE.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "That is one reading of it.", "next": "reading" },
+        { "text": "She's not wrong.", "next": "right" }
+      ]
+    },
+    { "id": "reading", "speaker": "Newt", "text": "It's the CORRECT reading. She's a marshal. Readings are her whole job.", "next": "end" },
+    { "id": "right", "speaker": "Newt", "text": "I'm teaching a class. Tuesdays. Preacher already signed up and he can't whistle AT ALL.", "next": "end" }
+  ]
+}

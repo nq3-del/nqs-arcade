@@ -1,0 +1,37 @@
+<!doctype html>
+<!-- The one web page the whole game lives in. The 3D game draws onto the
+     <canvas>, and #ui-overlay is the invisible layer on top where HUD,
+     menus and dialogue boxes will go (they're HTML, not 3D). -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>The Rustler's Code</title>
+    <style>
+      /* Fill the whole browser window with the game, no scrollbars. */
+      html, body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        background: #1a1410;
+      }
+      #game-canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      /* UI layer sits on top of the canvas. pointer-events: none means mouse
+         clicks pass through to the game unless a UI element opts back in. */
+      #ui-overlay {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+      }
+    </style>
+    <script type="module" crossorigin src="./assets/index-BKWIY2vp.js"></script>
+  </head>
+  <body>
+    <canvas id="game-canvas"></canvas>
+    <div id="ui-overlay"></div>
+  </body>
+</html>

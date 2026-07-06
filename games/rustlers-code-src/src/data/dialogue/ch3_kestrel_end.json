@@ -1,0 +1,21 @@
+{
+  "id": "ch3_kestrel_end",
+  "nodes": [
+    { "id": "start", "speaker": "The Kestrel", "text": "A bottle, a coin at the top of its arc, and a ricochet off cookware. Three for three. The warrants say 'menace'; the shooting says 'craftsman'.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "The pan did most of the work.", "next": "pan" },
+        { "text": "Your toss was honest. Thank you.", "next": "honest" }
+      ]
+    },
+    { "id": "pan", "speaker": "The Kestrel", "text": "Then the pan can have the warrant. Don't tell Preacher; he'd frame it.", "next": "tip" },
+    { "id": "honest", "speaker": "The Kestrel", "text": "Always. Cheating's for people who plan to lose.", "next": "tip" },
+    { "id": "tip", "speaker": "The Kestrel", "text": "A deal's a deal. Consider the hat tipped, Mr Calloway. I'll tell three counties the wind kept me — and I'll be watching what you do about Vane. Politely. From a distance.", "next": "c2" },
+    { "id": "c2", "speaker": "Cole",
+      "choices": [
+        { "text": "(Tip your hat back.)", "next": "back" }
+      ]
+    },
+    { "id": "back", "speaker": "The Kestrel", "text": "You're the politest criminal I have ever hunted. It's very irritating.", "next": "end" }
+  ]
+}

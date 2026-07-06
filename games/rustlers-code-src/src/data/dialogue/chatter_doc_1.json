@@ -1,0 +1,14 @@
+{
+  "id": "chatter_doc_1",
+  "nodes": [
+    { "id": "start", "speaker": "Doc Vega", "text": "The deeds went home this morning. Old Weatherby held his up to the light for ten minutes like it might evaporate.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "And the watch?", "next": "watch" },
+        { "text": "It won't evaporate.", "next": "evaporate" }
+      ]
+    },
+    { "id": "watch", "speaker": "Doc Vega", "text": "Behaving? Good. Wind it gently. It's a precision instrument, not a doorknob.", "next": "end" },
+    { "id": "evaporate", "speaker": "Doc Vega", "text": "That's what I said. He's framing it anyway. Farmers.", "next": "end" }
+  ]
+}

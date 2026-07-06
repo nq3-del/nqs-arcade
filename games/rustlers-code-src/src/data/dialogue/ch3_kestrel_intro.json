@@ -1,0 +1,23 @@
+{
+  "id": "ch3_kestrel_intro",
+  "nodes": [
+    { "id": "start", "speaker": "The Kestrel", "text": "Cole Calloway. Adelaide Crow — the paperwork calls me the Kestrel. There's a warrant on you in three counties, and I've read every word of it twice.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "I don't draw on people. Ever.", "next": "nodraw" },
+        { "text": "Only three counties?", "next": "three" }
+      ]
+    },
+    { "id": "three", "speaker": "The Kestrel", "text": "The fourth lost the form. Bureaucracy is the real outlaw. Now — I know your rule, and I don't intend to test it.", "next": "proposal" },
+    { "id": "nodraw", "speaker": "The Kestrel", "text": "I know. It's in the file, underlined, next to a note that says 'confirmed, irritatingly'. Which is why I propose something better.", "next": "proposal" },
+    { "id": "proposal", "speaker": "The Kestrel", "text": "A contest. Targets only, nothing that breathes. Three rounds, each one sillier than the last. You win, I ride out and the counties hear the wind kept me. I win, you come along quiet and polite.", "next": "c2" },
+    { "id": "c2", "speaker": "Cole",
+      "choices": [
+        { "text": "And the loser?", "next": "loser" },
+        { "text": "Deal.", "next": "deal" }
+      ]
+    },
+    { "id": "loser", "speaker": "The Kestrel", "text": "Tips their hat and walks. Like civilised legends.", "next": "deal" },
+    { "id": "deal", "speaker": "The Kestrel", "text": "Round one: the bottle on the barrel, down the street. After you.", "next": "end" }
+  ]
+}

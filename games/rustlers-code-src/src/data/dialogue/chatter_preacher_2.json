@@ -1,0 +1,14 @@
+{
+  "id": "chatter_preacher_2",
+  "nodes": [
+    { "id": "start", "speaker": "Preacher Boone", "text": "Heard about the train, brother. Like the good book probably says: render unto the town what was the town's, and unto Caesar a very long walk home.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "Fairly sure Caesar had a horse.", "next": "caesar" },
+        { "text": "Amen to the walking part.", "next": "amen" }
+      ]
+    },
+    { "id": "caesar", "speaker": "Preacher Boone", "text": "Not after the coupling got shot, he didn't.", "next": "end" },
+    { "id": "amen", "speaker": "Preacher Boone", "text": "Walking builds character. Vane's engine took a great deal of character with it when it left.", "next": "end" }
+  ]
+}

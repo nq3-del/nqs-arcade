@@ -1,0 +1,24 @@
+{
+  "id": "ch1_briefing",
+  "nodes": [
+    { "id": "start", "speaker": "Doc Vega", "text": "It's on. Tonight, Vane's bank finally gives something back: every deed his pen invented, sitting in a strongbox on the wagon out behind it.", "next": "watch" },
+    { "id": "watch", "speaker": "Doc Vega", "text": "Take this first. Pocket watch. It steadies your hand and slows your eye. Don't ask how — the patent office certainly didn't.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "It ticks funny.", "next": "ticks" },
+        { "text": "And the lantern men?", "next": "guards" }
+      ]
+    },
+    { "id": "ticks", "speaker": "Doc Vega", "text": "It ticks PRECISELY. Everything else in this town ticks funny.", "next": "guards2" },
+    { "id": "guards", "speaker": "Doc Vega", "text": "Paid to hold lanterns and look stern. Stay out of the light — they're mostly stern.", "next": "plan" },
+    { "id": "guards2", "speaker": "Doc Vega", "text": "The lantern men are paid to look stern. Stay out of the light and they'll stern at nothing all night.", "next": "plan" },
+    { "id": "plan", "speaker": "Doc Vega", "text": "Slip round the back, shoot the lock — the LOCK, Cole — take the deeds, whistle Biscuit, and make some noise on the way out so the posse trips over itself. Moon's up. Go.", "next": "c2" },
+    { "id": "c2", "speaker": "Cole",
+      "choices": [
+        { "text": "Plan's simple. That's what worries me.", "next": "worry" },
+        { "text": "Done.", "next": "end" }
+      ]
+    },
+    { "id": "worry", "speaker": "Doc Vega", "text": "Simple plans have fewer parts to squeak. Trust the engineer.", "next": "end" }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "chatter_mabel_2",
+  "nodes": [
+    { "id": "start", "speaker": "Mabel", "text": "Wages came home in one night. Took Vane a fortnight to steal them and you one train to fix it. I've stopped charging you for opinions — first one's free.", "next": "c1" },
+    { "id": "c1", "speaker": "Mabel", "text": "Shelves are full again, thanks to you. Need anything?",
+      "choices": [
+        { "text": "One apple, please.", "next": "apple", "condition": "money>=7", "effects": { "buy": "apple" } },
+        { "text": "The lucky horseshoe.", "next": "horseshoe", "condition": "money>=25 && !hasItem:horseshoe", "effects": { "buy": "horseshoe" } },
+        { "text": "Just the free opinion.", "next": "opinion" }
+      ]
+    },
+    { "id": "apple", "speaker": "Mabel", "text": "For the bloodthirsty steed. Tell him the window's been fixed and I hold no grudges I can prove.", "next": "end" },
+    { "id": "horseshoe", "speaker": "Mabel", "text": "Cold iron — one bite of it and those night prowlers leave your pockets be. Works once, then it's theirs. Repeat customers welcome.", "next": "end" },
+    { "id": "opinion", "speaker": "Mabel", "text": "The opinion is: that horse of yours has learned to open the apple barrel. I have no evidence. I have losses.", "next": "end" }
+  ]
+}

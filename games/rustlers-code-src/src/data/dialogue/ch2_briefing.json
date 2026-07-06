@@ -1,0 +1,23 @@
+{
+  "id": "ch2_briefing",
+  "nodes": [
+    { "id": "start", "speaker": "Newt", "text": "Cole! CODE RED. That's the serious one, right? Vane's pay train took the whole town's wages. Called it 'safekeeping'. Rolled it right onto the rails!", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "Whose wages?", "next": "whose" },
+        { "text": "Deep breath, Newt.", "next": "breath" }
+      ]
+    },
+    { "id": "whose", "speaker": "Newt", "text": "EVERYONE'S. Mabel's, the farmers', even Sheriff Bly's — and he barely does anything!", "next": "plan" },
+    { "id": "breath", "speaker": "Newt", "text": "I AM breathing. This is my breathing-fast plan. It's a real plan.", "next": "plan" },
+    { "id": "plan", "speaker": "Newt", "text": "It's loading at the railhead east of town RIGHT NOW. Doc says: ride alongside, hop on, unhook the money cars, done. I'm to signal if there's trouble. Listen for my hawk.", "next": "c2" },
+    { "id": "c2", "speaker": "Cole",
+      "choices": [
+        { "text": "The duck, you mean.", "next": "duck" },
+        { "text": "Take only what was taken.", "next": "code" }
+      ]
+    },
+    { "id": "duck", "speaker": "Newt", "text": "It's a HAWK, Cole. A complicated hawk.", "next": "end" },
+    { "id": "code", "speaker": "Newt", "text": "The wages. Only the wages. I know the Code, I helped paint it on the wall.", "next": "end" }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "ch4_vane",
+  "nodes": [
+    { "id": "start", "speaker": "Cornelius Vane", "text": "YOU. The statue vandal. Do you have ANY idea what that likeness cost? The sculptor wept when he finished it. Wept, sir!", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "So did the begonias.", "next": "begonias" },
+        { "text": "It's over, Vane. I have the ledger.", "next": "ledger" }
+      ]
+    },
+    { "id": "begonias", "speaker": "Cornelius Vane", "text": "Those begonias were imported! Everything here is imported! Including, apparently, CRIME.", "next": "ledger2" },
+    { "id": "ledger", "speaker": "Cornelius Vane", "text": "The— my LEDGER? That is a private diary of... philanthropic arithmetic!", "next": "arithmetic" },
+    { "id": "ledger2", "speaker": "Cole", "text": "Your ledger's leaving with me, Vane. Every deed you invented, in your own hand.", "next": "arithmetic" },
+    { "id": "arithmetic", "speaker": "Cornelius Vane", "text": "Progress, dear boy, is simply my name moving across a map! You can't arrest a MAP!", "next": "c2" },
+    { "id": "c2", "speaker": "Cole",
+      "choices": [
+        { "text": "Also — your travelling gold. Every coin of it, back.", "next": "return_gold", "condition": "flag:tookVanesGold", "codeDelta": 15, "effects": { "money": -150, "setFlag": "goldReturned" } },
+        { "text": "Marshal can arrest the fella holding the pen.", "next": "pen" }
+      ]
+    },
+    { "id": "return_gold", "speaker": "Cornelius Vane", "text": "You're... giving it BACK? Who RAISED you? This is deeply unsettling behaviour from a criminal!", "next": "pen2" },
+    { "id": "pen", "speaker": "Cornelius Vane", "text": "GUARDS! Guards! ...They're all watching the statue, aren't they. Everyone loves that statue. LOVED. Oh, this is a terrible party.", "next": "end" },
+    { "id": "pen2", "speaker": "Cole", "text": "The Code raised me. Take it up with the Code.", "next": "pen" }
+  ]
+}

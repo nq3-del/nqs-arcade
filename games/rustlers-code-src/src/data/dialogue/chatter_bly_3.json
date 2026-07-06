@@ -1,0 +1,14 @@
+{
+  "id": "chatter_bly_3",
+  "nodes": [
+    { "id": "start", "speaker": "Sheriff Bly", "text": "So. The bounty hunter rode in, you two had your... cookware contest, and she rode out tipping her hat. You understand my difficulty. That's THREE reports minimum.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "Could be one report. Short words.", "next": "short" },
+        { "text": "Vane still paying you, Sheriff?", "next": "vane" }
+      ]
+    },
+    { "id": "short", "speaker": "Sheriff Bly", "text": "'Nothing happened, pan involved.' ...You know what, that might file. You're wasted as an outlaw.", "next": "end" },
+    { "id": "vane", "speaker": "Sheriff Bly", "text": "Mr Vane's payments have gotten... irregular. A man notices. A man quietly updates which side of the street he naps on.", "next": "end" }
+  ]
+}

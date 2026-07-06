@@ -1,0 +1,22 @@
+{
+  "id": "town_doc",
+  "nodes": [
+    { "id": "start", "speaker": "Doc Vega", "text": "Cole. Good. The workshop door's been squeaking in E flat and it's ruining my concentration.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "You wanted to see me?", "next": "job" },
+        { "text": "E flat's the worst one.", "next": "eflat" }
+      ]
+    },
+    { "id": "eflat", "speaker": "Doc Vega", "text": "See, THIS is why you're my favourite outlaw. Now hush and listen.", "next": "job" },
+    { "id": "job", "speaker": "Doc Vega", "text": "Word is Vane's bank is holding papers that don't belong to it. Farm deeds. Signed in handwriting suspiciously like Vane's.", "next": "job2" },
+    { "id": "job2", "speaker": "Doc Vega", "text": "Nothing we can do about it today. But a wise woman keeps her tools sharp. Go knock the dust off your aim — the practice rail's still standing, barely.", "next": "c2" },
+    { "id": "c2", "speaker": "Cole",
+      "choices": [
+        { "text": "On it.", "next": "end" },
+        { "text": "And if the practice sign breaks?", "next": "sign" }
+      ]
+    },
+    { "id": "sign", "speaker": "Doc Vega", "text": "Then it'll finally match everything else Vane's touched in this town.", "next": "end" }
+  ]
+}

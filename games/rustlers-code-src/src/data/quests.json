@@ -1,0 +1,71 @@
+[
+  {
+    "id": "prologue",
+    "chapter": 1,
+    "title": "Settling In",
+    "steps": [
+      { "id": "meet_doc", "objective": "Walk to Doc Vega — the TEAL workshop at the south end of Main Street, west side — and press E to say howdy", "trigger": "dialogue:town_doc:completed" },
+      { "id": "shoot_bottle", "objective": "Find the practice rail beside the general store. Hold Right-click to aim at a green bottle — when the circle turns gold, Left-click to shoot", "trigger": ["shot:practice_bottle_0", "shot:practice_bottle_1", "shot:practice_bottle_2"] },
+      { "id": "lasso_bale", "objective": "The hay bale sits on the store porch — hold Right-click to aim at it, then press F to lasso it down", "trigger": "lasso:practice_bale" }
+    ],
+    "onComplete": { "money": 25, "unlocks": "ch1_foreclosure_job" }
+  },
+  {
+    "id": "ch1_foreclosure_job",
+    "chapter": 1,
+    "title": "Chapter 1 — The Foreclosure Job",
+    "steps": [
+      { "id": "briefing", "objective": "Doc Vega has news about the deeds — press E to talk to her at the teal workshop", "trigger": "dialogue:ch1_briefing:completed" },
+      { "id": "reach_bank", "objective": "Sneak around the BACK of the bank (brown building, north-west end of the street). Stay OUT of the guards' lantern light", "trigger": "zone:bank_rear:entered" },
+      { "id": "shoot_lock", "objective": "Follow the gold arrow: aim at the GOLD LOCK on the strongbox wagon (hold Right-click) and shoot it (Left-click)", "trigger": "shot:strongbox_lock" },
+      { "id": "grab_deeds", "objective": "Walk up to the open strongbox and press E to take back the forged deeds", "trigger": "item:deeds:collected" },
+      { "id": "slow_posse", "objective": "Ride! Shoot the THREE targets under gold arrows: the water-tower VALVE up north, the wagon AXLE on the west road, and the crate ROPE on the arch past it. (B whistles Biscuit, H mounts)", "trigger": "ch1:obstacles_cleared" },
+      { "id": "escape", "objective": "Ride WEST past the arch to the campfire and tents at the foot of the mesa — that's home", "trigger": "zone:hideout:entered" }
+    ],
+    "onComplete": { "codeDelta": 10, "chapter": 2, "unlocks": "ch2_iron_horse" }
+  },
+  {
+    "id": "ch2_iron_horse",
+    "chapter": 2,
+    "title": "Chapter 2 — The Iron Horse Heist",
+    "steps": [
+      { "id": "briefing", "objective": "Newt is hopping up and down near the DEPOT (grey building, east side of the street) — press E to hear him out", "trigger": "dialogue:ch2_briefing:completed" },
+      { "id": "reach_railhead", "objective": "Ride EAST along the dirt road to the railhead platform", "trigger": "zone:railhead:entered" },
+      { "id": "board", "objective": "The pay train is moving! Gallop alongside the BROWN pay car and press E to leap aboard", "trigger": "train:boarded" },
+      { "id": "cut_coupling", "objective": "From the roof: follow the gold arrow, aim at the GOLD COUPLING between the cars ahead and shoot it", "trigger": "shot:train_coupling" },
+      { "id": "open_safe", "objective": "When your cars roll to a stop: aim at the SAFE DOOR on the car's side and press F to lasso it clean off", "trigger": "lasso:safe_door" },
+      { "id": "the_choice", "objective": "Press E beside the open safe to see what's inside", "trigger": "dialogue:ch2_safe:completed" },
+      { "id": "hop_down", "objective": "Press E to hop down off the train", "trigger": "train:disembarked" },
+      { "id": "ride_home", "objective": "Whistle Biscuit (B) and ride WEST, all the way back to the hideout camp", "trigger": "zone:hideout:entered" }
+    ],
+    "onComplete": { "codeDelta": 10, "chapter": 3, "money": 30, "unlocks": "ch3_high_noon" }
+  },
+  {
+    "id": "ch3_high_noon",
+    "chapter": 3,
+    "title": "Chapter 3 — High Noon, No Bullets",
+    "steps": [
+      { "id": "meet", "objective": "A very calm stranger is waiting in the middle of Main Street — walk up and press E", "trigger": "dialogue:ch3_kestrel_intro:completed" },
+      { "id": "round1", "objective": "Round one: shoot the BOTTLE on the barrel down the street (hold Right-click to aim, Left-click to fire)", "trigger": "duel:bottle" },
+      { "id": "round2", "objective": "Round two: stand near the Kestrel and press E to call the toss — then shoot the COIN at the top of its arc. Tip: hold your aim BEFORE calling it, so the slow-mo is running", "trigger": "duel:coin" },
+      { "id": "round3", "objective": "Round three: shoot Preacher's FRYING PAN on the post near the chapel — the ricochet handles the rest", "trigger": "duel:pan" },
+      { "id": "tip_hat", "objective": "Walk back to the Kestrel and press E — settle it like civilised legends", "trigger": "dialogue:ch3_kestrel_end:completed" }
+    ],
+    "onComplete": { "codeDelta": 10, "chapter": 4, "unlocks": "ch4_vane_gala" }
+  },
+  {
+    "id": "ch4_vane_gala",
+    "chapter": 4,
+    "title": "Chapter 4 — The Vane Gala",
+    "steps": [
+      { "id": "briefing", "objective": "One last plan — press E to talk to Doc Vega at the teal workshop", "trigger": "dialogue:ch4_briefing:completed" },
+      { "id": "approach", "objective": "Ride NORTH up the road, past the water tower, to Vane's big white mansion", "trigger": "zone:mansion:entered" },
+      { "id": "statue", "objective": "Follow the gold arrow: aim at Vane's GOLD STATUE out front and press F to lasso it into the begonias", "trigger": "lasso:vane_statue" },
+      { "id": "latch", "objective": "While they mourn the statue: go to the WINDOW on the east wing (gold arrow), aim at its gold latch and shoot it", "trigger": "shot:study_latch" },
+      { "id": "ledger", "objective": "Walk to the open window and press E to take Vane's ledger", "trigger": "item:ledger:collected" },
+      { "id": "vane", "objective": "Someone pompous is blocking your path — press E to face Mr Vane", "trigger": "dialogue:ch4_vane:completed" },
+      { "id": "deliver", "objective": "Ride back to the TRAIN DEPOT in town and press E to hand the ledger to Marshal Reyes", "trigger": "dialogue:ch4_marshal:completed" }
+    ],
+    "onComplete": { "codeDelta": 10, "chapter": 5 }
+  }
+]

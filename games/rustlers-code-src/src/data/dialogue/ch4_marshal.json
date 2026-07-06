@@ -1,0 +1,20 @@
+{
+  "id": "ch4_marshal",
+  "nodes": [
+    { "id": "start", "speaker": "Marshal Reyes", "text": "Calloway. Word travels: one gala upended, one gold likeness of Cornelius Vane now farming begonias face-first. I assume you're here to explain why.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "(Hand over the ledger.) Explanation's in his handwriting.", "next": "reads", "effects": { "takeItem": "ledger" } }
+      ]
+    },
+    { "id": "reads", "speaker": "Marshal Reyes", "text": "...Forged deeds. Bribery — itemised, the fool. He wrote the sheriff down as 'miscellaneous stern services'. This is the tidiest confession I have ever been handed.", "next": "c2" },
+    { "id": "c2", "speaker": "Cole",
+      "choices": [
+        { "text": "Folk just want their farms back.", "next": "farms" },
+        { "text": "Page forty's the worst of it.", "next": "forty" }
+      ]
+    },
+    { "id": "forty", "speaker": "Marshal Reyes", "text": "Page for— he charged the TOWN for his own statues. Right. That's quite enough reading.", "next": "farms" },
+    { "id": "farms", "speaker": "Marshal Reyes", "text": "They'll have them. Every deed this book undoes gets undone, starting at sunrise. As for you and your gang, Mr Calloway... let's talk about how this story ends.", "next": "end" }
+  ]
+}

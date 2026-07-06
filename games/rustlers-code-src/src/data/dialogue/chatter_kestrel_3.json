@@ -1,0 +1,14 @@
+{
+  "id": "chatter_kestrel_3",
+  "nodes": [
+    { "id": "start", "speaker": "The Kestrel", "text": "Still here, Mr Calloway. Officially I'm 'delayed by weather'. Unofficially, I've developed a professional interest in how a railroad baron affords quite so many statues.", "next": "c1" },
+    { "id": "c1", "speaker": "Cole",
+      "choices": [
+        { "text": "Careful. He'll commission one of you.", "next": "statue" },
+        { "text": "Find anything?", "next": "found" }
+      ]
+    },
+    { "id": "statue", "speaker": "The Kestrel", "text": "He offered. I declined. My likeness works for a living.", "next": "end" },
+    { "id": "found", "speaker": "The Kestrel", "text": "Numbers that don't add and a sheriff who can't subtract. If you happened to be planning something at that gala of his... I happened not to hear about it.", "next": "end" }
+  ]
+}
