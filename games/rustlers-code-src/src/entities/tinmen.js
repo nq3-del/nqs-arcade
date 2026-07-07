@@ -86,6 +86,13 @@ export function createTinMen(scene, effects, hud) {
     templates.key, new THREE.MeshLambertMaterial({ vertexColors: true }), POOL_SIZE);
   // Instances roam the whole town; skip per-mesh culling so none vanish.
   bodyMesh.frustumCulled = eyesMesh.frustumCulled = keyMesh.frustumCulled = false;
+  // The aim raycast tests an InstancedMesh against a bounding sphere that
+  // three.js computes ONCE — on the first aim, when every prowler is still
+  // parked underground — and never refreshes when instances move. That
+  // stale sphere made the whole horde unshootable. One generous sphere,
+  // set once, covers the valley wherever they shamble; the per-instance
+  // checks inside the raycast still do the precise work.
+  bodyMesh.boundingSphere = new THREE.Sphere(new THREE.Vector3(0, 0, 0), 250);
   scene.add(bodyMesh, eyesMesh, keyMesh);
 
   // One Points cloud gives every prowler its eerie glow — a single call.
