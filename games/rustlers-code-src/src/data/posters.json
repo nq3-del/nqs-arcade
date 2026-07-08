@@ -1,7 +1,7 @@
 [
   { "id": "poster_biscuit", "x": 11.5, "z": -3, "text": "WANTED: 'BISCUIT' — BLOODTHIRSTY STEED. Approach only with apples. Reward doubled if the apples come back." },
-  { "id": "poster_cole", "x": -7.2, "z": -3.5, "text": "WANTED: COLE 'COPPER' CALLOWAY — sharpshooter. Armed and extremely polite. Do not offer him paperwork; he will fold it neatly." },
-  { "id": "poster_gang", "x": -7, "z": 7.5, "text": "WANTED: THE RUSTLERS — known to leave folk BETTER than they found them. Authorities describe this as 'deeply suspicious'." },
+  { "id": "poster_cole", "x": 1.9, "z": -61.5, "text": "WANTED: COLE 'COPPER' CALLOWAY — sharpshooter. Armed and extremely polite. Do not offer him paperwork; he will fold it neatly." },
+  { "id": "poster_gang", "x": -6.15, "z": 7.2, "text": "WANTED: THE RUSTLERS — known to leave folk BETTER than they found them. Authorities describe this as 'deeply suspicious'." },
   { "id": "poster_newt", "x": 3.5, "z": 21, "text": "LOST: ONE HAWK CALL. Answers to 'honk-a-hoo'. If heard, do not correct the boy. — Management" },
   { "id": "poster_doc", "x": -11.5, "z": 9.8, "text": "NOTICE: R. VEGA'S PATENTED DOOR-UNSQUEAKER — stolen (the patent, not the door). The squeak continues out of spite." },
   { "id": "poster_bly", "x": -6.8, "z": -8.5, "text": "SHERIFF'S NOTICE: crime is DOWN 40%* in Copperhead Creek. (*measurement suspended pending a quieter month.)" },
