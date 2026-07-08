@@ -19,14 +19,18 @@ export function buildPosters(scene, interactions, hud) {
     sheet.position.set(def.x, 1.45, def.z + 0.08);
     scene.add(sheet);
 
+    // Always readable — a poster on a wall doesn't stop being a poster
+    // once you've seen it. It only COUNTS (journal, bonus) the first time.
     interactions.register(
       def.id, post, 2.2,
-      () => (gameState.posters.includes(def.id) ? '' : 'Read the wanted poster'),
+      'Read the wanted poster',
       () => {
-        gameState.posters.push(def.id);
         hud.showSubtitle('Wanted Poster', def.text, 5);
-        emit('poster:collected', { id: def.id, count: gameState.posters.length });
-        saveGame();
+        if (!gameState.posters.includes(def.id)) {
+          gameState.posters.push(def.id);
+          emit('poster:collected', { id: def.id, count: gameState.posters.length });
+          saveGame();
+        }
       }
     );
   }
