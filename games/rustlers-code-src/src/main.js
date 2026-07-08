@@ -18,7 +18,7 @@ import { setupChapter1 } from './world/chapter1.js';
 import { setupChapter2 } from './world/chapter2.js';
 import { setupChapter3 } from './world/chapter3.js';
 import { setupChapter4 } from './world/chapter4.js';
-import { buildPosters } from './world/posters.js';
+import { buildPosters, POSTER_TOTAL } from './world/posters.js';
 import { createJournal } from './ui/journal.js';
 import { createIntro } from './ui/intro.js';
 import { createTitleCard } from './ui/titleCard.js';
@@ -234,6 +234,14 @@ on('gamepad:connected', () => {
 });
 on('gamepad:nonstandard', () => {
   hud.showSubtitle('', "That controller's layout isn't standard, so it's staying holstered. Keyboard and mouse work as ever.", 5);
+});
+
+// Finding the last poster AFTER the story is over still earns the bonus
+// scene — the ending card already played, so it gets a card of its own.
+on('poster:collected', ({ count }) => {
+  if (count >= POSTER_TOTAL && gameState.chapter >= 5) {
+    endingScreen.showBonus();
+  }
 });
 
 // Ringing the chapel bell always gets a word from Preacher.

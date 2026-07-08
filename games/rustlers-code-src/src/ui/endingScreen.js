@@ -125,6 +125,33 @@ export function createEndingScreen() {
       panel.style.display = 'block';
       panel.scrollTop = 0;
     },
+
+    // The tenth poster found AFTER the story is done: the ending card has
+    // already been and gone, so the bonus scene gets its own little card —
+    // nobody hunts all ten and gets silence as a reward.
+    showBonus() {
+      screen.visible = true; // set BEFORE releasing the mouse, so the pause
+      document.exitPointerLock?.(); // menu doesn't claim the moment
+      const inner = document.createElement('div');
+      inner.className = 'inner';
+      inner.innerHTML = `<h1>Every Poster Found</h1>
+        <div class="tier">— the collection is complete —</div>`;
+      const bonus = document.createElement('div');
+      bonus.className = 'bonus';
+      bonus.textContent = BONUS_SCENE;
+      inner.appendChild(bonus);
+      const wander = document.createElement('button');
+      wander.textContent = 'Keep wandering the valley';
+      wander.addEventListener('click', () => {
+        panel.style.display = 'none';
+        screen.visible = false;
+      });
+      inner.appendChild(wander);
+      panel.innerHTML = '';
+      panel.appendChild(inner);
+      panel.style.display = 'block';
+      panel.scrollTop = 0;
+    },
   };
   return screen;
 }

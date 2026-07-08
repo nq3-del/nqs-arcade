@@ -25,8 +25,10 @@ export function buildPosters(scene, interactions, hud) {
       def.id, post, 2.2,
       'Read the wanted poster',
       () => {
-        hud.showSubtitle('Wanted Poster', def.text, 5);
-        if (!gameState.posters.includes(def.id)) {
+        const firstRead = !gameState.posters.includes(def.id);
+        hud.showSubtitle('Wanted Poster',
+          firstRead ? def.text : def.text + ' (Already collected.)', 5);
+        if (firstRead) {
           gameState.posters.push(def.id);
           emit('poster:collected', { id: def.id, count: gameState.posters.length });
           saveGame();
