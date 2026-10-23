@@ -18,10 +18,12 @@ Arcade site is hosted at https://nqs-arcade.vercel.app; production publication
 requires pushing to its connected GitHub branch and a successful Vercel deploy.
 No new hosting service or account is needed.
 
-The phone/tablet controller interface is included in the build. Pairing currently
-requires the local WebSocket service provided by `npm run dev` or `npm run preview`.
-Static Vercel hosting does not run that service, so phone pairing is available
-only when running the game locally. Online pairing needs a separately hosted relay.
+Phone pairing uses `/api/phone-socket` on Vercel and a shared Redis database.
+Connect the Redis Marketplace integration to this project and set the server-only
+`REDIS_URL` in Preview and Production. Keep Fluid compute enabled. The endpoint
+returns `{ "ready": true }` when Redis is reachable. No credential belongs in a
+`VITE_` variable or the committed browser build. Local dev/preview still uses the
+home-network relay. See `../../../PHONE-RELAY.md` for operations and tests.
 
 For the production browser smoke test, serve the repository root on port 4173
 and run from this source directory:

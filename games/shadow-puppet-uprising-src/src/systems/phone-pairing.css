@@ -1,5 +1,6 @@
 ﻿.phone-pairing{border:1px solid #e1dac9;border-radius:24px;padding:28px;max-width:420px;width:calc(100% - 32px);max-height:90dvh;overflow:auto;background:#fffaf0;color:#172835;box-sizing:border-box;box-shadow:0 24px 90px #0005}
 .phone-pairing::backdrop{background:#102431b3;backdrop-filter:blur(4px)}
+.phone-pairing [hidden]{display:none!important}
 .phone-pairing h2{margin:0 0 10px;font-size:26px;letter-spacing:-.7px}.phone-pairing p{line-height:1.5;font-size:14px;color:#5c6867;margin:0 0 20px}
 .phone-pairing label{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:16px 0;font-size:13px;font-weight:600}.phone-pairing select{max-width:65%;padding:10px 12px;border:1px solid #ddd8c9;border-radius:10px;background:#fffdf8;color:#172835}
 .phone-pairing .pairing-code{background:white;border:1px solid #ece6d9;border-radius:20px;margin:20px auto 12px;padding:12px;width:fit-content;max-width:100%}.phone-pairing canvas{display:block;max-width:100%;height:auto!important}

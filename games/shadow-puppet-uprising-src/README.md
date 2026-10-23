@@ -57,7 +57,7 @@ The phone has a thumbstick, action buttons, character shortcuts and menu control
 
 If pairing fails, try another computer address in the pairing panel, avoid guest Wi-Fi/VPN isolation, and allow Node.js on the Windows **private** network when prompted. Keep the phone screen awake: local HTTP does not always support automatic screen wake locks. Closing/locking the phone releases input; a detected disconnect pauses the game, and a missed heartbeat releases held controls within 800 ms. Return to the controller and reconnect, or scan again if the game tab was refreshed.
 
-The local WebSocket pairing service runs with both `npm run dev` and `npm run preview`. `npm run build` includes the controller page, but serving `dist/` alone on a static host does **not** provide pairing. This version is for home-network play, with the computer running the game (optionally connected to a TV). No cloud service is required.
+The local WebSocket pairing service runs with both `npm run dev` and `npm run preview`. The Arcade production site also supports internet pairing through its `/api/phone-socket` Vercel endpoint and Redis room coordination. Open **Use your phone** on the computer and scan the QR code; both screens need internet access. Connections recover automatically when Vercel rotates a function or the network drops, and gameplay pauses on a detected disconnect. Phone input is released after 800 ms without a heartbeat. Raw static hosting without the relay still does not provide pairing. No game saves or personal information are sent to Redis.
 
 Checks: `npm run test:phone` tests room isolation, validation and disconnects. `npm run test:phone-browser` exercises real browser pairing/input against a running dev server.
 

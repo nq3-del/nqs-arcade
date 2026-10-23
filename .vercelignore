@@ -1,0 +1,9 @@
+.git
+.env*
+.vercel
+node_modules
+**/node_modules/**
+**/test-results/**
+**/dist/**
+tests/
+/public/

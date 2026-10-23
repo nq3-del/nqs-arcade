@@ -1,0 +1,14 @@
+{
+  "name": "nqs-arcade",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-static.mjs",
+    "test:relay": "node --test tests/phone-relay.test.mjs",
+    "test:relay:redis": "node --test tests/phone-redis.test.mjs"
+  },
+  "dependencies": {
+    "redis": "^5.9.0",
+    "ws": "^8.22.0"
+  }
+}
