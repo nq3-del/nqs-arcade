@@ -1,0 +1,8 @@
+import { chromium } from '@playwright/test';
+import fs from 'node:fs';
+const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+const page=await browser.newPage({viewport:{width:1440,height:1000}});const errors=[];page.on('pageerror',e=>{errors.push(e.stack);console.log('PAGEERROR',e.stack);});page.on('console',m=>{if(m.type()==='error')console.log('CONSOLE',m.text());});fs.mkdirSync('test-results',{recursive:true});
+try{
+await page.goto('http://127.0.0.1:5173/?qa');await page.getByRole('button',{name:'Let’s play'}).waitFor({timeout:60000});await page.waitForTimeout(1800);await page.screenshot({path:'test-results/diorama-menu.png'});console.log('MENU',await page.evaluate(()=>({canvas:document.querySelector('#diorama-canvas')?.width,errors:0})));
+await page.getByRole('button',{name:'Let’s play'}).click();await page.locator('[data-cinema="skip"]').waitFor();await page.waitForTimeout(1200);await page.screenshot({path:'test-results/diorama-cutscene.png'});await page.locator('[data-cinema="skip"]').click();await page.waitForFunction(()=>!window.__gameQA.scene.cinematic);await page.keyboard.press('q',{delay:100});await page.waitForFunction(()=>window.__gameQA.scene.player.form==='B');await page.keyboard.down('d');await page.waitForTimeout(700);await page.keyboard.up('d');await page.screenshot({path:'test-results/diorama-game.png'});console.log('STATE',await page.evaluate(()=>{const s=window.__gameQA.scene;return {mode:window.__gameQA.services.ui.mode,step:s.originStep,player:{x:s.player.x,z:s.player.z,form:s.player.form},objects:s.view.scene.children.length};}));console.log('ERRORS',errors);
+}finally{await browser.close();}

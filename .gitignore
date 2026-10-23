@@ -17,3 +17,4 @@ dist/
 # Logs / temp
 *.log
 *.tmp
+test-results/

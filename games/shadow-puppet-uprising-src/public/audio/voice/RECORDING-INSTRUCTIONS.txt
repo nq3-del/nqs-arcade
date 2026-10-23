@@ -1,0 +1,21 @@
+THE SHADOW PUPPET UPRISING — FAMILY RECORDING SESSION
+42 scenes (37 first-play scenes + 5 peaceful return visits); 175 separate cues.
+0 recordings indexed. Silent autoplay reading estimate: 9.1 minutes for first-play scenes, excluding gameplay. Actual recordings, pauses and skips change this.
+
+CAST
+The two creative directors can voice Form A and Form B. Dad can record Narrator, Daddy and Big Boss in separate sessions. Family members can record themselves, or one willing reader can cover several roles. Ayla's three little laughs are entirely optional. This is a working script: the children's names for the hero, the magic's origin and the Big Boss's identity remain open.
+
+HOW TO RECORD
+1. Pick a quiet room with soft furnishings. Keep the same microphone position, roughly a hand span from your mouth and slightly to one side.
+2. Record one cue at a time. Read only the dialogue, not the filename or delivery direction. Bracketed laughter is a performance cue, not spoken words.
+3. Leave about half a second of quiet before and after the line. Give us two or three takes: natural, a little bigger, then a softer alternative if useful.
+4. Keep raw takes together in a separate folder, named e.g. c00-awakening-01_take1.wav. Pick one final take and remove the take suffix for the game.
+5. WAV, mono, 48 kHz, 16- or 24-bit is a useful final format. MP3, OGG and M4A are also indexed; browser codec support varies. A phone recording is fine to start with. Avoid added music, reverb or exaggerated voice effects.
+6. Put the chosen file in public/audio/voice using the exact cue ID as its filename, for example c00-awakening-01.wav. Use only one file format per cue.
+7. From the project folder, run: npm run recordings
+8. Refresh the game. Replay a line with the circular-arrow button to check the take. A new dev start or production build also rebuilds the recording index.
+
+SCENE CONTROLS
+Next / E / Space advances one line. Either controller's jump or interact button also advances. Previous goes back one line. Replay restarts that line. Play scene follows recorded audio, or a readable caption timer for unrecorded lines. Read at my pace stops automatic advancement. Skip always finishes the scene safely. Escape pauses voices with the game; volume and mute apply to recordings too.
+
+No voice recordings are fabricated or included. Missing or blocked audio falls back to captions. Record the opening and the two hero roles first for the quickest playable preview; add the family and remaining narration whenever ready.

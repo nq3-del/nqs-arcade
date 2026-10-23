@@ -1,0 +1,1302 @@
+THE SHADOW PUPPET UPRISING — FAMILY RECORDING SESSION
+42 scenes (37 first-play scenes + 5 peaceful return visits); 175 separate cues.
+0 recordings indexed. Silent autoplay reading estimate: 9.1 minutes for first-play scenes, excluding gameplay. Actual recordings, pauses and skips change this.
+
+CAST
+The two creative directors can voice Form A and Form B. Dad can record Narrator, Daddy and Big Boss in separate sessions. Family members can record themselves, or one willing reader can cover several roles. Ayla's three little laughs are entirely optional. This is a working script: the children's names for the hero, the magic's origin and the Big Boss's identity remain open.
+
+HOW TO RECORD
+1. Pick a quiet room with soft furnishings. Keep the same microphone position, roughly a hand span from your mouth and slightly to one side.
+2. Record one cue at a time. Read only the dialogue, not the filename or delivery direction. Bracketed laughter is a performance cue, not spoken words.
+3. Leave about half a second of quiet before and after the line. Give us two or three takes: natural, a little bigger, then a softer alternative if useful.
+4. Keep raw takes together in a separate folder, named e.g. c00-awakening-01_take1.wav. Pick one final take and remove the take suffix for the game.
+5. WAV, mono, 48 kHz, 16- or 24-bit is a useful final format. MP3, OGG and M4A are also indexed; browser codec support varies. A phone recording is fine to start with. Avoid added music, reverb or exaggerated voice effects.
+6. Put the chosen file in public/audio/voice using the exact cue ID as its filename, for example c00-awakening-01.wav. Use only one file format per cue.
+7. From the project folder, run: npm run recordings
+8. Refresh the game. Replay a line with the circular-arrow button to check the take. A new dev start or production build also rebuilds the recording index.
+
+SCENE CONTROLS
+Next / E / Space advances one line. Either controller's jump or interact button also advances. Previous goes back one line. Replay restarts that line. Play scene follows recorded audio, or a readable caption timer for unrecorded lines. Read at my pace stops automatic advancement. Skip always finishes the scene safely. Escape pauses voices with the game; volume and mute apply to recordings too.
+
+No voice recordings are fabricated or included. Missing or blocked audio falls back to captions. Record the opening and the two hero roles first for the quickest playable preview; add the family and remaining narration whenever ready.
+
+
+================================================================
+NARRATOR — 45 cues
+Dad, or another storyteller
+Warm bedtime-story voice. Let the jokes land; never rush.
+
+[ ] c00-awakening-01.wav
+A little spark
+SAY: Some stories begin with a great big bang.
+DELIVERY: Build anticipation, then leave a beat.
+PLAYS: Enter the Origin for a new visit.
+
+[ ] c00-awakening-02.wav
+A little spark
+SAY: This one begins with a little spark.
+DELIVERY: Small and full of wonder.
+PLAYS: Enter the Origin for a new visit.
+
+[ ] c00-awakening-05.wav
+A little spark
+SAY: One hero. Two forms. A whole family to bring home.
+DELIVERY: Warm purpose, with a pause between each thought.
+PLAYS: Enter the Origin for a new visit.
+
+[ ] c00-departure-01.wav
+Through the little doorway
+SAY: Five family legends are trapped in the worlds beyond.
+DELIVERY: Clear and reassuring.
+PLAYS: Complete the Origin lessons and enter its portal.
+
+[ ] c00-departure-02.wav
+Through the little doorway
+SAY: Their borrowed shadows are making a spectacular mess.
+DELIVERY: Amused at 'spectacular'.
+PLAYS: Complete the Origin lessons and enter its portal.
+
+[ ] c01-arrival-01.wav
+The kingdom that stopped
+SAY: A kingdom of whirring wonders has fallen strangely quiet.
+DELIVERY: Wonder gives way to curiosity.
+PLAYS: Enter the Broken Kingdom before Grandad is rescued.
+
+[ ] c01-mission-01-01.wav
+Unjam the foundry
+SAY: One engine coughs. Then another. The whole street begins to tick again.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “Unjam the foundry” in chapter 1.
+
+[ ] c01-message-03.wav
+One little piece
+SAY: The bridge wakes up, shakes off the dust, and drops one very surprised shadow.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “Wake the clockwork bridge” in chapter 1.
+
+[ ] c01-mission-03-01.wav
+The runaway tool trolley
+SAY: Grandad’s tools reach the foundry. Something inside answers with a tremendous CLANG.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “The runaway tool trolley” in chapter 1.
+
+[ ] c01-challenge-01.wav
+The borrowed judo
+SAY: The machines are humming. One is definitely out of tune.
+DELIVERY: Dry little joke.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c01-rescue-01.wav
+Good as new
+SAY: The borrowed shadows fade. Grandad is free.
+DELIVERY: Relief, with room for the reveal.
+PLAYS: Defeat Ultimate Shadow Grandad.
+
+[ ] c01-return-01.wav
+Still ticking
+SAY: Grandad's kingdom is humming again.
+DELIVERY: Warm satisfaction.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c02-arrival-01.wav
+Even the bubbles need a bath
+SAY: The forest used to sparkle.
+DELIVERY: A wistful beginning.
+PLAYS: Enter the Filthy Forest before Nana is rescued.
+
+[ ] c02-mission-01-01.wav
+Mend the woodland pumps
+SAY: Fresh water begins to flow. The sleeping grove starts to wake.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “Mend the woodland pumps” in chapter 2.
+
+[ ] c02-message-03.wav
+A little kindness
+SAY: A river returns. A large bubble floats away with a puppet still inside it.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “Bring back the stream” in chapter 2.
+
+[ ] c02-mission-03-01.wav
+Guide the lost woodland light
+SAY: The light settles in the ancient tree. Silver threads unravel around its roots.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “Guide the lost woodland light” in chapter 2.
+
+[ ] c02-challenge-01.wav
+Trouble in the bubbles
+SAY: The forest smells of flowers again. And possibly biscuits.
+DELIVERY: Enjoy 'biscuits'.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c02-rescue-01.wav
+Room for a biscuit
+SAY: The bubbles settle. Nana is free.
+DELIVERY: Soft relief.
+PLAYS: Defeat Ultimate Shadow Nana.
+
+[ ] c02-return-01.wav
+A breath of fresh air
+SAY: Nana's forest has its sparkle back.
+DELIVERY: Warm satisfaction.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c03-arrival-01.wav
+A very good reflection
+SAY: Every mirror has a story. This one has excellent hair.
+DELIVERY: Storyteller, then a dry joke.
+PLAYS: Enter the Palace of Perfection before Mummy is rescued.
+
+[ ] c03-mission-01-01.wav
+The wrong reflections
+SAY: The mirrors agree at last. A hidden laboratory door shimmers into view.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “The wrong reflections” in chapter 3.
+
+[ ] c03-message-03.wav
+Perfectly yourself
+SAY: One drop of courage. Two drops of sparkle. Absolutely no frog slime.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “A recipe for confidence” in chapter 3.
+
+[ ] c03-mission-03-01.wav
+The guards need a little kindness
+SAY: The guards step aside. One asks whether the potion works on hats.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “The guards need a little kindness” in chapter 3.
+
+[ ] c03-challenge-01.wav
+The pose-off
+SAY: The recipe is ready. The hair is absolutely magnificent.
+DELIVERY: A tiny pause before the second sentence.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c03-rescue-01.wav
+The secret ingredient
+SAY: The spell breaks. Mummy is free.
+DELIVERY: A happy reveal.
+PLAYS: Defeat Ultimate Shadow Mummy.
+
+[ ] c03-return-01.wav
+Looking fabulous
+SAY: The palace is bright, and its puppets are very pleased with their hair.
+DELIVERY: Warm satisfaction.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c04-arrival-01.wav
+Special delivery
+SAY: Every fortress has a fearsome secret. This one wears a nappy.
+DELIVERY: Pantomime suspense, then the punchline.
+PLAYS: Enter the Fortress of Fury before Leah and Ayla are rescued.
+
+[ ] c04-mission-01-01.wav
+A glamorous distraction
+SAY: The guards begin a dramatic fashion show. Nobody guards the catapult.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “A glamorous distraction” in chapter 4.
+
+[ ] c04-message-03.wav
+The smallest teammate
+SAY: Over the wall. Over the laundry. Right into the middle of the trouble.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “The spectacular entrance” in chapter 4.
+
+[ ] c04-mission-03-01.wav
+The pillow patrol
+SAY: The last pillow lands. A tiny giggle comes from the throne room.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “The pillow patrol” in chapter 4.
+
+[ ] c04-mission-04-01.wav
+One very squishy door
+SAY: The door bursts into ribbons. Ayla applauds. Leah looks extremely proud.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “One very squishy door” in chapter 4.
+
+[ ] c04-challenge-01.wav
+Mind the splat
+SAY: The catapult is loaded. Everybody has been politely warned.
+DELIVERY: Mock-official announcement.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c04-rescue-01.wav
+The unstoppable duo
+SAY: Leah and Ayla are free. The fortress can breathe again.
+DELIVERY: Happy relief.
+PLAYS: Defeat Ultimate Shadow Leah and Ayla.
+
+[ ] c04-return-01.wav
+Delivery complete
+SAY: The fortress is peaceful. Relatively speaking.
+DELIVERY: Warm satisfaction.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c05-arrival-01.wav
+One player missing
+SAY: The lights are on. The crowd is waiting. One player is missing.
+DELIVERY: Match-day anticipation.
+PLAYS: Enter the Stadium of Champions before Daddy is rescued.
+
+[ ] c05-mission-01-01.wav
+The impossible warm-up
+SAY: Three goals. One enormous cheer. The shadow team finally notices you.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “The impossible warm-up” in chapter 5.
+
+[ ] c05-message-03.wav
+The perfect pass
+SAY: The scoreboard cannot decide which sport this is. Daddy is delighted.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “Nothing but net” in chapter 5.
+
+[ ] c05-mission-03-01.wav
+Race down the wing
+SAY: The crowd rises. Your run opens the champions pitch.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “Race down the wing” in chapter 5.
+
+[ ] c05-mission-04-01.wav
+Extra time
+SAY: The whistle blows. One player remains between you and the last rescue.
+DELIVERY: Celebrate the result; give the visual reveal a moment.
+PLAYS: Complete “Extra time” in chapter 5.
+
+[ ] c05-challenge-01.wav
+Extra time
+SAY: The stadium is ready. The crowd goes completely bananas.
+DELIVERY: A little sports-commentator energy.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c05-rescue-01.wav
+The greatest comeback
+SAY: The final whistle blows. Daddy is free.
+DELIVERY: A triumphant sports-story finish.
+PLAYS: Defeat Ultimate Shadow Daddy.
+
+[ ] c05-return-01.wav
+A friendly kickabout
+SAY: The stadium is ready for a friendly game.
+DELIVERY: Warm satisfaction.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c06-arrival-01.wav
+The ultimate alliance
+SAY: Five legends, together again. One last shadow in the way.
+DELIVERY: A grand but friendly finale.
+PLAYS: Enter the finale with all five allies rescued.
+
+[ ] c06-home-03.wav
+Everybody came home
+SAY: A kingdom repaired. A forest clean. Several exceptionally glamorous puppets.
+DELIVERY: Warm, with room for each memory.
+PLAYS: Finish the final dash and Form B power pop.
+
+[ ] c06-home-09.wav
+Everybody came home
+SAY: The best part of the adventure? Everybody came home.
+DELIVERY: A warm ending, not a trailer voice.
+PLAYS: Finish the final dash and Form B power pop.
+
+
+================================================================
+HERO · FORM A — 37 cues
+Creative director 1
+Curious, quick and brave. Your normal voice is perfect.
+
+[ ] c00-awakening-03.wav
+A little spark
+SAY: Oh! Are these my feet?
+DELIVERY: Delighted discovery.
+PLAYS: Enter the Origin for a new visit.
+
+[ ] c00-awakening-06.wav
+A little spark
+SAY: Right. Let's find our family.
+DELIVERY: Quietly brave.
+PLAYS: Enter the Origin for a new visit.
+
+[ ] c00-departure-04.wav
+Through the little doorway
+SAY: First stop: Grandad!
+DELIVERY: Ready to go.
+PLAYS: Complete the Origin lessons and enter its portal.
+
+[ ] c01-arrival-02.wav
+The kingdom that stopped
+SAY: Grandad? I think your kingdom's broken.
+DELIVERY: Calling across the garden.
+PLAYS: Enter the Broken Kingdom before Grandad is rescued.
+
+[ ] c01-mission-01-02.wav
+Unjam the foundry
+SAY: The relays! One, two, three. Let's wake that bridge.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “Unjam the foundry” in chapter 1.
+
+[ ] c01-message-02.wav
+One little piece
+SAY: One little piece. Got it, Grandad.
+DELIVERY: Remembering his advice.
+PLAYS: Complete “Wake the clockwork bridge” in chapter 1.
+
+[ ] c01-mission-03-02.wav
+The runaway tool trolley
+SAY: Hear that clang? The Ultimate Shadow's close.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “The runaway tool trolley” in chapter 1.
+
+[ ] c01-challenge-04.wav
+The borrowed judo
+SAY: We're coming, Grandad!
+DELIVERY: Brave and affectionate.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c02-arrival-04.wav
+Even the bubbles need a bath
+SAY: Hold on, Nana. Grandad can fix the pumps!
+DELIVERY: Eager, remembering the team's new ability.
+PLAYS: Enter the Filthy Forest before Nana is rescued.
+
+[ ] c02-mission-01-02.wav
+Mend the woodland pumps
+SAY: The flower valves! Let's open the stream.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “Mend the woodland pumps” in chapter 2.
+
+[ ] c02-mission-03-02.wav
+Guide the lost woodland light
+SAY: We're at the heart-tree. Let's follow those silver threads.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “Guide the lost woodland light” in chapter 2.
+
+[ ] c02-challenge-03.wav
+Trouble in the bubbles
+SAY: Dodge the bubbles. Wait for the shadow to rest.
+DELIVERY: Concentrating.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c02-rescue-04.wav
+Room for a biscuit
+SAY: Me! After we rescue everybody.
+DELIVERY: Immediate excitement, then remember the mission.
+PLAYS: Defeat Ultimate Shadow Nana.
+
+[ ] c03-arrival-02.wav
+A very good reflection
+SAY: Mummy! Is that a rescue potion?
+DELIVERY: Hopeful curiosity.
+PLAYS: Enter the Palace of Perfection before Mummy is rescued.
+
+[ ] c03-mission-01-02.wav
+The wrong reflections
+SAY: The lab is open. Let's find the glowing ingredients.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “The wrong reflections” in chapter 3.
+
+[ ] c03-message-02.wav
+Perfectly yourself
+SAY: Both versions of me!
+DELIVERY: Bright realisation.
+PLAYS: Complete “A recipe for confidence” in chapter 3.
+
+[ ] c03-mission-03-02.wav
+The guards need a little kindness
+SAY: The guards are friends. Time to reach Mummy.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “The guards need a little kindness” in chapter 3.
+
+[ ] c04-arrival-03.wav
+Special delivery
+SAY: How big a problem?
+DELIVERY: A cautious little question.
+PLAYS: Enter the Fortress of Fury before Leah and Ayla are rescued.
+
+[ ] c04-mission-01-02.wav
+A glamorous distraction
+SAY: A catapult! That's one way over a wall.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “A glamorous distraction” in chapter 4.
+
+[ ] c04-mission-03-02.wav
+The pillow patrol
+SAY: One squishy door. One power pop!
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “The pillow patrol” in chapter 4.
+
+[ ] c04-challenge-03.wav
+Mind the splat
+SAY: Dodge first. Pop when it stops.
+DELIVERY: A quick little rhyme to remember.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c05-arrival-04.wav
+One player missing
+SAY: Fast feet? That's my department.
+DELIVERY: Playful confidence.
+PLAYS: Enter the Stadium of Champions before Daddy is rescued.
+
+[ ] c05-mission-01-02.wav
+The impossible warm-up
+SAY: Now for hoops. Time for a big leap.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “The impossible warm-up” in chapter 5.
+
+[ ] c05-mission-03-02.wav
+Race down the wing
+SAY: The shadow team wants extra time. Let's finish this.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “Race down the wing” in chapter 5.
+
+[ ] c05-challenge-03.wav
+Extra time
+SAY: Then strike when the shadow takes a breather.
+DELIVERY: Repeating the plan.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c05-rescue-05.wav
+The greatest comeback
+SAY: Best team ever.
+DELIVERY: Quiet, happy pride.
+PLAYS: Defeat Ultimate Shadow Daddy.
+
+[ ] c06-arrival-03.wav
+The ultimate alliance
+SAY: Of course we did.
+DELIVERY: Simple confidence.
+PLAYS: Enter the finale with all five allies rescued.
+
+[ ] c06-challenge-04.wav
+Everybody has a part
+SAY: And two forms for the finish!
+DELIVERY: Ready for the final move.
+PLAYS: Reach the final arena before its first attack.
+
+[ ] c06-home-10.wav
+Everybody came home
+SAY: A Tony Baloney Studios adventure!
+DELIVERY: Playful studio announcement.
+PLAYS: Finish the final dash and Form B power pop.
+
+[ ] v-hero-a-jump.wav
+Gameplay soundbite
+SAY: Hup!
+DELIVERY: A small, light effort.
+PLAYS: Occasional jump; shared speech cooldown.
+
+[ ] v-hero-a-switch.wav
+Gameplay soundbite
+SAY: Quick feet ready!
+DELIVERY: A cheerful transformation.
+PLAYS: Switch into Form A.
+
+[ ] v-hero-a-power.wav
+Gameplay soundbite
+SAY: Whoosh!
+DELIVERY: Playful effort, not a scream.
+PLAYS: Successful Form A ability.
+
+[ ] v-hero-a-hurt.wav
+Gameplay soundbite
+SAY: Oof! I'm okay.
+DELIVERY: Brief surprise, immediately reassuring.
+PLAYS: Take damage; occasional, never layered over story dialogue.
+
+[ ] v-hero-a-star.wav
+Gameplay soundbite
+SAY: A little sparkle!
+DELIVERY: A small discovery.
+PLAYS: Collect a star; shared cooldown limits repetition.
+
+[ ] v-hero-a-checkpoint.wav
+Gameplay soundbite
+SAY: A little rest. Then we keep going.
+DELIVERY: A relieved breath.
+PLAYS: Reach a rest stone.
+
+[ ] v-hero-a-retry.wav
+Gameplay soundbite
+SAY: Nearly! Let's try that again.
+DELIVERY: Encouraging, no shame or frustration.
+PLAYS: Defeat screen.
+
+[ ] v-final-dash.wav
+Gameplay soundbite
+SAY: One quick dash...
+DELIVERY: Concentrated effort.
+PLAYS: Land the first part of the final combination.
+
+
+================================================================
+HERO · FORM B — 34 cues
+Creative director 2
+The same hero in their other form: thoughtful, playful and determined.
+
+[ ] c00-awakening-04.wav
+A little spark
+SAY: And this is my other me!
+DELIVERY: A surprised laugh; one hero discovering another form.
+PLAYS: Enter the Origin for a new visit.
+
+[ ] c00-departure-03.wav
+Through the little doorway
+SAY: Then we'll bring them back. Every single one.
+DELIVERY: A promise, not a shout.
+PLAYS: Complete the Origin lessons and enter its portal.
+
+[ ] c01-arrival-04.wav
+The kingdom that stopped
+SAY: A silver thread! Someone has been pulling the strings.
+DELIVERY: Curious, spotting a clue.
+PLAYS: Enter the Broken Kingdom before Grandad is rescued.
+
+[ ] c01-message-04.wav
+One little piece
+SAY: Grandad's tools need a lift. Let's guide the trolley.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “Wake the clockwork bridge” in chapter 1.
+
+[ ] c01-challenge-03.wav
+The borrowed judo
+SAY: Step aside. Wait for a rest. Then power pop!
+DELIVERY: Three clear steps.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c01-rescue-04.wav
+Good as new
+SAY: Can you help us find everyone else?
+DELIVERY: Hopeful.
+PLAYS: Defeat Ultimate Shadow Grandad.
+
+[ ] c02-arrival-02.wav
+Even the bubbles need a bath
+SAY: Even the bubbles need a bath!
+DELIVERY: Gently disgusted, then amused.
+PLAYS: Enter the Filthy Forest before Nana is rescued.
+
+[ ] c02-message-02.wav
+A little kindness
+SAY: Good. I'm quite good at being me.
+DELIVERY: A small, confident smile.
+PLAYS: Complete “Bring back the stream” in chapter 2.
+
+[ ] c02-message-04.wav
+A little kindness
+SAY: Stay close to that little light. It'll lead us to Nana.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “Bring back the stream” in chapter 2.
+
+[ ] c02-challenge-04.wav
+Trouble in the bubbles
+SAY: Then a little pop clears the way!
+DELIVERY: Light and playful.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c03-arrival-04.wav
+A very good reflection
+SAY: Let's make something magnificent.
+DELIVERY: Trying out Mummy's dramatic voice.
+PLAYS: Enter the Palace of Perfection before Mummy is rescued.
+
+[ ] c03-message-04.wav
+Perfectly yourself
+SAY: Those guards look confused. Nana can help.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “A recipe for confidence” in chapter 3.
+
+[ ] c03-challenge-03.wav
+The pose-off
+SAY: What if I turn fabulous?
+DELIVERY: A little worried, mostly intrigued.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c03-rescue-04.wav
+The secret ingredient
+SAY: Can your potion help our team?
+DELIVERY: Excited curiosity.
+PLAYS: Defeat Ultimate Shadow Mummy.
+
+[ ] c04-message-04.wav
+The smallest teammate
+SAY: Everybody still here? Let's clear those pillow patrols.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “The spectacular entrance” in chapter 4.
+
+[ ] c04-mission-04-02.wav
+One very squishy door
+SAY: The throne room's open. We're coming, Leah!
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “One very squishy door” in chapter 4.
+
+[ ] c04-challenge-04.wav
+Mind the splat
+SAY: Rescue team ready!
+DELIVERY: Upbeat determination.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c04-rescue-05.wav
+The unstoppable duo
+SAY: Definitely bringing you two on our team.
+DELIVERY: Laughing, with affection.
+PLAYS: Defeat Ultimate Shadow Leah and Ayla.
+
+[ ] c05-arrival-02.wav
+One player missing
+SAY: Daddy! We're here for the comeback.
+DELIVERY: Calling with a grin.
+PLAYS: Enter the Stadium of Champions before Daddy is rescued.
+
+[ ] c05-message-02.wav
+The perfect pass
+SAY: Then let's get our whole team home.
+DELIVERY: Steady determination.
+PLAYS: Complete “Nothing but net” in chapter 5.
+
+[ ] c05-message-04.wav
+The perfect pass
+SAY: The sprint gates are open. Quick feet ready!
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “Nothing but net” in chapter 5.
+
+[ ] c05-mission-04-02.wav
+Extra time
+SAY: One more shadow. One more rescue.
+DELIVERY: A clear, excited plan for the next part.
+PLAYS: Complete “Extra time” in chapter 5.
+
+[ ] c05-rescue-03.wav
+The greatest comeback
+SAY: That's everyone!
+DELIVERY: Relief and excitement.
+PLAYS: Defeat Ultimate Shadow Daddy.
+
+[ ] c06-arrival-06.wav
+The ultimate alliance
+SAY: Team ready. Let's do this together.
+DELIVERY: Confident, including everyone.
+PLAYS: Enter the finale with all five allies rescued.
+
+[ ] c06-home-01.wav
+Everybody came home
+SAY: And one big pop!
+DELIVERY: Joyful release after the winning move.
+PLAYS: Finish the final dash and Form B power pop.
+
+[ ] c06-home-08.wav
+Everybody came home
+SAY: We did it. Together.
+DELIVERY: Let the relief and pride show.
+PLAYS: Finish the final dash and Form B power pop.
+
+[ ] c06-home-11.wav
+Everybody came home
+SAY: Made by our family. For our family.
+DELIVERY: A smile in the voice.
+PLAYS: Finish the final dash and Form B power pop.
+
+[ ] v-hero-b-jump.wav
+Gameplay soundbite
+SAY: Up we go!
+DELIVERY: A small, light effort.
+PLAYS: Occasional jump; shared speech cooldown.
+
+[ ] v-hero-b-switch.wav
+Gameplay soundbite
+SAY: Big leap ready!
+DELIVERY: A cheerful transformation.
+PLAYS: Switch into Form B.
+
+[ ] v-hero-b-power.wav
+Gameplay soundbite
+SAY: Power pop!
+DELIVERY: Playful effort, not a scream.
+PLAYS: Successful Form B ability.
+
+[ ] v-hero-b-hurt.wav
+Gameplay soundbite
+SAY: Oof! I'm okay.
+DELIVERY: Brief surprise, immediately reassuring.
+PLAYS: Take damage; occasional, never layered over story dialogue.
+
+[ ] v-hero-b-star.wav
+Gameplay soundbite
+SAY: Found one!
+DELIVERY: A small discovery.
+PLAYS: Collect a star; shared cooldown limits repetition.
+
+[ ] v-hero-b-checkpoint.wav
+Gameplay soundbite
+SAY: A little rest. Then we keep going.
+DELIVERY: A relieved breath.
+PLAYS: Reach a rest stone.
+
+[ ] v-hero-b-retry.wav
+Gameplay soundbite
+SAY: Nearly! Let's try that again.
+DELIVERY: Encouraging, no shame or frustration.
+PLAYS: Defeat screen.
+
+
+================================================================
+GRANDAD — 11 cues
+Grandad, or a willing stand-in
+Practical and reassuring, with a dry little joke.
+
+[ ] c01-arrival-03.wav
+The kingdom that stopped
+SAY: Only a bit. Unjam the engines, then bring my tools!
+DELIVERY: Matter-of-fact, even from inside a cage.
+PLAYS: Enter the Broken Kingdom before Grandad is rescued.
+
+[ ] c01-message-01.wav
+One little piece
+SAY: Big repairs start with one little piece.
+DELIVERY: A familiar bit of advice.
+PLAYS: Complete “Wake the clockwork bridge” in chapter 1.
+
+[ ] c01-challenge-02.wav
+The borrowed judo
+SAY: That shadow's borrowed my judo! Watch for the charge.
+DELIVERY: Helpful warning, never alarmed.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c01-rescue-02.wav
+Good as new
+SAY: A few loose screws? I can fix that.
+DELIVERY: Proud little chuckle.
+PLAYS: Defeat Ultimate Shadow Grandad.
+
+[ ] c01-rescue-03.wav
+Good as new
+SAY: The kingdom... and my knees!
+DELIVERY: A beat before the punchline.
+PLAYS: Defeat Ultimate Shadow Grandad.
+
+[ ] c01-rescue-05.wav
+Good as new
+SAY: Just call. I'll bring the tools.
+DELIVERY: A reassuring promise.
+PLAYS: Defeat Ultimate Shadow Grandad.
+
+[ ] c01-return-02.wav
+Still ticking
+SAY: Good as new. Well, nearly!
+DELIVERY: A relaxed welcome.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c06-arrival-04.wav
+The ultimate alliance
+SAY: Tools ready.
+DELIVERY: Businesslike.
+PLAYS: Enter the finale with all five allies rescued.
+
+[ ] c06-home-04.wav
+Everybody came home
+SAY: And only two screws left over!
+DELIVERY: A proud little joke.
+PLAYS: Finish the final dash and Form B power pop.
+
+[ ] v-grandad-summon.wav
+Gameplay soundbite
+SAY: Leave this bit to me!
+DELIVERY: Capable and cheery.
+PLAYS: Summon Grandad outside his final contribution.
+
+[ ] v-final-grandad.wav
+Gameplay soundbite
+SAY: Good as new. Your turn, Nana!
+DELIVERY: Satisfied handoff.
+PLAYS: Grandad repairs the final star machine.
+
+
+================================================================
+NANA — 11 cues
+Nana, or a willing stand-in
+Gentle confidence. Kindness is her superpower.
+
+[ ] c02-arrival-03.wav
+Even the bubbles need a bath
+SAY: A little soap. A little kindness. We'll put it right.
+DELIVERY: Calm and comforting.
+PLAYS: Enter the Filthy Forest before Nana is rescued.
+
+[ ] c02-message-01.wav
+A little kindness
+SAY: You don't have to be the biggest to make a difference.
+DELIVERY: Intimate and encouraging.
+PLAYS: Complete “Bring back the stream” in chapter 2.
+
+[ ] c02-challenge-02.wav
+Trouble in the bubbles
+SAY: Mind those bubbles, love. Keep your feet moving.
+DELIVERY: A practical, gentle warning.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c02-rescue-02.wav
+Room for a biscuit
+SAY: There we go. All clean!
+DELIVERY: Satisfied, with a smile.
+PLAYS: Defeat Ultimate Shadow Nana.
+
+[ ] c02-rescue-03.wav
+Room for a biscuit
+SAY: Who wants a biscuit?
+DELIVERY: As if everyone is back in her kitchen.
+PLAYS: Defeat Ultimate Shadow Nana.
+
+[ ] c02-rescue-05.wav
+Room for a biscuit
+SAY: Call me when you need a little kindness.
+DELIVERY: Warm promise.
+PLAYS: Defeat Ultimate Shadow Nana.
+
+[ ] c02-return-02.wav
+A breath of fresh air
+SAY: Lovely to see you, love.
+DELIVERY: A relaxed welcome.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c06-arrival-05.wav
+The ultimate alliance
+SAY: Kindness ready.
+DELIVERY: A warm smile.
+PLAYS: Enter the finale with all five allies rescued.
+
+[ ] c06-home-07.wav
+Everybody came home
+SAY: Come on, everyone. Biscuits are waiting.
+DELIVERY: Home is safe and welcoming.
+PLAYS: Finish the final dash and Form B power pop.
+
+[ ] v-nana-summon.wav
+Gameplay soundbite
+SAY: A little kindness coming through.
+DELIVERY: Gentle confidence.
+PLAYS: Summon Nana outside her final contribution.
+
+[ ] v-final-nana.wav
+Gameplay soundbite
+SAY: Much friendlier. Over to you, Mummy.
+DELIVERY: Warm handoff.
+PLAYS: Nana befriends the final guards.
+
+
+================================================================
+MUMMY — 11 cues
+Mummy, or a willing stand-in
+Playful glamour and warmth; enjoy the dramatic words.
+
+[ ] c03-arrival-03.wav
+A very good reflection
+SAY: Nearly, darling. It needs ingredients. And confidence.
+DELIVERY: A grand little flourish on 'confidence'.
+PLAYS: Enter the Palace of Perfection before Mummy is rescued.
+
+[ ] c03-message-01.wav
+Perfectly yourself
+SAY: You don't need to be perfect. You only need to be you.
+DELIVERY: Drop the theatrical voice for genuine warmth.
+PLAYS: Complete “A recipe for confidence” in chapter 3.
+
+[ ] c03-challenge-02.wav
+The pose-off
+SAY: Three potion surprises. Keep moving until the shadow rests.
+DELIVERY: Clear, helpful coaching.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c03-challenge-04.wav
+The pose-off
+SAY: Then strike a pose. And carry on!
+DELIVERY: A confident laugh.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c03-rescue-02.wav
+The secret ingredient
+SAY: The secret ingredient? Confidence.
+DELIVERY: Give the question room to breathe.
+PLAYS: Defeat Ultimate Shadow Mummy.
+
+[ ] c03-rescue-03.wav
+The secret ingredient
+SAY: And a truly enormous hat.
+DELIVERY: Perfectly serious, which makes it funny.
+PLAYS: Defeat Ultimate Shadow Mummy.
+
+[ ] c03-rescue-05.wav
+The secret ingredient
+SAY: Darling, this team is going to be fabulous.
+DELIVERY: Affectionate and triumphant.
+PLAYS: Defeat Ultimate Shadow Mummy.
+
+[ ] c03-return-02.wav
+Looking fabulous
+SAY: Always room for another fabulous visit.
+DELIVERY: A relaxed welcome.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c06-challenge-02.wav
+Everybody has a part
+SAY: We'll each do our bit. You do yours.
+DELIVERY: Steady encouragement.
+PLAYS: Reach the final arena before its first attack.
+
+[ ] v-mummy-summon.wav
+Gameplay soundbite
+SAY: Time for something fabulous!
+DELIVERY: A theatrical flourish.
+PLAYS: Summon Mummy outside her final contribution.
+
+[ ] v-final-mummy.wav
+Gameplay soundbite
+SAY: Fabulous! Leah, clear us a path.
+DELIVERY: Bright and decisive.
+PLAYS: Mummy makes the final guards pose.
+
+
+================================================================
+LEAH — 10 cues
+Leah, or a willing stand-in
+Cheerful delivery captain, thoroughly used to the chaos.
+
+[ ] c04-arrival-02.wav
+Special delivery
+SAY: Over here! We've got a delivery problem.
+DELIVERY: Calling cheerfully.
+PLAYS: Enter the Fortress of Fury before Leah and Ayla are rescued.
+
+[ ] c04-arrival-04.wav
+Special delivery
+SAY: One catapult. A mountain of laundry. Very little warning.
+DELIVERY: Deadpan, then a smile.
+PLAYS: Enter the Fortress of Fury before Leah and Ayla are rescued.
+
+[ ] c04-message-01.wav
+The smallest teammate
+SAY: Even our smallest teammate has a very big part to play.
+DELIVERY: Proud and affectionate.
+PLAYS: Complete “The spectacular entrance” in chapter 4.
+
+[ ] c04-challenge-02.wav
+Mind the splat
+SAY: Watch for the charge. And the very silly splats.
+DELIVERY: Practical advice, trying not to laugh.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c04-rescue-02.wav
+The unstoppable duo
+SAY: Ayla says thank you.
+DELIVERY: Sweet and sincere.
+PLAYS: Defeat Ultimate Shadow Leah and Ayla.
+
+[ ] c04-rescue-04.wav
+The unstoppable duo
+SAY: Actually... that might be another nappy.
+DELIVERY: Notice the problem halfway through.
+PLAYS: Defeat Ultimate Shadow Leah and Ayla.
+
+[ ] c04-return-02.wav
+Delivery complete
+SAY: The catapult's off duty. Mostly.
+DELIVERY: A relaxed welcome.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c06-home-05.wav
+Everybody came home
+SAY: Has anybody checked the catapult?
+DELIVERY: An innocent question with comic timing.
+PLAYS: Finish the final dash and Form B power pop.
+
+[ ] v-leah-summon.wav
+Gameplay soundbite
+SAY: Special delivery!
+DELIVERY: A cheerful warning.
+PLAYS: Summon Leah and Ayla outside their final contribution.
+
+[ ] v-final-leah.wav
+Gameplay soundbite
+SAY: Mind the splat! Daddy, you're up.
+DELIVERY: Laughing through the handoff.
+PLAYS: Leah and Ayla clear the final barricade.
+
+
+================================================================
+AYLA — 3 cues
+Optional happy giggle or an adult's playful substitute
+Nonverbal only. A comfortable little giggle is enough; this role can stay silent.
+
+[ ] c04-message-02.wav
+The smallest teammate
+SAY: [Happy giggle]
+DELIVERY: A short, comfortable giggle. Do not read the brackets.
+PLAYS: Complete “The spectacular entrance” in chapter 4.
+
+[ ] c04-rescue-03.wav
+The unstoppable duo
+SAY: [Delighted giggle]
+DELIVERY: A second little giggle; optional.
+PLAYS: Defeat Ultimate Shadow Leah and Ayla.
+
+[ ] c06-home-06.wav
+Everybody came home
+SAY: [Happy little laugh]
+DELIVERY: One relaxed laugh, or leave this cue silent.
+PLAYS: Finish the final dash and Form B power pop.
+
+
+================================================================
+DADDY — 10 cues
+Dad
+An encouraging football coach. Celebrate without shouting into the mic.
+
+[ ] c05-arrival-03.wav
+One player missing
+SAY: That's my team! Find the balls and warm up those feet.
+DELIVERY: Encouraging coach.
+PLAYS: Enter the Stadium of Champions before Daddy is rescued.
+
+[ ] c05-message-01.wav
+The perfect pass
+SAY: The best player is the one who helps the whole team.
+DELIVERY: Sincere encouragement.
+PLAYS: Complete “Nothing but net” in chapter 5.
+
+[ ] c05-challenge-02.wav
+Extra time
+SAY: Watch the bouncing balls. Step out of the power shot.
+DELIVERY: Clear coach's instructions.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c05-challenge-04.wav
+Extra time
+SAY: Lovely thinking. Now bring it home!
+DELIVERY: Proud encouragement.
+PLAYS: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+
+[ ] c05-rescue-02.wav
+The greatest comeback
+SAY: Goooal! Who's ready for extra time?
+DELIVERY: Joyful, without clipping the microphone.
+PLAYS: Defeat Ultimate Shadow Daddy.
+
+[ ] c05-rescue-04.wav
+The greatest comeback
+SAY: One more challenge. This time, we go together.
+DELIVERY: Calm confidence.
+PLAYS: Defeat Ultimate Shadow Daddy.
+
+[ ] c05-return-02.wav
+A friendly kickabout
+SAY: There's always a place for you on this team.
+DELIVERY: A relaxed welcome.
+PLAYS: Revisit this world after its family rescue.
+
+[ ] c06-challenge-03.wav
+Everybody has a part
+SAY: Repair, kindness, glamour, delivery... then the perfect shot.
+DELIVERY: A clear, rhythmic team plan.
+PLAYS: Reach the final arena before its first attack.
+
+[ ] v-daddy-summon.wav
+Gameplay soundbite
+SAY: I've got the pass!
+DELIVERY: A helpful teammate.
+PLAYS: Summon Daddy outside his final contribution.
+
+[ ] v-final-daddy.wav
+Gameplay soundbite
+SAY: Perfect pass. This one's yours, hero!
+DELIVERY: Proud coach handing over the finish.
+PLAYS: Daddy hits the final target.
+
+
+================================================================
+BIG BOSS — 3 cues
+Dad or either child, using a silly theatrical voice
+A comical pantomime rival, never frightening. No fixed name or backstory yet.
+
+[ ] c06-arrival-02.wav
+The ultimate alliance
+SAY: You brought the whole family?
+DELIVERY: Comically taken aback.
+PLAYS: Enter the finale with all five allies rescued.
+
+[ ] c06-challenge-01.wav
+Everybody has a part
+SAY: Not so fast, little hero!
+DELIVERY: Silly pantomime challenge.
+PLAYS: Reach the final arena before its first attack.
+
+[ ] c06-home-02.wav
+Everybody came home
+SAY: Oh. That's rather a lot of teamwork.
+DELIVERY: Good-natured defeat, slightly breathless.
+PLAYS: Finish the final dash and Form B power pop.
+
+
+SCENE PLAN
+
+c00-awakening | A little spark
+TRIGGER: Enter the Origin for a new visit.
+DIRECTION: Glide over the glade. Reveal the first drawing, then the other form of the same hero in a shimmer of light.
+
+c00-departure | Through the little doorway
+TRIGGER: Complete the Origin lessons and enter its portal.
+DIRECTION: Reveal the lit portal. The hero looks towards the five worlds, then takes a hopeful bow towards the doorway.
+
+c01-arrival | The kingdom that stopped
+TRIGGER: Enter the Broken Kingdom before Grandad is rescued.
+DIRECTION: Survey the quiet machinery. Frame Grandad behind the glowing cage, then the hero beside a fallen cog.
+
+c01-mission-01 | Unjam the foundry
+TRIGGER: Complete “Unjam the foundry” in chapter 1.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c01-message | One little piece
+TRIGGER: Complete “Wake the clockwork bridge” in chapter 1.
+DIRECTION: Pause at the completed mission for a remembered family message, then reveal the way ahead.
+
+c01-mission-03 | The runaway tool trolley
+TRIGGER: Complete “The runaway tool trolley” in chapter 1.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c01-challenge | The borrowed judo
+TRIGGER: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+DIRECTION: Reveal Ultimate Shadow Grandad. Cut to the real Grandad, then back to the hero preparing to dodge.
+
+c01-rescue | Good as new
+TRIGGER: Defeat Ultimate Shadow Grandad.
+DIRECTION: The cage vanishes. Grandad joins the hero; the shadow army dissolves. Finish on a happy two-shot.
+
+c01-return | Still ticking
+TRIGGER: Revisit this world after its family rescue.
+DIRECTION: A peaceful wide shot, then the rescued ally welcoming the hero back.
+
+c02-arrival | Even the bubbles need a bath
+TRIGGER: Enter the Filthy Forest before Nana is rescued.
+DIRECTION: Drift over the brook and slime. The hero inspects the mess; Nana waves from the far bank.
+
+c02-mission-01 | Mend the woodland pumps
+TRIGGER: Complete “Mend the woodland pumps” in chapter 2.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c02-message | A little kindness
+TRIGGER: Complete “Bring back the stream” in chapter 2.
+DIRECTION: Pause at the completed mission for a remembered family message, then reveal the way ahead.
+
+c02-mission-03 | Guide the lost woodland light
+TRIGGER: Complete “Guide the lost woodland light” in chapter 2.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c02-challenge | Trouble in the bubbles
+TRIGGER: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+DIRECTION: Frame the shadow above the slippery brook, then give the hero room in the shot to prepare.
+
+c02-rescue | Room for a biscuit
+TRIGGER: Defeat Ultimate Shadow Nana.
+DIRECTION: Nana steps out of the broken cage. Let the forest glow and hold on the family reunion.
+
+c02-return | A breath of fresh air
+TRIGGER: Revisit this world after its family rescue.
+DIRECTION: A peaceful wide shot, then the rescued ally welcoming the hero back.
+
+c03-arrival | A very good reflection
+TRIGGER: Enter the Palace of Perfection before Mummy is rescued.
+DIRECTION: Sweep past mirror crystals. Reveal Mummy and her potion; the hero admires the palace for one beat.
+
+c03-mission-01 | The wrong reflections
+TRIGGER: Complete “The wrong reflections” in chapter 3.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c03-message | Perfectly yourself
+TRIGGER: Complete “A recipe for confidence” in chapter 3.
+DIRECTION: Pause at the completed mission for a remembered family message, then reveal the way ahead.
+
+c03-mission-03 | The guards need a little kindness
+TRIGGER: Complete “The guards need a little kindness” in chapter 3.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c03-challenge | The pose-off
+TRIGGER: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+DIRECTION: Reveal the Ultimate Shadow and its potion. Cut between the real Mummy and the hero.
+
+c03-rescue | The secret ingredient
+TRIGGER: Defeat Ultimate Shadow Mummy.
+DIRECTION: The cage breaks into warm sparkles. Mummy gives a theatrical bow beside the hero.
+
+c03-return | Looking fabulous
+TRIGGER: Revisit this world after its family rescue.
+DIRECTION: A peaceful wide shot, then the rescued ally welcoming the hero back.
+
+c04-arrival | Special delivery
+TRIGGER: Enter the Fortress of Fury before Leah and Ayla are rescued.
+DIRECTION: Glide over the soft-parcel fort. Reveal Leah with Ayla, then the hero giving the catapult a cautious look.
+
+c04-mission-01 | A glamorous distraction
+TRIGGER: Complete “A glamorous distraction” in chapter 4.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c04-message | The smallest teammate
+TRIGGER: Complete “The spectacular entrance” in chapter 4.
+DIRECTION: Pause at the completed mission for a remembered family message, then reveal the way ahead.
+
+c04-mission-03 | The pillow patrol
+TRIGGER: Complete “The pillow patrol” in chapter 4.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c04-mission-04 | One very squishy door
+TRIGGER: Complete “One very squishy door” in chapter 4.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c04-challenge | Mind the splat
+TRIGGER: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+DIRECTION: Reveal the shadow's charge lane. The hero takes a comic step back as Leah offers advice.
+
+c04-rescue | The unstoppable duo
+TRIGGER: Defeat Ultimate Shadow Leah and Ayla.
+DIRECTION: Open the cage. Leah and Ayla join the hero, followed by a harmless burst of colourful confetti.
+
+c04-return | Delivery complete
+TRIGGER: Revisit this world after its family rescue.
+DIRECTION: A peaceful wide shot, then the rescued ally welcoming the hero back.
+
+c05-arrival | One player missing
+TRIGGER: Enter the Stadium of Champions before Daddy is rescued.
+DIRECTION: Sweep across the pitch and goal. Reveal Daddy, then the hero looking towards the match balls.
+
+c05-mission-01 | The impossible warm-up
+TRIGGER: Complete “The impossible warm-up” in chapter 5.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c05-message | The perfect pass
+TRIGGER: Complete “Nothing but net” in chapter 5.
+DIRECTION: Pause at the completed mission for a remembered family message, then reveal the way ahead.
+
+c05-mission-03 | Race down the wing
+TRIGGER: Complete “Race down the wing” in chapter 5.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c05-mission-04 | Extra time
+TRIGGER: Complete “Extra time” in chapter 5.
+DIRECTION: Hold on the completed mission's location, then frame the hero planning the next step.
+
+c05-challenge | Extra time
+TRIGGER: Complete “Face the Ultimate Shadow” at the shadow arena entrance.
+DIRECTION: Frame the shadow with the goal behind it. The hero watches the line of the coming shot.
+
+c05-rescue | The greatest comeback
+TRIGGER: Defeat Ultimate Shadow Daddy.
+DIRECTION: Daddy steps out of the cage. Frame the reunion, then pull wide for the fully reunited team milestone.
+
+c05-return | A friendly kickabout
+TRIGGER: Revisit this world after its family rescue.
+DIRECTION: A peaceful wide shot, then the rescued ally welcoming the hero back.
+
+c06-arrival | The ultimate alliance
+TRIGGER: Enter the finale with all five allies rescued.
+DIRECTION: Reveal the family assembled around the star machine. Introduce the Big Boss at the far end, with the hero in the foreground.
+
+c06-challenge | Everybody has a part
+TRIGGER: Reach the final arena before its first attack.
+DIRECTION: Cut along the assembled allies and finish on the hero facing the Big Boss. The real battle starts after this scene.
+
+c06-home | Everybody came home
+TRIGGER: Finish the final dash and Form B power pop.
+DIRECTION: The final shadow disappears. Reunite the family in a semicircle, reveal each speaker, then pull wide for the studio sign-off.

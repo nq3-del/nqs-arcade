@@ -1,0 +1,35 @@
+{
+  "name": "shadow-puppet-uprising",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "recordings": "node scripts/build-recording-pack.mjs",
+    "predev": "node scripts/build-recording-pack.mjs",
+    "prebuild": "node scripts/build-recording-pack.mjs",
+    "test:voice": "node --test tests/voice.test.js",
+    "test:cinematics": "node tests/cinematics.mjs",
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/progress.test.js tests/chaos.test.js tests/powers.test.js tests/controllers.test.js tests/mayhem.test.js tests/glamour.test.js",
+    "test:browser": "node tests/campaign.mjs",
+    "test:coop": "node tests/coop.mjs",
+    "test:visual": "node tests/visual-audit.mjs",
+    "test:navigation": "node tests/navigation.mjs",
+    "test:production": "node tests/production.mjs",
+    "test:arcade": "node tests/arcade.mjs",
+    "test:controller-browser": "node tests/controllers-browser.mjs",
+    "test:mayhem-browser": "node tests/mayhem-browser.mjs",
+    "test:glamour-browser": "node tests/glamour-browser.mjs",
+    "test:controller-menus": "node tests/controller-menus.mjs"
+  },
+  "dependencies": {
+    "phaser": "3.90.0",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "vite": "7.3.7"
+  }
+}

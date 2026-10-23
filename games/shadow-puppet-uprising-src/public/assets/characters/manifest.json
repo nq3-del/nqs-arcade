@@ -1,0 +1,30 @@
+{
+  "workflow": "Built-in image_gen background-extraction; originals retained unchanged",
+  "confirmedRoles": "User confirmed both sketches are the hero's two switchable forms.",
+  "assets": [
+    {
+      "form": "A",
+      "legEdit": {"tool":"Built-in image_gen", "original":"sketch-4840-cutout-original.png", "prompt":"Remove the white and red central lower panel between the two green legs, including its extension beneath them. Preserve the green legs, outside white/red striped flaps, head, arms, held object, marker texture and all other design details. Leave the leg gap truly transparent."},
+      "source": "../IMG_4840.JPG",
+      "cutout": "sketch-4840-cutout.png",
+      "width": 1177,
+      "height": 1337,
+      "alphaVerified": true,
+      "prompt": "Faithful transparent PNG cutout of the complete central hand-drawn character. Remove photographed paper, exterior annotations and separate cloud. Preserve original irregular outlines, asymmetric eyes, head, arms, gray held object, green side shapes, red trim and lower body. Preserve opaque white interiors, original marker texture and proportions. No invented features. Genuine alpha transparency."
+    },
+    {
+      "form": "B",
+      "source": "../IMG_4841.JPG",
+      "cutout": "sketch-4841-cutout.png",
+      "width": 1293,
+      "height": 1216,
+      "alphaVerified": true,
+      "prompt": "Faithful transparent PNG cutout of the central hand-drawn character. Remove paper, binding, room, separate flower/cloud, loose marks and divider outside the body. Preserve three curved colored head stalks, yellow/gray split face, eyes, smile, white coat, pocket, red patches, left arm and three right arms. Keep white coat opaque and gaps transparent. Preserve marker texture, contour and proportions. Genuine alpha transparency.",
+      "colorEdit": {
+        "tool": "Built-in image_gen",
+        "original": "sketch-4841-cutout-original.png",
+        "prompt": "Change only the red/magenta body patches and three arm cuffs to green matching the green head stalk. Preserve the head and face colours, exact drawing, marker texture, opaque white interiors and true alpha background."
+      }
+    }
+  ]
+}

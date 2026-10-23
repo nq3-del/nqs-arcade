@@ -1,0 +1,6 @@
+import { chromium } from '@playwright/test';
+const browser=await chromium.launch({headless:true,executablePath:'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});const page=await browser.newPage();page.on('pageerror',e=>console.log(e.stack));
+await page.goto('http://127.0.0.1:5173/?qa');await page.getByRole('button',{name:'Let’s play'}).click();await page.locator('[data-cinema="skip"]').click();await page.waitForTimeout(500);
+await page.evaluate(()=>{window.keyLog=[];addEventListener('keydown',e=>keyLog.push([e.key,e.code,e.keyCode]));});
+const state=()=>page.evaluate(()=>{const q=window.__gameQA,s=q.scene;return {mode:q.services.ui.mode,active:s.scene.isActive(),paused:s.scene.isPaused(),cinema:!!s.cinematic,time:s.time.now,worldElapsed:s.view.elapsed,keyboardEnabled:s.input.keyboard.enabled,inputEnabled:s.input.enabled,keys:s.keys&&{q:s.keys.q.isDown,down:s.keys.q._justDown},form:s.player.form,log:window.keyLog,focus:document.activeElement.tagName};});
+console.log('BEFORE',await state());await page.keyboard.down('q');await page.waitForTimeout(1200);console.log('HELD',await state());await page.keyboard.up('q');await page.waitForTimeout(500);console.log('AFTER',await state());await page.screenshot({path:'test-results/input-debug.png'});await browser.close();

@@ -1,0 +1,39 @@
+.directed-cinema { pointer-events: auto; background: linear-gradient(0deg, #0d1b20ed 5%, #0d1b2066 35%, transparent 61%, #101b2855); }
+.directed-cinema .cinema-top { z-index: 1; top: 8.5%; }
+.cinema-tools { display: flex; gap: 8px; }
+.directed-cinema .cinema-chapter { top: 17%; left: 6%; pointer-events: none; }
+.directed-cinema .cinema-chapter h2 { font-size: clamp(23px, 3vw, 44px); max-width: 720px; }
+.directed-cinema .cinema-caption { bottom: 9%; left: 12%; right: 12%; }
+.cinema-speaker { color: var(--speaker-color, #efd2a1); font-size: 12px; font-weight: 700; letter-spacing: 1.4px; }
+.cinema-speaker i { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 10px; background: currentColor; }
+.directed-cinema .cinema-caption p { font-size: clamp(18px, 2.05vw, 29px); margin: 10px auto 15px; line-height: 1.4; max-width: 900px; }
+.cinema-navigation { display: flex; align-items: center; justify-content: center; gap: 12px; }
+.directed-cinema .cinema-navigation .cinema-minor { color: #f2e7d4; border: 1px solid #ffffff42; background: #0b202b55; border-radius: 50%; width: 36px; height: 36px; padding: 0; font-size: 18px; }
+.directed-cinema button:disabled { opacity: 0.28; cursor: default; }
+.directed-cinema button:focus-visible { outline: 3px solid #ffdb91; outline-offset: 4px; }
+.directed-cinema .cinema-page { margin: 0 8px; letter-spacing: 2px; }
+.cinema-timeline { width: 110px; height: 2px; margin: 14px auto 0; overflow: hidden; background: #ffffff26; }
+.cinema-timeline i { display: block; height: 100%; background: var(--speaker-color); transform-origin: left; transform: scaleX(0); }
+#game-shell:has(.directed-cinema.active) .world-waypoint, #game-shell:has(.directed-cinema.active) .quest-number { visibility: hidden; }
+@media (max-width: 650px) {
+  .directed-cinema .cinema-top { left: 4%; right: 4%; }
+  .directed-cinema .cinema-top > span { display: none; }
+  .cinema-tools { margin-left: auto; }
+  .directed-cinema .cinema-chapter { top: 18%; left: 6%; right: 6%; }
+  .directed-cinema .cinema-chapter > span { font-size: 8px; letter-spacing: 2px; }
+  .directed-cinema .cinema-caption { left: 6%; right: 6%; bottom: 10%; }
+  .directed-cinema .cinema-caption p { font-size: 19px; }
+  .directed-cinema .cinema-caption button { padding: 9px 16px; }
+  .directed-cinema .cinema-caption button small { display: none; }
+  .directed-cinema .cinema-page { margin: 0; font-size: 9px; }
+  .cinema-navigation { gap: 8px; }
+}
+@media (max-height: 500px) and (orientation: landscape) {
+  .directed-cinema .cinema-chapter { top: 17%; }
+  .directed-cinema .cinema-chapter h2 { font-size: 24px; margin: 5px 0; }
+  .directed-cinema .cinema-caption p { font-size: 17px; margin: 5px auto 8px; }
+  .directed-cinema .cinema-caption { bottom: 8%; }
+  .cinema-timeline { display: none; }
+}
+.reduced-motion .directed-cinema, .reduced-motion .directed-cinema * { animation: none !important; transition: none !important; }
+@media (prefers-reduced-motion: reduce) { .directed-cinema, .directed-cinema * { animation: none !important; transition: none !important; } }
