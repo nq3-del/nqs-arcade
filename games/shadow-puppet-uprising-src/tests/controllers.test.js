@@ -4,6 +4,28 @@ import { Controllers } from '../src/systems/Controllers.js';
 import { DEFAULT_BINDINGS, bindingConflicts, normalizeBindings, controllerHelp } from '../src/systems/ControllerBindings.js';
 import { Progress, SAVE_KEY } from '../src/systems/Progress.js';
 
+test('phone slot selection coexists with physical pads and ignores physical remapping', t => {
+  const { controls, pads, progress } = fixture(t);
+  pads.splice(1);
+  const phone = { index: 'phone-1', slot: 1, remote: true, axes: [1, 0], buttons: Array.from({ length: 17 }, (_, i) => ({ pressed: i === 0 })) };
+  controls.services.phoneControllers = { getPads: () => [phone] };
+  progress.data.settings.controllerBindings.space = '2';
+  progress.data.settings.controllerBindings.j = '0';
+  pads[0].buttons[2].pressed = true;
+  controls.poll();
+  assert.equal(controls.down(0, 'space'), true);
+  assert.equal(controls.down(1, 'space'), true);
+  assert.equal(controls.down(1, 'right'), true);
+  assert.equal(controls.down(0, 'right'), false);
+  phone.slot = 0; controls.poll();
+  assert.equal(controls.down(0, 'right'), true);
+  assert.equal(controls.down(1, 'right'), false);
+  controls.services.phoneControllers.getPads = () => [];
+  controls.poll();
+  assert.equal(controls.down(1, 'space'), false);
+  assert.equal(controls.down(0, 'space'), true);
+});
+
 function fixture(t, mode = 'game') {
   const oldNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
   const oldDocument = Object.getOwnPropertyDescriptor(globalThis, 'document');

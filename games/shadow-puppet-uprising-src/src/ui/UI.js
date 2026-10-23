@@ -177,10 +177,11 @@ export class UI {
         },
         help: () => this.help(),
         settings: () => this.settings(),
+        phone: () => this.services.phoneControllers.open(),
       },
     );
     this.root.querySelector('.menu-footnote').textContent='ABOUT 30 MINUTES · AGES 6+ · KEYBOARD / CONTROLLER · SAVES AUTOMATICALLY';
-    this.root.querySelector('.menu-footnote').insertAdjacentHTML('beforebegin',button('1 / 2 players & settings','settings','text-button'));
+    this.root.querySelector('.menu-footnote').insertAdjacentHTML('beforebegin', `<div class="menu-play-options" aria-label="Play options">${button('Players & settings','settings','text-button')}<span class="menu-option-divider" aria-hidden="true"></span><button id="phone-controller-button" class="text-button" data-action="phone"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M10 18h4"/></svg>Use your phone</button></div>`);
     this.root.querySelector('.hero-tag span').textContent='Drawn by our two creative directors.';
     if (this.progress.data.origin) {
       this.root.querySelector('.button-row').insertAdjacentHTML('beforeend',button('Replay a level','replay','secondary'));
@@ -620,6 +621,7 @@ export class UI {
         reset: () => this.confirmReset(),
         fullscreen: () => this.toggleFullscreen(),
         controller: () => this.controllerRemapping(),
+        phone: () => this.services.phoneControllers.open(),
       },
     );
     this.root.querySelector(".dialog h1").insertAdjacentHTML(
@@ -634,6 +636,7 @@ export class UI {
         "beforebegin",
         '<label class="setting-row"><span>Players (next level / retry)</span><select id="setting-players"><option value="1">One player</option><option value="2">Two players - local co-op</option></select></label><small>First connected controller: P1. Second controller: P2. Shared keyboard also works. Default buttons: × jump, □ attack, ○ special ability, △ form / Goku fly down / sports shot, L2 next ally, R2 summon, R3 interact, L3 + R3 Super, Options pause. See Controls for character buttons.</small>',
       );
+    this.root.querySelector('[data-action="controller"]').closest('.setting-row').insertAdjacentHTML('afterend', '<div class="setting-row"><span>Phone or tablet</span><button class="secondary" data-action="phone">Pair phone controller</button></div>');
     this.root.querySelector("#setting-players").value = String(d.players || 1);
     this.root.querySelector('#setting-players').closest('label').insertAdjacentHTML('afterend', `<label class="setting-row"><span>Player vs player damage (multiplayer)</span><input id="setting-pvp" type="checkbox" ${d.pvp !== false ? 'checked' : ''}></label><small>Players respawn after 3 seconds. Player attacks ignore invincibility; enemy attacks still respect it. Turn PvP off to stop friendly fire.</small><p style="white-space:pre-line">${TWO_PLAYER_CONTROLS}</p>`);
   }

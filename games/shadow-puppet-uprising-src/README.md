@@ -49,6 +49,18 @@ The optional family recording pack is at `http://127.0.0.1:5173/recording-script
 
 ## Controls
 
+### Phone and tablet controllers
+
+Start with **RUN-GAME.cmd** (restart it if the game was already running), or `npm run dev`. On the computer, select **Use your phone** below the main menu’s play buttons, or **Settings → Pair phone controller**. Choose Player 1 or Player 2, then scan the QR code using a phone/tablet on the same home Wi-Fi. The controller opens in its browser; no app or account is needed. Close the pairing panel on the computer and resume play.
+
+The phone has a thumbstick, action buttons, character shortcuts and menu controls. Jump selects in menus; Power goes back; Pause pauses/resumes. For two phones, scan once for each player. For a phone and physical controller, the phone uses the chosen slot and the physical controller takes the remaining slot. Enable **Two players** in Settings before entering/retrying a world. Phone button labels stay fixed even if physical controller buttons are remapped.
+
+If pairing fails, try another computer address in the pairing panel, avoid guest Wi-Fi/VPN isolation, and allow Node.js on the Windows **private** network when prompted. Keep the phone screen awake: local HTTP does not always support automatic screen wake locks. Closing/locking the phone releases input; a detected disconnect pauses the game, and a missed heartbeat releases held controls within 800 ms. Return to the controller and reconnect, or scan again if the game tab was refreshed.
+
+The local WebSocket pairing service runs with both `npm run dev` and `npm run preview`. `npm run build` includes the controller page, but serving `dist/` alone on a static host does **not** provide pairing. This version is for home-network play, with the computer running the game (optionally connected to a TV). No cloud service is required.
+
+Checks: `npm run test:phone` tests room isolation, validation and disconnects. `npm run test:phone-browser` exercises real browser pairing/input against a running dev server.
+
 See [CONTROLS.md](CONTROLS.md) for the children’s guide. Click **Full screen** in the toolbar or Settings to expand the game. **Exit full screen** or Escape returns to the window.
 
 | Key | Action |

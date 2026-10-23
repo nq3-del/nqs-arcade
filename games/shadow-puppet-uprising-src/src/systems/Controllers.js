@@ -13,10 +13,13 @@ export class Controllers {
   }
   poll() {
     const ui = this.services.ui;
+    if (this.services.phoneControllers?.dialog?.open) { this.clear(); return; }
     const inGame = ui.mode === 'game';
     const cinematic = inGame && !!ui.scene?.cinematic;
     const navigating = !inGame || cinematic;
     const pads = Array.from(navigator.getGamepads?.() || []).filter(Boolean);
+    const phones = this.services.phoneControllers?.getPads() || [];
+    pads.push(...phones);
     for (const index of this.connectionOrder.keys()) {
       if (!pads.some(p => p.index === index)) {
         this.connectionOrder.delete(index);
@@ -32,8 +35,15 @@ export class Controllers {
     this.connected = pads.length;
     this.slots = [{}, {}];
     this.edges = [{}, {}];
-    const bindings = this.services.progress?.data.settings.controllerBindings || DEFAULT_BINDINGS;
-    pads.slice(0, 2).forEach((pad, slot) => {
+    const assigned = [null, null];
+    phones.forEach(pad => { assigned[pad.slot] = pad; });
+    for (const pad of pads.filter(p => !p.remote)) {
+      const slot = assigned.indexOf(null);
+      if (slot >= 0) assigned[slot] = pad;
+    }
+    assigned.forEach((pad, slot) => {
+      if (!pad) return;
+      const bindings = pad.remote ? DEFAULT_BINDINGS : this.services.progress?.data.settings.controllerBindings || DEFAULT_BINDINGS;
       const prior = this.previous.get(pad.index) || {};
       const gesture = this.gestures.get(pad.index) || { suppressed: new Set(), mode: ui.mode };
       gesture.buttons = pad.buttons.map(b => !!b?.pressed);

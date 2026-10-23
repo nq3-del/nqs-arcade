@@ -9,24 +9,28 @@
     "prebuild": "node scripts/build-recording-pack.mjs",
     "test:voice": "node --test tests/voice.test.js",
     "test:cinematics": "node tests/cinematics.mjs",
-    "dev": "vite --host 127.0.0.1",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview --host 127.0.0.1",
+    "preview": "vite preview --host 0.0.0.0",
+    "test:phone": "node --test tests/phone-server.test.mjs",
+    "test:phone-browser": "node tests/phone-browser.mjs",
     "test": "node --test tests/progress.test.js tests/chaos.test.js tests/powers.test.js tests/controllers.test.js tests/mayhem.test.js tests/glamour.test.js",
     "test:browser": "node tests/campaign.mjs",
     "test:coop": "node tests/coop.mjs",
     "test:visual": "node tests/visual-audit.mjs",
     "test:navigation": "node tests/navigation.mjs",
     "test:production": "node tests/production.mjs",
-    "test:arcade": "node tests/arcade.mjs",
     "test:controller-browser": "node tests/controllers-browser.mjs",
     "test:mayhem-browser": "node tests/mayhem-browser.mjs",
     "test:glamour-browser": "node tests/glamour-browser.mjs",
-    "test:controller-menus": "node tests/controller-menus.mjs"
+    "test:controller-menus": "node tests/controller-menus.mjs",
+    "test:arcade": "node tests/arcade.mjs"
   },
   "dependencies": {
     "phaser": "3.90.0",
-    "three": "0.180.0"
+    "qrcode": "^1.5.4",
+    "three": "0.180.0",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@playwright/test": "1.56.1",

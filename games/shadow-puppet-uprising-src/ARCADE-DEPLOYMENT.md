@@ -18,6 +18,11 @@ Arcade site is hosted at https://nqs-arcade.vercel.app; production publication
 requires pushing to its connected GitHub branch and a successful Vercel deploy.
 No new hosting service or account is needed.
 
+The phone/tablet controller interface is included in the build. Pairing currently
+requires the local WebSocket service provided by `npm run dev` or `npm run preview`.
+Static Vercel hosting does not run that service, so phone pairing is available
+only when running the game locally. Online pairing needs a separately hosted relay.
+
 For the production browser smoke test, serve the repository root on port 4173
 and run from this source directory:
 

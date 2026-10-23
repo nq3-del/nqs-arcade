@@ -1008,3 +1008,11 @@ kbd {
 #hud.mayhem-hud #tutorial { top: 155px; font-size: 12px; }
 
 #ui:has(.squidward-reward-dialog) { z-index: 13; }
+
+/* Secondary setup choices sit together below the main play actions. */
+.menu-play-options{display:flex;align-items:center;flex-wrap:wrap;gap:4px 16px;margin:14px 0 0;width:fit-content;max-width:100%}
+.menu-play-options .text-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 0;min-height:40px;font-size:12px;letter-spacing:0;color:#d4dfd6;text-decoration:none}
+.menu-play-options .text-button:hover{color:#ffe0a0}
+.menu-play-options svg{flex:none;opacity:.85}
+.menu-option-divider{height:16px;width:1px;background:#d4dfd633}
+@media(max-width:420px){.menu-play-options{gap:4px 10px}.menu-play-options .text-button{font-size:11px}}

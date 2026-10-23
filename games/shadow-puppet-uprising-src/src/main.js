@@ -4,6 +4,7 @@ import "./diorama/presentation.css";
 import { Progress } from "./systems/Progress.js";
 import { AudioSystem } from "./systems/Audio.js";
 import { Controllers } from "./systems/Controllers.js";
+import { PhoneControllers } from "./systems/PhoneControllers.js";
 import { UI } from "./ui/UI.js";
 import { DioramaMenu, DioramaScene } from "./diorama/DioramaScene.js";
 import { PHYSICS } from "./data/config.js";
@@ -12,6 +13,7 @@ const progress = new Progress();
 const services = { progress, audio: new AudioSystem(progress) };
 services.ui = new UI(services);
 services.controls = new Controllers(services);
+services.phoneControllers = new PhoneControllers(services);
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: "game",
